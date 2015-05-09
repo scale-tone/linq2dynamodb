@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DynamoDb.DataContext.DotNet4.0", "Linq2DynamoDb.DataContext\Linq2DynamoDb.DataContext.DotNet4.0.csproj", "{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DynamoDb.AspNet.DataSource.DotNet4.0", "Linq2DynamoDb.AspNet.DataSource\Linq2DynamoDb.AspNet.DataSource.DotNet4.0.csproj", "{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

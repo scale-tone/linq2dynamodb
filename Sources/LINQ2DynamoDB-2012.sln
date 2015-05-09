@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DynamoDb.DataContext", "Linq2DynamoDb.DataContext\Linq2DynamoDb.DataContext.csproj", "{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DynamoDb.AspNet.DataSource", "Linq2DynamoDb.AspNet.DataSource\Linq2DynamoDb.AspNet.DataSource.csproj", "{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DynamoDb.DataContext.Tests", "Linq2DynamoDb.DataContext.Tests\Linq2DynamoDb.DataContext.Tests.csproj", "{3B5995A2-1D42-4F5D-BDDA-63648A7AECAA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FA6E1462-BC58-4778-BC4D-4ECFF877E151}"
+	ProjectSection(SolutionItems) = preProject
+		nuget.exe = nuget.exe
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs20
+		SccProjectUniqueName0 = Linq2DynamoDb.DataContext\\Linq2DynamoDb.DataContext.csproj
+		SccProjectName0 = Linq2DynamoDb.DataContext
+		SccAuxPath0 = https://tfs.codeplex.com/tfs/tfs20
+		SccLocalPath0 = Linq2DynamoDb.DataContext
+		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName1 = Linq2DynamoDb.AspNet.DataSource\\Linq2DynamoDb.AspNet.DataSource.csproj
+		SccProjectName1 = Linq2DynamoDb.AspNet.DataSource
+		SccAuxPath1 = https://tfs.codeplex.com/tfs/tfs20
+		SccLocalPath1 = Linq2DynamoDb.AspNet.DataSource
+		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName2 = Linq2DynamoDb.DataContext.Tests\\Linq2DynamoDb.DataContext.Tests.csproj
+		SccProjectName2 = Linq2DynamoDb.DataContext.Tests
+		SccAuxPath2 = https://tfs.codeplex.com/tfs/tfs20
+		SccLocalPath2 = Linq2DynamoDb.DataContext.Tests
+		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64694925-A58D-45B0-9C9F-C6DC7B9E07A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B5995A2-1D42-4F5D-BDDA-63648A7AECAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B5995A2-1D42-4F5D-BDDA-63648A7AECAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B5995A2-1D42-4F5D-BDDA-63648A7AECAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B5995A2-1D42-4F5D-BDDA-63648A7AECAA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access">
+  <Class Name="Linq2DynamoDb.DataContext.DataContext">
+    <Position X="1" Y="0.75" Width="2.5" />
+    <NestedTypes>
+      <Class Name="Linq2DynamoDb.DataContext.DataContext.CachedTableDefinitions" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>DataContext.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <AssociationLine Name="TableWrappers" Type="Linq2DynamoDb.DataContext.TableDefinitionWrapper" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="3" Y="5.199" />
+        <Point X="3" Y="13.25" />
+        <Point X="10.5" Y="13.25" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AEBAAAAIAAAAAEAQAAAIAAAAAAggAACAgAAAAAEQAAQ=</HashCode>
+      <FileName>DataContext.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="TableWrappers" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.DataTable&lt;TEntity&gt;">
+    <Position X="4" Y="4.75" Width="2.25" />
+    <InheritanceLine Type="Linq2DynamoDb.DataContext.Query&lt;TEntity&gt;" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.75" Y="3.767" />
+        <Point X="5.75" Y="4.75" />
+      </Path>
+    </InheritanceLine>
+    <AssociationLine Name="_tableWrapper" Type="Linq2DynamoDb.DataContext.TableDefinitionWrapper" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.25" Y="8.809" />
+        <Point X="5.25" Y="12.688" />
+        <Point X="10.5" Y="12.688" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAACBIAAAIACAAIAAAAIDAAAIAAAAQAAAAAAAAAM=</HashCode>
+      <FileName>DataTable.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_tableWrapper" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.TableDefinitionWrapper">
+    <Position X="10.5" Y="12.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACEAAABAAEAAAAIAACQAAAAAEAEADI=</HashCode>
+      <FileName>TableDefinitionWrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.TableDefinitionWrapperBase">
+    <Position X="10.5" Y="1.25" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Events" Collapsed="true" />
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Linq2DynamoDb.DataContext.TableDefinitionWrapperBase.DocArrayReader&lt;TEntity&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Readers\DocArrayReader.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="Linq2DynamoDb.DataContext.TableDefinitionWrapperBase.SearchReader&lt;TEntity&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Readers\SearchReader.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="Linq2DynamoDb.DataContext.TableDefinitionWrapperBase.SingleDocReader&lt;TEntity&gt;" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Readers\SingleDocReader.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>A4IUAAAgAQCCAAAACAAAAAACAFgAgkCQAAABAAAAEAA=</HashCode>
+      <FileName>Readers\DocArrayReader.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_entityKeyGetter" />
+      <Property Name="EntityKeyGetter" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.EntityKeyGetter">
+    <Position X="6.75" Y="4.5" Width="3" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="Linq2DynamoDb.DataContext.EntityKeyGetter.HashEntityKeyGetter" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EntityKeyGetter.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="Linq2DynamoDb.DataContext.EntityKeyGetter.HashRangeEntityKeyGetter" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EntityKeyGetter.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+      <Class Name="Linq2DynamoDb.DataContext.EntityKeyGetter.ConstantHashRangeEntityKeyGetter" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EntityKeyGetter.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EntityKeyGetter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.EntityKey">
+    <Position X="14" Y="1.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAAAAAAAEgAAAAAAgAAAAAIAAAAAAAIAAAAA=</HashCode>
+      <FileName>EntityKey.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.EntityProxy">
+    <Position X="14" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgIAAAAIAAAAAAAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>EntityProxy.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.EntityWrapper">
+    <Position X="14" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAFAAAAIABAACkAAAQAAAAAAAAIACAAAAAAAAAAA=</HashCode>
+      <FileName>EntityWrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.Query&lt;TEntity&gt;">
+    <Position X="4" Y="1.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAAAEAhAAAAAAAAAAAAAAAAAEAAAAgAAAgAA=</HashCode>
+      <FileName>Query.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="Provider" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.QueryProvider">
+    <Position X="7.5" Y="1.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAAAAEABAQAAIAAAAAAAAAAAAQA=</HashCode>
+      <FileName>QueryProvider.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.SearchCondition">
+    <Position X="6" Y="14.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAgAAAAIAA=</HashCode>
+      <FileName>SearchCondition.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Linq2DynamoDb.DataContext.SearchConditions">
+    <Position X="3" Y="13.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAgQAAAAAAAAQAQEAAABAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SearchConditions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="Linq2DynamoDb.DataContext.IEntityKeyGetter">
+    <Position X="7" Y="8.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAACABAAAAAQAAAA=</HashCode>
+      <FileName>EntityKeyGetter.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
