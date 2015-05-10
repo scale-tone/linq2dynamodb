@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>LiveSDK</id>
+    <version>5.5</version>
+    <title>Live SDK</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <licenseUrl>http://msdn.microsoft.com/en-us/library/bb226715.aspx</licenseUrl>
+    <projectUrl>http://dev.live.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The Live SDK provides a set of controls and APIs that enable applications to integrate
+        using Microsoft Account and to access data in SkyDrive and Outlook.com.</description>
+    <copyright>Copyright 2013 Microsoft</copyright>
+    <tags>MicrosoftAccount LiveSDK SkyDrive Outlook.com LiveID WindowsLiveID MicrosoftID WindowsPhone WindowsStore Metro XAML HTML</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.0">
+        <dependency id="Microsoft.Bcl" version="1.0.0" />
+        <dependency id="Microsoft.Bcl.Async" version="1.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "Movies";
+}
+
+@Html.MvcSiteMap().SiteMapPath()
+
+<h2>Movies</h2>
+
+<table>
+    <thead>
+        <th>Title</th>
+        <th>Year</th>
+    </thead>
+    <tbody>
+        @foreach (dynamic item in Model)
+        {
+            <tr>
+                <td>@Html.ActionLink((string) item.Title, "Details", new {id = item.Title})</td>
+                <td>@Html.Raw(item.Year)</td>
+            </tr>
+        }            
+    </tbody>
+</table>

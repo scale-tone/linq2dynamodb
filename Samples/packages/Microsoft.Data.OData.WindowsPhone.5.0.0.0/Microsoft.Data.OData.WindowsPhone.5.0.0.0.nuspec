@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.Data.OData.WindowsPhone</id>
+    <version>5.0.0.0</version>
+    <authors>Microsoft Corporation</authors>
+    <owners>Microsoft Corporation</owners>
+    <licenseUrl>http://go.microsoft.com/fwlink/?LinkId=241477</licenseUrl>
+    <projectUrl>http://www.odata.org/</projectUrl>
+    <iconUrl>http://static.tumblr.com/hgchgxz/9ualgdf98/icon.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>Microsoft.Data.OData for Windows Phone</description>
+    <releaseNotes>Initial release of Microsoft.Data.OData.WindowsPhone.dll for Windows Phone</releaseNotes>
+    <copyright>Copyright 2012</copyright>
+  </metadata>
+</package>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<mvcSiteMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0"
+            xsi:schemaLocation="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0 MvcSiteMapSchema.xsd">
+
+  <mvcSiteMapNode title="Movies" controller="Movies" action="Index">
+    <mvcSiteMapNode title="Details" controller="Movies" action="Details" preservedRouteParameters="id">
+      <mvcSiteMapNode title="Reviews" controller="Reviews" action="Index" preservedRouteParameters="movieId" route="Reviews">
+      </mvcSiteMapNode>
+    </mvcSiteMapNode>
+  </mvcSiteMapNode>
+
+</mvcSiteMap>

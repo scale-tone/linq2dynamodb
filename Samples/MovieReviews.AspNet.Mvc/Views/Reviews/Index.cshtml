@@ -1,0 +1,23 @@
+﻿@using MovieReviews.DataModel
+@model List<Review>
+
+<table>
+    <thead>
+        <th>Rating</th>
+        <th>Text</th>
+        <th>Reviewer</th>
+        <th>Actions</th>
+    </thead>
+    <tbody>
+        @foreach (Review review in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(model => review.Rating.ToString())</td><!-- need partial for rating stars -->
+                <td>@Html.DisplayFor(model => review.Text)</td>
+                <td>@Html.DisplayFor(model => review.Reviewer)</td>
+                <td>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

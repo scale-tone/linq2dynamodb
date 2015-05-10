@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Memcached</id>
+    <version>2.12.0</version>
+    <title>Enyim Memcached Client</title>
+    <authors>Jiangzm</authors>
+    <owners>Jiangzm</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/enyim/EnyimMemcached</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>This is a .NET client library for memcached written in C#. There is also a client for Membase's persistent memcached server.</description>
+    <tags>memcached enyim.caching</tags>
+    <references>
+      <reference file="Enyim.Caching.dll" />
+    </references>
+  </metadata>
+</package>

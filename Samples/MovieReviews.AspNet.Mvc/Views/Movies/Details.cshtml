@@ -1,0 +1,23 @@
+﻿@model MovieReviews.DataModel.Movie
+
+@{
+    ViewBag.Title = string.Format("Movies - {0}", Model.Title);
+}
+
+@Html.MvcSiteMap().SiteMapPath()
+
+<h2>@Html.DisplayFor(model => model.Title), @Html.DisplayFor(model => model.Year)</h2>
+
+@Html.DisplayFor(model => model.Genre)
+<br/>
+@Html.DisplayTextFor(model => model.Description)
+<br/>
+<div id="rev-host">
+    <a data-bind="click: function() { loadReviews('@Model.Title') }, visible: showAction" href="#">@string.Format("Reviews ({0})", ViewBag.ReviewsCount)
+    </a>
+    <div data-bind="html: content"></div>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/ko")
+    @Scripts.Render("~/Scripts/Movies/movie-details.js")
+}
