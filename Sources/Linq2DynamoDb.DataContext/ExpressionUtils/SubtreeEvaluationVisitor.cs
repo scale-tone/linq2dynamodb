@@ -56,6 +56,18 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
             return Expression.Constant(delegateToCall.DynamicInvoke(null), e.Type);
         }
 
+        /// <summary>
+        /// This overload fixes an issue when using select new SomeProjectionType {...}
+        /// </summary>
+        protected override Expression VisitMemberInit(MemberInitExpression node)
+        {
+            if (node.NewExpression.NodeType == ExpressionType.New)
+            {
+                return node;
+            }
+            return base.VisitMemberInit(node);
+        }
+
         /// <summary> 
         /// Performs bottom-up analysis to determine which nodes can possibly 
         /// be part of an evaluated sub-tree. 
