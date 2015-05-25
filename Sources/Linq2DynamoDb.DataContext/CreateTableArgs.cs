@@ -389,7 +389,7 @@ namespace Linq2DynamoDb.DataContext
             indexDefinition = new GlobalSecondaryIndex
             {
                 // all fields are always projected!
-                Projection = new Projection {ProjectionType = "ALL"},
+                Projection = new Projection { ProjectionType = "ALL" },
                 ProvisionedThroughput = new ProvisionedThroughput
                 {
                     ReadCapacityUnits = 5,
@@ -411,55 +411,45 @@ namespace Linq2DynamoDb.DataContext
                         keyPropertyExp = (MemberExpression)convertExp.Operand;
                     }
                 }
-
-                var capacityUnitsExp = propAssignmentExp.Expression as ConstantExpression;
-
+               
                 switch (propAssignmentExp.Member.Name)
                 {
-                case "HashKeyField":
-                {
-                    if (keyPropertyExp == null)
+                    case "HashKeyField":
                     {
-                        throw new InvalidOperationException("HashKeyField expression is of wrong type");
+                        if (keyPropertyExp == null)
+                        {
+                            throw new InvalidOperationException("HashKeyField expression is of wrong type");
+                        }
+
+                        indexDefinition.KeySchema.Add(new KeySchemaElement { KeyType = "HASH", AttributeName = keyPropertyExp.Member.Name });
+
+                        keyFieldList[keyPropertyExp.Member.Name] = ((PropertyInfo)keyPropertyExp.Member).PropertyType;
                     }
-
-                    indexDefinition.KeySchema.Add( new KeySchemaElement {KeyType = "HASH", AttributeName = keyPropertyExp.Member.Name} );
-
-                    keyFieldList[keyPropertyExp.Member.Name] = ((PropertyInfo)keyPropertyExp.Member).PropertyType;
-                }
-                break;
-                case "RangeKeyField":
-                {
-                    if (keyPropertyExp == null)
+                    break;
+                    case "RangeKeyField":
                     {
-                        throw new InvalidOperationException("RangeKeyField expression is of wrong type");
+                        if (keyPropertyExp == null)
+                        {
+                            throw new InvalidOperationException("RangeKeyField expression is of wrong type");
+                        }
+
+                        indexDefinition.KeySchema.Add(new KeySchemaElement { KeyType = "RANGE", AttributeName = keyPropertyExp.Member.Name });
+
+                        keyFieldList[keyPropertyExp.Member.Name] = ((PropertyInfo)keyPropertyExp.Member).PropertyType;
                     }
-
-                    indexDefinition.KeySchema.Add(new KeySchemaElement { KeyType = "RANGE", AttributeName = keyPropertyExp.Member.Name });
-
-                    keyFieldList[keyPropertyExp.Member.Name] = ((PropertyInfo)keyPropertyExp.Member).PropertyType;
-                }
-                break;
-                case "ReadCapacityUnits":
-                {
-                    if (capacityUnitsExp == null)
+                    break;
+                    case "ReadCapacityUnits":
                     {
-                        throw new InvalidOperationException("ReadCapacityUnits expression is of wrong type");
+                        var capacityUnits = Expression.Lambda(propAssignmentExp.Expression).Compile().DynamicInvoke();
+                        indexDefinition.ProvisionedThroughput.ReadCapacityUnits = (long)capacityUnits;
                     }
-
-                    indexDefinition.ProvisionedThroughput.ReadCapacityUnits = (long)capacityUnitsExp.Value;
-                }
-                break;
-                case "WriteCapacityUnits":
-                {
-                    if (capacityUnitsExp == null)
+                    break;
+                    case "WriteCapacityUnits":
                     {
-                        throw new InvalidOperationException("WriteCapacityUnits expression is of wrong type");
+                        var capacityUnits = Expression.Lambda(propAssignmentExp.Expression).Compile().DynamicInvoke();
+                        indexDefinition.ProvisionedThroughput.WriteCapacityUnits = (long)capacityUnits;
                     }
-
-                    indexDefinition.ProvisionedThroughput.ReadCapacityUnits = (long)capacityUnitsExp.Value;
-                }
-                break;
+                    break;
                 }
             }
 
