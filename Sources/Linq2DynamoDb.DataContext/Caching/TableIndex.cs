@@ -240,8 +240,6 @@ namespace Linq2DynamoDb.DataContext.Caching
             throw new NotSupportedException(string.Format("Condition operator {0} is not supported", scanOperator));
         }
 
-//        private static readonly MethodInfo CompareToMethodInfo = ((Func<string, int>)"".CompareTo).Method;
-
         private static readonly MethodInfo StringCompareMethodInfo = ((Func<string, string, StringComparison, int>)string.Compare).Method;
         private static readonly MethodInfo StartsWithMethodInfo = ((Func<string, bool>)"".StartsWith).Method;
         private static readonly MethodInfo ContainsMethodInfo = ((Func<string, bool>)"".Contains).Method;
