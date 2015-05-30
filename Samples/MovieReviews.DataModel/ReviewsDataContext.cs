@@ -104,7 +104,7 @@ namespace MovieReviews.DataModel
         {
             // configure logging
             this.OnLog += s => Debug.WriteLine("{0} {1}", DateTime.Now, s);
-		}
+        }
 
 
         private static void CreateTablesIfTheyDoNotExist()
@@ -120,7 +120,7 @@ namespace MovieReviews.DataModel
                     1, 1,
                     g => g.Title,
                     null, null,
-					Genre.GetInitialEntities // Do not implement this via an anonymous method! Because it's called within static constructor, the call will block indefinitely!
+                    Genre.GetInitialEntities // Do not implement this via an anonymous method! Because it's called within static constructor, the call will block indefinitely!
                 )
             );
 
@@ -148,7 +148,7 @@ namespace MovieReviews.DataModel
 
             ctx.CreateTableIfNotExists
             (
-				new CreateTableArgs<Reviewers>
+                new CreateTableArgs<Reviewers>
                 (
                     r => r.Login
                 )

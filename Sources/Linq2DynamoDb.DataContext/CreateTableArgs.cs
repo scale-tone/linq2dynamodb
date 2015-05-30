@@ -56,18 +56,18 @@ namespace Linq2DynamoDb.DataContext
             ExtractFieldNameAndTypeFromExpression(hashKeyFieldExp, out this._hashKeyFieldName, out this._hashKeyFieldType);
         }
 
-		public CreateTableArgs
-		(
-			Expression<Func<TEntity, object>> hashKeyFieldExp,
-			Expression<Func<TEntity, object>> rangeKeyFieldExp,
-			Func<IEnumerable<TEntity>> getInitialEntities
-		)
-		{
-			this._rangeKeyFieldExp = rangeKeyFieldExp;
-			this._getInitialEntities = getInitialEntities;
+        public CreateTableArgs
+        (
+            Expression<Func<TEntity, object>> hashKeyFieldExp,
+            Expression<Func<TEntity, object>> rangeKeyFieldExp,
+            Func<IEnumerable<TEntity>> getInitialEntities
+        )
+        {
+            this._rangeKeyFieldExp = rangeKeyFieldExp;
+            this._getInitialEntities = getInitialEntities;
 
-			ExtractFieldNameAndTypeFromExpression(hashKeyFieldExp, out this._hashKeyFieldName, out this._hashKeyFieldType);
-		}
+            ExtractFieldNameAndTypeFromExpression(hashKeyFieldExp, out this._hashKeyFieldName, out this._hashKeyFieldType);
+        }
 
         public CreateTableArgs
         (

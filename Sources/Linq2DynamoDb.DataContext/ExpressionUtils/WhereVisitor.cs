@@ -177,7 +177,7 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
                         from 
                             object v in (IEnumerable)listExp.Value 
                         select
-							v.ToDynamoDbEntry(listExp.Type.GetGenericArguments().First())
+                            v.ToDynamoDbEntry(listExp.Type.GetGenericArguments().First())
                     )
                     .ToArray()
                 );
@@ -201,7 +201,7 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
             {
                 this.FieldValues.Add
                 (
-					new[] { constantExp.Value == null ? null : constantExp.Value.ToDynamoDbEntry(constantExp.Type) }
+                    new[] { constantExp.Value == null ? null : constantExp.Value.ToDynamoDbEntry(constantExp.Type) }
                 );
             }
             return constantExp;

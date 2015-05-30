@@ -215,18 +215,18 @@ namespace Linq2DynamoDb.DataContext.Caching
                 var affectedHashKeys = addedEntities
                     .Where(kv => kv.Key.RangeKey != null)
                     .Select(kv => kv.Key.HashKey.AsString())
-					.Union
-					(
-						modifiedEntities
-						.Where(kv => kv.Key.RangeKey != null)
-						.Select(kv => kv.Key.HashKey.AsString())
-					)
-					.Union
-					(
-						removedEntities
-						.Where(kv => kv.RangeKey != null)
-						.Select(kv => kv.HashKey.AsString())
-					)
+                    .Union
+                    (
+                        modifiedEntities
+                        .Where(kv => kv.Key.RangeKey != null)
+                        .Select(kv => kv.Key.HashKey.AsString())
+                    )
+                    .Union
+                    (
+                        removedEntities
+                        .Where(kv => kv.RangeKey != null)
+                        .Select(kv => kv.HashKey.AsString())
+                    )
                     .Distinct();
 
                 foreach (var hashKeyValue in affectedHashKeys)
@@ -473,7 +473,7 @@ namespace Linq2DynamoDb.DataContext.Caching
         /// <summary>
         /// Adds matching entities and removes removed entities from indexes
         /// </summary>
-		private void UpdateIndexes(string hashKeyValue, IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, ICollection<EntityKey> removedEntities)
+        private void UpdateIndexes(string hashKeyValue, IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, ICollection<EntityKey> removedEntities)
         {
             string indexListKeyInCache = this.GetIndexListKeyInCache(hashKeyValue);
 

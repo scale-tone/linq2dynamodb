@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 using System.Web.UI;
@@ -26,39 +24,39 @@ namespace MovieReviews.AspNet.BackEnd
             return sb.ToString();
         }
 
-		protected void Button1_Click(object sender, EventArgs e)
-		{
+        protected void Button1_Click(object sender, EventArgs e)
+        {
             var ctx = new ReviewsDataContext();
 
-		    var newReview = new Review()
-		        {
+            var newReview = new Review()
+                {
                     MovieId = "Thriller-Terminator 123",
                     Reviewer = GetRandomString(5),
                     Rating = RatingEnum.Awful,
                     Text = "blah-blah"
-		        };
+                };
 
             ctx.Reviews.InsertOnSubmit(newReview);
 
             ctx.SubmitChanges();
-		}
+        }
 
         protected void Button2_Click(object sender, EventArgs e)
         {
             var ctx = new ReviewsDataContext();
 
-			foreach (var g in ctx.Genres)
-			{
-				Debug.WriteLine(g.IgnoredField);
-			}
+            foreach (var g in ctx.Genres)
+            {
+                Debug.WriteLine(g.IgnoredField);
+            }
 
 
-			foreach (var r in ctx.Reviewers)
-			{
-				Debug.WriteLine(r.Login);
-			}
+            foreach (var r in ctx.Reviewers)
+            {
+                Debug.WriteLine(r.Login);
+            }
 
-			ctx.Reviewers.InsertOnSubmit(new Reviewer() { Login = GetRandomString(5) });
+            ctx.Reviewers.InsertOnSubmit(new Reviewer() { Login = GetRandomString(5) });
 
             ctx.SubmitChanges();
         }

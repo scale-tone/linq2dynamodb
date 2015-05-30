@@ -1,24 +1,23 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
-using Linq2DynamoDb.DataContext;
 
 namespace MovieReviews.DataModel
 {
-	[DynamoDBTable("Genres")]
-	public class Genre
-	{
-		public string Title { get; set; }
+    [DynamoDBTable("Genres")]
+    public class Genre
+    {
+        public string Title { get; set; }
 
-		[DynamoDBIgnore]
-		public string IgnoredField { get { return "123"; } }
+        [DynamoDBIgnore]
+        public string IgnoredField { get { return "123"; } }
 
-		public static Genre[] GetInitialEntities()
-		{
-			return new []
-			{
-				new Genre {Title = "Thriller"},
-				new Genre {Title = "Horror"},
-				new Genre {Title = "Comedy"}
-			};
-		}
-	}
+        public static Genre[] GetInitialEntities()
+        {
+            return new []
+            {
+                new Genre {Title = "Thriller"},
+                new Genre {Title = "Horror"},
+                new Genre {Title = "Comedy"}
+            };
+        }
+    }
 }

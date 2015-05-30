@@ -138,20 +138,20 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         public static async Task DeleteTableAsync<TEntity>(this DataContext context)
         {
-			var entityType = typeof(TEntity);
-			string tableName = context.GetTableNameForType(entityType);
+            var entityType = typeof(TEntity);
+            string tableName = context.GetTableNameForType(entityType);
 
             await context.Client.DeleteTableAsync(new DeleteTableRequest { TableName = tableName });
 
             await TillTableIsDeletedAsync(context.Client, tableName);
         }
 
-		/// <summary>
-		/// Deletes a table
-		/// </summary>
-		public static void DeleteTable<TEntity>(this DataContext context)
-		{
-			GeneralUtils.SafelyRunSynchronously(context.DeleteTableAsync<TEntity>);
+        /// <summary>
+        /// Deletes a table
+        /// </summary>
+        public static void DeleteTable<TEntity>(this DataContext context)
+        {
+            GeneralUtils.SafelyRunSynchronously(context.DeleteTableAsync<TEntity>);
         }
 
         /// <summary>

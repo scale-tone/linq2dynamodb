@@ -42,8 +42,8 @@ namespace Linq2DynamoDb.DataContext.Utils
         /// Converts a value of the specified type to Primitive using AWS SDK's conversion operators
         /// </summary>
         public static DynamoDBEntry ToDynamoDbEntry(this object value, Type valueType)
-		{
-			return value == null ? null : ToDynamoDbEntryConvertor(valueType)(value);
+        {
+            return value == null ? null : ToDynamoDbEntryConvertor(valueType)(value);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Linq2DynamoDb.DataContext.Utils
                     // using default convertion for the field
                     fillDocumentFunc +=
                         (entity, doc) => doc[capturedPropInfo.Name] =
-							capturedPropInfo.GetValue(entity, null).ToDynamoDbEntry(capturedPropInfo.PropertyType);
+                            capturedPropInfo.GetValue(entity, null).ToDynamoDbEntry(capturedPropInfo.PropertyType);
                 }
                 else
                 {
@@ -191,11 +191,11 @@ namespace Linq2DynamoDb.DataContext.Utils
 
         #region ToDynamoDbEntry functor
 
-		/// <summary>
-		/// A functor, that returns a functor for converting an object into DynamoDBEntry
-		/// </summary>
-		private static readonly Func<Type, Func<object, DynamoDBEntry>> ToDynamoDbEntryConvertor =
-			((Func<Type, Func<object, DynamoDBEntry>>)GetToDynamoDbEntryConversionFunctor).Memoize();
+        /// <summary>
+        /// A functor, that returns a functor for converting an object into DynamoDBEntry
+        /// </summary>
+        private static readonly Func<Type, Func<object, DynamoDBEntry>> ToDynamoDbEntryConvertor =
+            ((Func<Type, Func<object, DynamoDBEntry>>)GetToDynamoDbEntryConversionFunctor).Memoize();
 
         /// <summary>
         /// Creates a functor for converting an object of the specified type to DynamoDBEntry
@@ -209,7 +209,7 @@ namespace Linq2DynamoDb.DataContext.Utils
             {
                 // first converting to a valueType (or to int, if it's an enum)
                 var primitiveConversionExp = Expression.Convert(valueParameter, valueType.BaseType == typeof(Enum) ? typeof(int) : valueType);
-				// then to Primitive | Since AWSSDK 2.3.2.0, conversion to DynamoDbEntry type now yields object of internal type UnconvertedDynamoDBEntry which is not derived from Primitive thus breaking Linq2DynamoDb
+                // then to Primitive | Since AWSSDK 2.3.2.0, conversion to DynamoDbEntry type now yields object of internal type UnconvertedDynamoDBEntry which is not derived from Primitive thus breaking Linq2DynamoDb
                 primitiveConversionExp = Expression.Convert(primitiveConversionExp, typeof(Primitive));
 
                 return (Func<object, DynamoDBEntry>)Expression.Lambda(primitiveConversionExp, valueParameter).Compile();
@@ -222,7 +222,7 @@ namespace Linq2DynamoDb.DataContext.Utils
             {
                 elementType = valueType.GetElementType();
             }
-            else if (ReflectionUtils.ImplementsInterface(valueType, typeof (ICollection<>)))
+            else if (valueType.ImplementsInterface(typeof (ICollection<>)))
             {
                 elementType = valueType.GetGenericArguments()[0];
             }
@@ -349,7 +349,7 @@ namespace Linq2DynamoDb.DataContext.Utils
                 var elementType = valueType.GetGenericArguments()[0];
 
                 // preferring IList interface, as AWS SDK does (don't know why)
-                if (ReflectionUtils.ImplementsInterface(valueType, typeof(IList)))
+                if (valueType.ImplementsInterface(typeof(IList)))
                 {
                     fillListExp = Expression.Call
                     (

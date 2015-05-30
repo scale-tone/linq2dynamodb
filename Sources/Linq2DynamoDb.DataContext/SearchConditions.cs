@@ -104,7 +104,7 @@ namespace Linq2DynamoDb.DataContext
             {
                 return false;
             }
-			value = (Primitive)list[0].Values[0];
+            value = (Primitive)list[0].Values[0];
             return true;
         }
 

@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Amazon.DynamoDBv2.DataModel;
-using Linq2DynamoDb.DataContext;
 
 namespace MovieReviews.DataModel
 {
@@ -15,9 +14,9 @@ namespace MovieReviews.DataModel
         public string Description { get; set; }
         public MemoryStream Picture { get; set; }
 
-		public static string GetMovieId(Movie movie)
-		{
-			return movie.Genre + "-" + movie.Title;
-		}
+        public static string GetMovieId(Movie movie)
+        {
+            return movie.Genre + "-" + movie.Title;
+        }
     }
 }

@@ -12,14 +12,14 @@ namespace Linq2DynamoDb.DataContext.Caching
         private bool _disposed;
 
         internal TableLock(EnyimTableCache repository, string lockKey, TimeSpan lockTimeout)
-		{
-			this._cache = repository;
-			this._lockKey = lockKey;
-			this._cache.LockTable(lockKey, lockTimeout);
-		}
+        {
+            this._cache = repository;
+            this._lockKey = lockKey;
+            this._cache.LockTable(lockKey, lockTimeout);
+        }
 
-		public void Dispose()
-		{
+        public void Dispose()
+        {
             if (!_disposed)
             {
                 this._cache.UnlockTable(this._lockKey);
