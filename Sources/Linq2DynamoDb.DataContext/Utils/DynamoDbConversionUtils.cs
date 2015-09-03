@@ -31,9 +31,23 @@ namespace Linq2DynamoDb.DataContext.Utils
 
                 // AWSSDK converters are also supported
                 var converter = DynamoDbPropertyConverter(entityType, propInfo.Name);
+                object listOrArray = null;
 
-                propInfo.SetValue(entity, converter == null ? record.Value.ToObject(propInfo.PropertyType) : converter.FromEntry(record.Value));
-            }
+                if (record.Value is DynamoDBList && converter==null)
+                {
+                    Type listType = typeof(List<>);
+                    Type listElementType = propInfo.PropertyType.IsGenericType ? propInfo.PropertyType.GetGenericArguments()[0] 
+                        : propInfo.PropertyType.IsArray ? propInfo.PropertyType.GetElementType() : null;
+                    Type listGenericType = listType.MakeGenericType(listElementType);
+                    IList listOut = (IList)Activator.CreateInstance(listGenericType);
+
+                    foreach(Document doc2 in ((DynamoDBList)record.Value).Entries)
+                    {
+                        listOut.Add(doc2.ToObject(listElementType));
+                    }
+                    listOrArray = propInfo.PropertyType.IsArray ? listOut.ToArray(listElementType) : listOut;
+                }
+                propInfo.SetValue(entity, converter == null ? listOrArray ?? record.Value.ToObject(propInfo.PropertyType) : converter.FromEntry(record.Value));            }
 
             return entity;
         }
