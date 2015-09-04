@@ -41,14 +41,22 @@ namespace Linq2DynamoDb.DataContext.Utils
                     Type listGenericType = listType.MakeGenericType(listElementType);
                     IList listOut = (IList)Activator.CreateInstance(listGenericType);
 
-                    foreach(Document doc2 in ((DynamoDBList)record.Value).Entries)
+                    foreach(DynamoDBEntry subEntry in ((DynamoDBList)record.Value).Entries)
                     {
-                        listOut.Add(doc2.ToObject(listElementType));
+                        if (subEntry is Primitive)
+                        {
+                            listOut.Add(GetFromPrimitiveConversionFunctor(listElementType)(subEntry as Primitive));
+                        }
+                        else
+                        {
+                            listOut.Add(((Document)subEntry).ToObject(listElementType));
+                        }
                     }
                     listOrArray = propInfo.PropertyType.IsArray ? listOut.ToArray(listElementType) : listOut;
                 }
-                propInfo.SetValue(entity, converter == null ? listOrArray ?? record.Value.ToObject(propInfo.PropertyType) : converter.FromEntry(record.Value));            }
-
+                propInfo.SetValue(entity, converter == null ? listOrArray ?? record.Value.ToObject(propInfo.PropertyType) : converter.FromEntry(record.Value));
+            }
+            
             return entity;
         }
 
