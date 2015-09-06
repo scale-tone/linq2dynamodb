@@ -60,7 +60,7 @@ namespace Linq2DynamoDb.DataContext.Tests
 
 		public static IAmazonDynamoDB GetDynamoDbClient()
 		{
-			return AWSClientFactory.CreateAmazonDynamoDBClient(GetAwsCredentials(), DynamoDbRegion);
+		    return new AmazonDynamoDBClient(GetAwsCredentials(), DynamoDbRegion);
 		}
 
         public static DynamoDBContext GetDynamoDbContext()
