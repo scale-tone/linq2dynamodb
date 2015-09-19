@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,10 +31,39 @@ namespace Linq2DynamoDb.DataContext.Utils
 
                 // AWSSDK converters are also supported
                 var converter = DynamoDbPropertyConverter(entityType, propInfo.Name);
+                object objectOut = null;
 
-                propInfo.SetValue(entity, converter == null ? record.Value.ToObject(propInfo.PropertyType) : converter.FromEntry(record.Value));
+                var dynamoDbList = record.Value as DynamoDBList;
+                if (dynamoDbList != null && converter == null)
+                {
+                    var listType = typeof(List<>);
+                    var listElementType = propInfo.PropertyType.IsGenericType ? propInfo.PropertyType.GetGenericArguments()[0] 
+                        : propInfo.PropertyType.IsArray ? propInfo.PropertyType.GetElementType() : null;
+                    var listGenericType = listType.MakeGenericType(listElementType);
+                    var listOut = (IList)Activator.CreateInstance(listGenericType);
+
+                    foreach(DynamoDBEntry subEntry in dynamoDbList.Entries)
+                    {
+                        var subEntryPrimitive = subEntry as Primitive;
+                        if (subEntryPrimitive != null)
+                        {
+                            listOut.Add(subEntryPrimitive.ToObject(listElementType));
+                        }
+                        else
+                        {
+                            listOut.Add(((Document)subEntry).ToObject(listElementType));
+                        }
+                    }
+                    objectOut = propInfo.PropertyType.IsArray ? listOut.ToArray(listElementType) : listOut;
+                } 
+                // Handle non-list/array and non-primitive properties
+                else if (converter==null && !propInfo.PropertyType.IsPrimitive())
+                {
+                    objectOut = ((Document)record.Value).ToObject(propInfo.PropertyType);
+                }
+                propInfo.SetValue(entity, converter == null ? objectOut ?? record.Value.ToObject(propInfo.PropertyType) : converter.FromEntry(record.Value));
             }
-
+            
             return entity;
         }
 
@@ -218,29 +247,43 @@ namespace Linq2DynamoDb.DataContext.Utils
             // now trying to create a routine for converting a collection
 
             Type elementType = null;
+            bool isListOrArray = false;
             if (valueType.IsArray)
             {
                 elementType = valueType.GetElementType();
+                isListOrArray=true;
             }
             else if (valueType.ImplementsInterface(typeof (ICollection<>)))
             {
                 elementType = valueType.GetGenericArguments()[0];
+                isListOrArray = true;
             }
-
-            if 
-            (
-                (elementType == null)
-                ||
-                (!elementType.IsPrimitive())
-            )
+            if (isListOrArray)
             {
-                throw new InvalidCastException(string.Format("Cannot convert type {0} to DynamoDbEntry", valueType));
+                if 
+                (
+                    (elementType == null)
+                    ||
+                    (!elementType.IsPrimitive())
+                )
+                {
+                    var toDynamoDbListMethodInfo = ((Func<object, Type, DynamoDBList>)ToDynamoDbList).Method;
+                    var toDynamoDbConversionExp = Expression.Call(toDynamoDbListMethodInfo, valueParameter, Expression.Constant(elementType));
+                    return (Func<object, DynamoDBEntry>)Expression.Lambda(toDynamoDbConversionExp, valueParameter).Compile();
+
+                    //throw new InvalidCastException(string.Format("Cannot convert type {0} to DynamoDbEntry", valueType));
+                }
+
+                var toPrimitiveListMethodInfo = ((Func<object, Type, PrimitiveList>)ToPrimitiveList).Method;
+                var conversionExp = Expression.Call(toPrimitiveListMethodInfo, valueParameter, Expression.Constant(elementType));
+                return (Func<object, DynamoDBEntry>)Expression.Lambda(conversionExp, valueParameter).Compile();
             }
 
-            var toPrimitiveListMethodInfo = ((Func<object, Type, PrimitiveList>)ToPrimitiveList).Method;
-            var conversionExp = Expression.Call(toPrimitiveListMethodInfo, valueParameter, Expression.Constant(elementType));
-            return (Func<object, DynamoDBEntry>)Expression.Lambda(conversionExp, valueParameter).Compile();
+            var documentConvertor = GetEntityToDocumentConvertorFunctor(valueType);
+            return documentConvertor;
         }
+
+
 
         /// <summary>
         /// Converts an ICollection to a PrimitiveList
@@ -254,6 +297,16 @@ namespace Linq2DynamoDb.DataContext.Utils
                 primitiveList.Entries.Add(item.ToPrimitive(elementType));
             }
             return primitiveList;
+        }
+
+        private static DynamoDBList ToDynamoDbList(object coll, Type elementType)
+        {
+            DynamoDBList list = new DynamoDBList();
+            foreach (var item in (ICollection)coll)
+            {
+                list.Entries.Add(item.ToDynamoDbEntry(elementType));
+            }
+            return list;
         }
 
         #endregion
@@ -371,8 +424,8 @@ namespace Linq2DynamoDb.DataContext.Utils
                         Expression.Constant(elementType, typeof(Type))
                     );
                 }
+                
             }
-
             return (Func<DynamoDBEntry, object>)Expression.Lambda(fillListExp, valueParameter).Compile();
         }
 
