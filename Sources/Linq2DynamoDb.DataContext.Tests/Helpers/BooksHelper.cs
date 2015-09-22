@@ -44,7 +44,9 @@ namespace Linq2DynamoDb.DataContext.Tests.Helpers
 			List<string> rentingHistory = default(List<string>),
 			IDictionary<string, TimeSpan> filmsBasedOnBook = default(IDictionary<string, TimeSpan>),
 			DateTime lastRentTime = default(DateTime),
-            bool persistToDynamoDb = true)
+            bool persistToDynamoDb = true,
+            Book.PublisherDto publisher = default(Book.PublisherDto),
+            List<Book.ReviewDto> reviews = default(List<Book.ReviewDto>))
 		{
 			name = name ?? "TestBook" + Guid.NewGuid();
 
@@ -58,7 +60,9 @@ namespace Linq2DynamoDb.DataContext.Tests.Helpers
 				UserFeedbackRating = userFeedbackRating,
 				RentingHistory = rentingHistory,
 				FilmsBasedOnBook = filmsBasedOnBook,
-				LastRentTime = lastRentTime
+				LastRentTime = lastRentTime,
+                Publisher = publisher,
+                ReviewsList = reviews,
 			};
 
 		    var bookData = new JavaScriptSerializer().Serialize(book);

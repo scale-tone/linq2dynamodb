@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,39 +31,10 @@ namespace Linq2DynamoDb.DataContext.Utils
 
                 // AWSSDK converters are also supported
                 var converter = DynamoDbPropertyConverter(entityType, propInfo.Name);
-                object objectOut = null;
 
-                var dynamoDbList = record.Value as DynamoDBList;
-                if (dynamoDbList != null && converter == null)
-                {
-                    var listType = typeof(List<>);
-                    var listElementType = propInfo.PropertyType.IsGenericType ? propInfo.PropertyType.GetGenericArguments()[0] 
-                        : propInfo.PropertyType.IsArray ? propInfo.PropertyType.GetElementType() : null;
-                    var listGenericType = listType.MakeGenericType(listElementType);
-                    var listOut = (IList)Activator.CreateInstance(listGenericType);
-
-                    foreach(DynamoDBEntry subEntry in dynamoDbList.Entries)
-                    {
-                        var subEntryPrimitive = subEntry as Primitive;
-                        if (subEntryPrimitive != null)
-                        {
-                            listOut.Add(subEntryPrimitive.ToObject(listElementType));
-                        }
-                        else
-                        {
-                            listOut.Add(((Document)subEntry).ToObject(listElementType));
-                        }
-                    }
-                    objectOut = propInfo.PropertyType.IsArray ? listOut.ToArray(listElementType) : listOut;
-                } 
-                // Handle non-list/array and non-primitive properties
-                else if (converter==null && !propInfo.PropertyType.IsPrimitive())
-                {
-                    objectOut = ((Document)record.Value).ToObject(propInfo.PropertyType);
-                }
-                propInfo.SetValue(entity, converter == null ? objectOut ?? record.Value.ToObject(propInfo.PropertyType) : converter.FromEntry(record.Value));
+                propInfo.SetValue(entity, converter == null ? record.Value.ToObject(propInfo.PropertyType) : converter.FromEntry(record.Value));
             }
-            
+
             return entity;
         }
 
@@ -245,49 +216,36 @@ namespace Linq2DynamoDb.DataContext.Utils
             }
 
             // now trying to create a routine for converting a collection
-
             Type elementType = null;
-            bool isListOrArray = false;
             if (valueType.IsArray)
             {
                 elementType = valueType.GetElementType();
-                isListOrArray=true;
             }
             else if (valueType.ImplementsInterface(typeof (ICollection<>)))
             {
                 elementType = valueType.GetGenericArguments()[0];
-                isListOrArray = true;
             }
-            if (isListOrArray)
+
+            if (elementType == null)
             {
-                if 
-                (
-                    (elementType == null)
-                    ||
-                    (!elementType.IsPrimitive())
-                )
-                {
-                    var toDynamoDbListMethodInfo = ((Func<object, Type, DynamoDBList>)ToDynamoDbList).Method;
-                    var toDynamoDbConversionExp = Expression.Call(toDynamoDbListMethodInfo, valueParameter, Expression.Constant(elementType));
-                    return (Func<object, DynamoDBEntry>)Expression.Lambda(toDynamoDbConversionExp, valueParameter).Compile();
+                // support for complex oject properties
+                return GetEntityToDocumentConvertorFunctor(valueType);
+            }
 
-                    //throw new InvalidCastException(string.Format("Cannot convert type {0} to DynamoDbEntry", valueType));
-                }
-
+            if (elementType.IsPrimitive())
+            {
                 var toPrimitiveListMethodInfo = ((Func<object, Type, PrimitiveList>)ToPrimitiveList).Method;
                 var conversionExp = Expression.Call(toPrimitiveListMethodInfo, valueParameter, Expression.Constant(elementType));
                 return (Func<object, DynamoDBEntry>)Expression.Lambda(conversionExp, valueParameter).Compile();
             }
 
-            var documentConvertor = GetEntityToDocumentConvertorFunctor(valueType);
-            return documentConvertor;
+            var toDynamoDbListMethodInfo = ((Func<object, Type, DynamoDBList>)ToDynamoDbList).Method;
+            var toDynamoDbConversionExp = Expression.Call(toDynamoDbListMethodInfo, valueParameter, Expression.Constant(elementType));
+            return (Func<object, DynamoDBEntry>)Expression.Lambda(toDynamoDbConversionExp, valueParameter).Compile();
         }
-
-
 
         /// <summary>
         /// Converts an ICollection to a PrimitiveList
-        /// Used by GetToDynamoDbEntryConversionFunctor()!
         /// </summary>
         private static PrimitiveList ToPrimitiveList(object coll, Type elementType)
         {
@@ -299,14 +257,17 @@ namespace Linq2DynamoDb.DataContext.Utils
             return primitiveList;
         }
 
+        /// <summary>
+        /// Converts an ICollection of complex ojects to a DynamoDbList
+        /// </summary>
         private static DynamoDBList ToDynamoDbList(object coll, Type elementType)
         {
-            DynamoDBList list = new DynamoDBList();
+            var dynamoDblist = new DynamoDBList();
             foreach (var item in (ICollection)coll)
             {
-                list.Entries.Add(item.ToDynamoDbEntry(elementType));
+                dynamoDblist.Entries.Add(item.ToDynamoDbEntry(elementType));
             }
-            return list;
+            return dynamoDblist;
         }
 
         #endregion
@@ -382,51 +343,57 @@ namespace Linq2DynamoDb.DataContext.Utils
                 return (Func<DynamoDBEntry, object>)Expression.Lambda(conversionExp, valueParameter).Compile();
             }
 
-            MethodCallExpression fillListExp;
+            MethodCallExpression fillPropExp;
 
             if (valueType.IsArray) // supporting array fields as well
             {
                 var elementType = valueType.GetElementType();
 
-                fillListExp = Expression.Call
+                fillPropExp = Expression.Call
                 (
                     typeof(DynamoDbConversionUtils),
-                    ((Func<PrimitiveList, Type, object>)FillArrayFromPrimitiveList<object>).Method.Name,
+                    elementType.IsPrimitive() ? ((Func<PrimitiveList, Type, object>)FillArrayFromPrimitiveList<object>).Method.Name : ((Func<DynamoDBList, Type, object>)FillArrayFromDynamoDbList<object>).Method.Name,
                     new[] { elementType },
-                    Expression.Convert(valueParameter, typeof(PrimitiveList)),
+                    Expression.Convert(valueParameter, elementType.IsPrimitive() ? typeof(PrimitiveList) : typeof(DynamoDBList)),
                     Expression.Constant(elementType, typeof(Type))
                 );
             }
-            else
+            else if (valueType.ImplementsInterface(typeof(IList))) // preferring IList interface, as AWS SDK does (don't know why)
             {
                 var elementType = valueType.GetGenericArguments()[0];
 
-                // preferring IList interface, as AWS SDK does (don't know why)
-                if (valueType.ImplementsInterface(typeof(IList)))
-                {
-                    fillListExp = Expression.Call
-                    (
-                        ((Func<IList, PrimitiveList, Type, object>)FillListFromPrimitiveList).Method,
-                        Expression.New(valueType),
-                        Expression.Convert(valueParameter, typeof(PrimitiveList)),
-                        Expression.Constant(elementType, typeof(Type))
-                    );
-                }
-                else
-                {
-                    fillListExp = Expression.Call
-                    (
-                        typeof(DynamoDbConversionUtils),
-                        ((Func<ICollection<object>, PrimitiveList, Type, object>)FillCollectionFromPrimitiveList).Method.Name,
-                        new[] { elementType },
-                        Expression.New(valueType),
-                        Expression.Convert(valueParameter, typeof(PrimitiveList)),
-                        Expression.Constant(elementType, typeof(Type))
-                    );
-                }
-                
+                fillPropExp = Expression.Call
+                (
+                    elementType.IsPrimitive() ? ((Func<IList, PrimitiveList, Type, object>)FillListFromPrimitiveList).Method : ((Func<IList, DynamoDBList, Type, object>)FillListFromDynamoDbList).Method,
+                    Expression.New(valueType),
+                    Expression.Convert(valueParameter, elementType.IsPrimitive() ? typeof(PrimitiveList) : typeof(DynamoDBList)),
+                    Expression.Constant(elementType, typeof(Type))
+                );
             }
-            return (Func<DynamoDBEntry, object>)Expression.Lambda(fillListExp, valueParameter).Compile();
+            else if (valueType.ImplementsInterface(typeof (ICollection<object>)))
+            {
+                var elementType = valueType.GetGenericArguments()[0];
+
+                fillPropExp = Expression.Call
+                (
+                    typeof(DynamoDbConversionUtils),
+                    elementType.IsPrimitive() ? ((Func<ICollection<object>, PrimitiveList, Type, object>)FillCollectionFromPrimitiveList).Method.Name : ((Func<ICollection<object>, DynamoDBList, Type, object>)FillCollectionFromDynamoDbList).Method.Name,
+                    new[] { elementType },
+                    Expression.New(valueType),
+                    Expression.Convert(valueParameter, elementType.IsPrimitive() ? typeof(PrimitiveList) : typeof(DynamoDBList)),
+                    Expression.Constant(elementType, typeof(Type))
+                );
+            }
+            else // support for complex object properties
+            {
+                fillPropExp = Expression.Call
+                (
+                    ((Func<Document, Type, object>)ToObject).Method,
+                    Expression.Convert(valueParameter, typeof(Document)),
+                    Expression.Constant(valueType, typeof(Type))
+                );
+            }
+            return (Func<DynamoDBEntry, object>)Expression.Lambda(fillPropExp, valueParameter).Compile();
         }
 
         /// <summary>
@@ -434,18 +401,36 @@ namespace Linq2DynamoDb.DataContext.Utils
         /// </summary>
         private static object FillArrayFromPrimitiveList<T>(PrimitiveList primitiveList, Type elementType)
         {
-            var result = primitiveList
+            return primitiveList
                 .AsListOfPrimitive()
                 .Select(pr => pr.ToObject(elementType))
                 .Cast<T>()
                 .ToArray();
+        }
 
-            return result;
+        /// <summary>
+        /// Converts a DynamoDbList into an array of elements of elementType
+        /// </summary>
+        private static object FillArrayFromDynamoDbList<T>(DynamoDBList dynamoDbList, Type elementType)
+        {
+            bool? isListOfObjects = null;
+
+            return dynamoDbList.Entries
+                .Select(pr =>
+                {
+                    if (isListOfObjects == null)
+                    {
+                        isListOfObjects = pr is Document;
+                    }
+
+                    return isListOfObjects.Value ? ((Document)pr).ToObject(elementType) : pr.ToObject(elementType);
+                })
+                .Cast<T>()
+                .ToArray();
         }
 
         /// <summary>
         /// Fills an IList with contents of PrimitiveList.
-        /// Used by GetFromDynamoDbEntryConversionFunctor()!
         /// </summary>
         private static object FillListFromPrimitiveList(IList list, PrimitiveList primitiveList, Type elementType)
         {
@@ -457,8 +442,26 @@ namespace Linq2DynamoDb.DataContext.Utils
         }
 
         /// <summary>
+        /// Fills an IList with contents of DynamoDBList.
+        /// </summary>
+        private static object FillListFromDynamoDbList(IList list, DynamoDBList dynamoDbList, Type elementType)
+        {
+            // There might DynamoDBLists of primitives occur as well. And we're checking the entry type only once for better performance.
+            bool? isListOfObjects = null;
+            foreach (var entry in dynamoDbList.Entries)
+            {
+                if (isListOfObjects == null)
+                {
+                    isListOfObjects = entry is Document;
+                }
+
+                list.Add(isListOfObjects.Value ? ((Document)entry).ToObject(elementType) : entry.ToObject(elementType));
+            }
+            return list;
+        }
+
+        /// <summary>
         /// Fills an ICollection[T] with contents of PrimitiveList.
-        /// Used by GetFromDynamoDbEntryConversionFunctor()!
         /// </summary>
         private static object FillCollectionFromPrimitiveList<T>(ICollection<T> coll, PrimitiveList primitiveList, Type elementType)
         {
@@ -466,6 +469,26 @@ namespace Linq2DynamoDb.DataContext.Utils
             foreach (var item in items)
             {
                 coll.Add(item);
+            }
+            return coll;
+        }
+
+
+        /// <summary>
+        /// Fills an ICollection[T] with contents of DynamoDBList.
+        /// </summary>
+        private static object FillCollectionFromDynamoDbList<T>(ICollection<T> coll, DynamoDBList dynamoDbList, Type elementType)
+        {
+            bool? isListOfObjects = null;
+            foreach (var entry in dynamoDbList.Entries)
+            {
+                if (isListOfObjects == null)
+                {
+                    isListOfObjects = entry is Document;
+                }
+
+                var item = isListOfObjects.Value ? ((Document)entry).ToObject(elementType) : entry.ToObject(elementType);
+                coll.Add((T)item);
             }
             return coll;
         }

@@ -119,6 +119,32 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
 			Assert.AreEqual(expectedSequence, actualSequence, "String array elements sequence incorrect");
 		}
 
+        [Test]
+        public void DataContext_Query_ReturnsComplexObjectProperties()
+        {
+            var book = BooksHelper.CreateBook(publisher: new Book.PublisherDto { Title = "O’Reilly Media", Address = "Sebastopol, CA"});
+
+            var bookTable = Context.GetTable<Book>();
+            var booksQuery = from record in bookTable where record.Name == book.Name select record;
+            var storedBook = booksQuery.First();
+
+            Assert.AreEqual(book.Publisher.ToString(), storedBook.Publisher.ToString(), "Complex object properties are not equal");
+        }
+
+        [Test]
+        public void DataContext_Query_ReturnsComplexObjectListProperties()
+        {
+            var book = BooksHelper.CreateBook(reviews: new List<Book.ReviewDto> { new Book.ReviewDto { Author = "Beavis", Text = "Cool" }, new Book.ReviewDto { Author = "Butt-head", Text = "This sucks!" } });
+
+            var bookTable = Context.GetTable<Book>();
+            var booksQuery = from record in bookTable where record.Name == book.Name select record;
+            var storedBook = booksQuery.First();
+
+            var expectedSequence1 = string.Join(", ", book.ReviewsList.Select(r=>r.ToString()).OrderBy(s => s));
+            var actualSequence1 = string.Join(", ", storedBook.ReviewsList.Select(r => r.ToString()).OrderBy(s => s));
+            Assert.AreEqual(expectedSequence1, actualSequence1, "Complex object list properties are not equal");
+        }
+
 		[Test]
 		public void DataContext_Query_ReturnsDictionaryStringTimeSpan()
 		{

@@ -123,5 +123,31 @@ namespace Linq2DynamoDb.DataContext.Tests.Entities
 				return dictionary;
 			}
 		}
-	}
+
+        public class PublisherDto
+        {
+            public string Title { get; set; }
+            public string Address { get; set; }
+
+            public override string ToString()
+            {
+                return this.Title + this.Address;
+            }
+        }
+
+        public PublisherDto Publisher { get; set; }
+
+        public class ReviewDto
+        {
+            public string Author { get; set; }
+            public string Text { get; set; }
+
+            public override string ToString()
+            {
+                return this.Author + this.Text;
+            }
+        }
+
+        public List<ReviewDto> ReviewsList { get; set; } 
+    }
 }
