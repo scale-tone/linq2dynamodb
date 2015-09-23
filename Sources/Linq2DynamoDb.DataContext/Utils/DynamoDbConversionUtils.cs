@@ -232,16 +232,13 @@ namespace Linq2DynamoDb.DataContext.Utils
                 return GetEntityToDocumentConvertorFunctor(valueType);
             }
 
-            if (elementType.IsPrimitive())
-            {
-                var toPrimitiveListMethodInfo = ((Func<object, Type, PrimitiveList>)ToPrimitiveList).Method;
-                var conversionExp = Expression.Call(toPrimitiveListMethodInfo, valueParameter, Expression.Constant(elementType));
-                return (Func<object, DynamoDBEntry>)Expression.Lambda(conversionExp, valueParameter).Compile();
-            }
-
-            var toDynamoDbListMethodInfo = ((Func<object, Type, DynamoDBList>)ToDynamoDbList).Method;
-            var toDynamoDbConversionExp = Expression.Call(toDynamoDbListMethodInfo, valueParameter, Expression.Constant(elementType));
-            return (Func<object, DynamoDBEntry>)Expression.Lambda(toDynamoDbConversionExp, valueParameter).Compile();
+            var conversionExp = Expression.Call
+            (
+                elementType.IsPrimitive() ? ((Func<object, Type, PrimitiveList>)ToPrimitiveList).Method : ((Func<object, Type, DynamoDBList>)ToDynamoDbList).Method, 
+                valueParameter, 
+                Expression.Constant(elementType)
+            );
+            return (Func<object, DynamoDBEntry>)Expression.Lambda(conversionExp, valueParameter).Compile();
         }
 
         /// <summary>
