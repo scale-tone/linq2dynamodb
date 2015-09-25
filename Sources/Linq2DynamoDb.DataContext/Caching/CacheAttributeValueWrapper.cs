@@ -48,6 +48,12 @@ namespace Linq2DynamoDb.DataContext.Caching
                     case "BS":
                         this.AttributeValue.BS = (List<MemoryStream>)en.Value;
                         break;
+                    case "M":
+                        this.AttributeValue.M = ((CacheDictionaryOfAttributeValuesWrapper)en.Value).Dictionary;
+                        break;
+                    case "L":
+                        this.AttributeValue.L = ((CacheListOfAttributeValuesWrapper)en.Value).List;
+                        break;
                 }
             }
         }
@@ -77,6 +83,14 @@ namespace Linq2DynamoDb.DataContext.Caching
             if ((this.AttributeValue.BS != null) && (this.AttributeValue.BS.Count > 0))
             {
                 info.AddValue("BS", this.AttributeValue.BS, typeof(List<MemoryStream>));
+            }
+            if ((this.AttributeValue.M != null) && (this.AttributeValue.M.Count > 0))
+            {
+                info.AddValue("M", new CacheDictionaryOfAttributeValuesWrapper(this.AttributeValue.M), typeof(CacheDictionaryOfAttributeValuesWrapper));
+            }
+            if ((this.AttributeValue.L != null) && (this.AttributeValue.L.Count > 0))
+            {
+                info.AddValue("L", new CacheListOfAttributeValuesWrapper(this.AttributeValue.L), typeof(CacheListOfAttributeValuesWrapper));
             }
         }
 

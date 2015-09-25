@@ -59,6 +59,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Caching\CacheDictionaryOfAttributeValuesWrapper.cs" />
+    <Compile Include="Caching\CacheListOfAttributeValuesWrapper.cs" />
     <Compile Include="Caching\CacheAttributeValueWrapper.cs" />
     <Compile Include="Caching\CacheDocumentWrapper.cs" />
     <Compile Include="Caching\CacheDynamoDbEntryWrapper.cs" />
