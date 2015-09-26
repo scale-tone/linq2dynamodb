@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>Linq2DynamoDb.AspNet.DataSource</id>
-        <version>1.4.1</version>
+        <version>1.4.2</version>
         <title>Linq2DynamoDb.AspNet.DataSource</title>
         <authors>linq2dynamodb</authors>
         <owners>linq2dynamodb</owners>

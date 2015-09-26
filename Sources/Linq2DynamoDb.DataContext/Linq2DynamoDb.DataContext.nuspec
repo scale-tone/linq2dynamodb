@@ -2,8 +2,8 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>Linq2DynamoDb.DataContext</id>
-        <version>1.4.1</version>
-        <title>Linq2DynamoDb.AspNet.DataSource</title>
+        <version>1.4.2</version>
+        <title>Linq2DynamoDb.DataContext</title>
         <authors>linq2dynamodb</authors>
         <owners>linq2dynamodb</owners>
         <projectUrl>https://github.com/scale-tone/linq2dynamodb/</projectUrl>
