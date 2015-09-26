@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Enyim.Caching;
 using Linq2DynamoDb.DataContext.Caching;
@@ -85,6 +86,52 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 
             Assert.AreNotEqual(0, this._cacheHitCount, "Query result wasn't loaded from cache on second try");
             Assert.AreEqual(booksCount, booksCountFromCache, "The number of books in cache differs from the number of books in DynamoDB");
+        }
+
+        [Test]
+        public void DataContext_Caching_ComplexObjectFieldLoadedFromCache()
+        {
+            var createdBook = BooksHelper.CreateBook(publisher: new Book.PublisherDto { Title = "O’Reilly Media", Address = "Sebastopol, CA" });
+
+            var bookTable = Context.GetTable<Book>(() => this.TableCache);
+
+            foreach (var book in bookTable)
+            {
+                Assert.AreEqual(book.Publisher.ToString(), createdBook.Publisher.ToString(), "Complex object field failed wasn't loaded from table");
+            }
+
+            Assert.AreEqual(0, this._cacheHitCount, "Cache wasn't flushed for some strange reason");
+
+            foreach (var book in bookTable)
+            {
+                Assert.AreEqual(book.Publisher.ToString(), createdBook.Publisher.ToString(), "Complex object field failed wasn't loaded from cache");
+            }
+
+            Assert.AreNotEqual(0, this._cacheHitCount, "Query result wasn't loaded from cache");
+        }
+
+        [Test]
+        public void DataContext_Caching_ComplexObjectListFieldLoadedFromCache()
+        {
+            var createdBook = BooksHelper.CreateBook(reviews: new List<Book.ReviewDto> { new Book.ReviewDto { Author = "Beavis", Text = "Cool" }, new Book.ReviewDto { Author = "Butt-head", Text = "This sucks!" } });
+
+            var bookTable = Context.GetTable<Book>(() => this.TableCache);
+
+            foreach (var book in bookTable)
+            {
+                Assert.AreEqual(book.ReviewsList.Single(r => r.Author == "Beavis").ToString(), createdBook.ReviewsList.Single(r => r.Author == "Beavis").ToString(), "Complex object list field failed wasn't loaded from table");
+                Assert.AreEqual(book.ReviewsList.Single(r => r.Author == "Butt-head").ToString(), createdBook.ReviewsList.Single(r => r.Author == "Butt-head").ToString(), "Complex object list field failed wasn't loaded from table");
+            }
+
+            Assert.AreEqual(0, this._cacheHitCount, "Cache wasn't flushed for some strange reason");
+
+            foreach (var book in bookTable)
+            {
+                Assert.AreEqual(book.ReviewsList.Single(r => r.Author == "Beavis").ToString(), createdBook.ReviewsList.Single(r => r.Author == "Beavis").ToString(), "Complex object list field failed wasn't loaded from table");
+                Assert.AreEqual(book.ReviewsList.Single(r => r.Author == "Butt-head").ToString(), createdBook.ReviewsList.Single(r => r.Author == "Butt-head").ToString(), "Complex object list field failed wasn't loaded from table");
+            }
+
+            Assert.AreNotEqual(0, this._cacheHitCount, "Query result wasn't loaded from cache");
         }
 
         [Test]
