@@ -272,7 +272,7 @@ namespace Linq2DynamoDb.DataContext
 
             if (resultDoc != null)
             {
-                this.Log("Get from cache: " + translationResult);
+                this.Log("Get from cache: {0}", translationResult);
             }
             else
             {
@@ -290,7 +290,7 @@ namespace Linq2DynamoDb.DataContext
                 // putting the entity to cache as well
                 this.Cache.PutSingleLoadedEntity(entityKey, resultDoc);
 
-                this.Log("Get from DynamoDb: " + translationResult);
+                this.Log("Get from DynamoDb: {0}", translationResult);
             }
 
             // creating an enumerator for a single value or an empty enumerator
@@ -317,7 +317,7 @@ namespace Linq2DynamoDb.DataContext
 
             batchGet.Execute();
 
-            this.Log("DynamoDb batch get: " + translationResult);
+            this.Log("DynamoDb batch get: {0}", translationResult);
 
             resultingReader = this.CreateDocArrayReader(batchGet.Results, entityType, translationResult.ProjectionFunc);
             return true;
@@ -367,11 +367,11 @@ namespace Linq2DynamoDb.DataContext
 
             if (string.IsNullOrEmpty(queryConfig.IndexName))
             {
-                this.Log("DynamoDb query: " + translationResult);
+                this.Log("DynamoDb query: {0}", translationResult);
             }
             else
             {
-                this.Log("DynamoDb index query: " + translationResult + ". Index name: " + queryConfig.IndexName);
+                this.Log("DynamoDb index query: {0}. Index name: {1}", translationResult, queryConfig.IndexName);
             }
 
             resultingReader = this.CreateReader(searchResult, entityType, translationResult.ProjectionFunc);
@@ -394,7 +394,7 @@ namespace Linq2DynamoDb.DataContext
 
             var searchResult = this.TableDefinition.Scan(scanConfig);
 
-            this.Log("DynamoDb scan: " + translationResult);
+            this.Log("DynamoDb scan: {0}", translationResult);
 
             return this.CreateReader(searchResult, entityType, translationResult.ProjectionFunc);
         }
@@ -431,12 +431,26 @@ namespace Linq2DynamoDb.DataContext
                 return;
             }
 
-            string tableNameWithHashKey = this.TableDefinition.TableName;
+            var tableNameWithHashKey = this.TableDefinition.TableName;
             if (this.HashKeyValue != null)
             {
                 tableNameWithHashKey += ":" + this.HashKeyValue.AsString();
             }
-            handler(tableNameWithHashKey + " : " + string.Format(format, args));
+
+            string formattedString;
+            try
+            {
+                formattedString = string.Format(format, args);
+            }
+            catch (FormatException exception)
+            {
+                handler(
+                    "Failed to create diagnostics message due to error " + exception.Message + " @ " + exception.StackTrace + " @ input message " + format +
+                        " @ input args " + string.Join(",", args ?? new object[0]));
+                return;
+            }
+
+            handler(tableNameWithHashKey + " : " + formattedString);
         }
 
         #endregion

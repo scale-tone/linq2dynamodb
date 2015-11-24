@@ -180,7 +180,7 @@ namespace Linq2DynamoDb.DataContext
                         continue;
                     }
 
-                    this.Log("Putting modified entity with key " + modifiedKey);
+                    this.Log("Putting modified entity with key {0}", modifiedKey);
                     entitiesToUpdate.Add(modifiedKey, modifiedDoc);
                 }
 
@@ -205,7 +205,7 @@ namespace Linq2DynamoDb.DataContext
                     // if this entity was already submitted and wasn't modified after that
                     if (addedDoc != null)
                     {
-                        this.Log("Putting added entity with key " + addedKey);
+                        this.Log("Putting added entity with key {0}", addedKey);
                         entitiesToAdd.Add(addedKey, addedDoc);
                     }
                 }
@@ -219,7 +219,7 @@ namespace Linq2DynamoDb.DataContext
                         continue;
                     }
 
-                    this.Log("Removing entity with key " + removedKey);
+                    this.Log("Removing entity with key {0}", removedKey);
                     entitiesToRemove.Add(removedKey);
                 }
             }
