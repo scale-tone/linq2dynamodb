@@ -68,6 +68,7 @@
     <Compile Include="CachingTests\PredefinedHashKeyCachingTests2.cs" />
     <Compile Include="CachingTests\PredefinedHashKeyCachingTests.cs" />
     <Compile Include="CachingTests\StringFieldComparisonTests.cs" />
+    <Compile Include="DataContextTests.cs" />
     <Compile Include="Entities\BooksComparer.cs" />
     <Compile Include="EntityManagementTests\EntityCreationTests.cs" />
     <Compile Include="EntityManagementTests\EntityModificationTests.cs" />
