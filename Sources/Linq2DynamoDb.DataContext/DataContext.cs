@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Amazon;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Linq2DynamoDb.DataContext.Caching;
@@ -36,6 +38,18 @@ namespace Linq2DynamoDb.DataContext
         public DataContext(string tableNamePrefix)
         {
             this._tableNamePrefix = tableNamePrefix;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the Linq2DynamoDb.DataContext.DataContext class. If a table
+        /// prefix is specified in config, it will be picked up automatically, rather than explicitly
+        /// defining it in the constructor.
+        /// </summary>
+        /// <param name="client">   Returns an AmazonDynamoDb instance passed via ctor. </param>
+        public DataContext(IAmazonDynamoDB client)
+        {
+            this._client = client;
+            this._tableNamePrefix = AWSConfigsDynamoDB.Context.TableNamePrefix;
         }
 
         #endregion

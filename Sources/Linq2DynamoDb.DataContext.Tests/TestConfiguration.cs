@@ -25,7 +25,10 @@ namespace Linq2DynamoDb.DataContext.Tests
 
 		public static AWSCredentials GetAwsCredentials()
 		{
-			var file = new FileInfo(AwsCredentialsFilePath);
+			// returning null means we're providing credentials in some other way than a credentials file
+		    if (string.IsNullOrEmpty(AwsCredentialsFilePath)) return null;
+
+		    var file = new FileInfo(AwsCredentialsFilePath);
 			if (!file.Exists)
 			{
 				// Create subdirectories
@@ -60,8 +63,10 @@ namespace Linq2DynamoDb.DataContext.Tests
 
 		public static IAmazonDynamoDB GetDynamoDbClient()
 		{
-		    return new AmazonDynamoDBClient(GetAwsCredentials(), DynamoDbRegion);
-		}
+            // uncomment this line to get tests working without credentials file
+            //return new AmazonDynamoDBClient();
+            return new AmazonDynamoDBClient(GetAwsCredentials(), DynamoDbRegion);
+        }
 
         public static DynamoDBContext GetDynamoDbContext()
         {
