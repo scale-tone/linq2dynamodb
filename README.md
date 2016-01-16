@@ -15,6 +15,7 @@ AWS DynamoDB is a cool, highly-available and highly-durable NoSQL database. Yet,
 AWS SDK for .Net (via it's Amazon.DynamoDB.DataModel namespace) provides a cool type-safe way to store and retrieve .Net classes from/to DynamoDB. Yet:
 * it's still not very .Net-friendly and doesn't fit well with some other common data technologies on .Net platform like LINQ and data binding,
 * it's objects cannot be directly cached in e.g. ElastiCache, because they're not serializable.
+
 LINQ2DynamoDB tries to address all of those concerns. 
 
 [Linq2DynamoDb.DataContext](https://github.com/scale-tone/linq2dynamodb/blob/master/Sources/Linq2DynamoDb.DataContext/DataContext.cs) translates LINQ queries into corresponding DynamoDB Get/Query/Scan operations (trying to choose the most effective one) and stores query results in an in-memory cache (currently only MemcacheD/AWS ElastiCache is supported). When data is modified, it's saved both to DynamoDB and to cache. This mitigates another issue of DynamoDB: inconsistent reads (Get/Query operations *can* be consistent for a double price, Scan operations cannot). If Linq2DynamoDb.DataContext succeeds to load the data from cache, that data will for sure be of the latest version.
