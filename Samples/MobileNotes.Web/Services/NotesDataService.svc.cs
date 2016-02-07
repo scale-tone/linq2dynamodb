@@ -6,7 +6,6 @@
 
 using System.Data.Services;
 using System.Data.Services.Common;
-using System.Diagnostics;
 using MobileNotes.Web.Model;
 
 namespace MobileNotes.Web.Services
@@ -18,13 +17,7 @@ namespace MobileNotes.Web.Services
         {
             config.SetEntitySetAccessRule("*", EntitySetRights.All);
 
-            config.DataServiceBehavior.MaxProtocolVersion = DataServiceProtocolVersion.V3;
-        }
-
-        protected override void HandleException(HandleExceptionArgs args)
-        {
-            Debug.WriteLine(args.Exception);
-            base.HandleException(args);
+            config.DataServiceBehavior.MaxProtocolVersion = DataServiceProtocolVersion.V2;
         }
     }
 }
