@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
@@ -7,8 +8,9 @@ using Microsoft.Live;
 using Microsoft.Live.Controls;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using MobileNotes.Common;
+using MobileNotes.WinPhoneApp.Common;
 using MobileNotes.WinPhoneApp.NotesServiceReference;
+using MobileNotes.WinPhoneApp.ViewModels;
 
 namespace MobileNotes.WinPhoneApp
 {
@@ -23,14 +25,42 @@ namespace MobileNotes.WinPhoneApp
         {
             InitializeComponent();
 
-            this.SigninButton.ClientId = Constants.LiveClientId;
-
             // this is a common way for refreshing Application Bar buttons
             this._addNoteAppButton = (ApplicationBarIconButton)ApplicationBar.Buttons[0];
             this._selectAppButton = (ApplicationBarIconButton)ApplicationBar.Buttons[1];
             this._removeNotesAppButton = (ApplicationBarIconButton)ApplicationBar.Buttons[2];
 
             this.DataContext = App.ViewModel;
+
+            // requesting OpenID Connect app creds from server. 
+            var client = new WebClient();
+
+            client.OpenReadCompleted += (_, args) =>
+            {
+                if ((args.Error != null) || (args.Result == null))
+                {
+                    MessageBox.Show("Failed to get OpenID Connect app creds from server. Please, create OauthAppCredentials.json file in server's root and fill it with your own values!");
+                    return;
+                }
+
+                var authConstants = AuthConstants.FromJsonStream(args.Result);
+                App.ViewModel.AuthSchema = authConstants.JwtAuthSchema;
+
+                // creating the SignInButton dynamically, because it doesn't support delayed ClientId initialization
+                var signinButton = new SignInButton()
+                {
+                    TextType = ButtonTextType.SignIn,
+                    Branding = BrandingType.MicrosoftAccount,
+                    Scopes = "wl.signin wl.basic",
+                    ClientId = authConstants.LiveClientId
+                };
+                Grid.SetRow(signinButton, 1);
+                signinButton.SessionChanged += this.SignInButton_OnSessionChanged;
+
+                this.LayoutRoot.Children.Add(signinButton);
+            };
+
+            client.OpenReadAsync(new Uri(MainViewModel.ServiceUri + "/AuthConstants.json"));
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Services.Client;
+using System.Diagnostics;
 using System.Linq;
-using MobileNotes.Common;
 using MobileNotes.WinPhoneApp.Common;
 using MobileNotes.WinPhoneApp.NotesServiceReference;
 
@@ -14,6 +14,14 @@ namespace MobileNotes.WinPhoneApp.ViewModels
     public class MainViewModel : BaseViewModel
     {
         #region Public Properties
+
+        //TODO: put your server name into this URI
+        public const string ServiceUri = "http://<my_service_name>.elasticbeanstalk.com";
+
+        /// <summary>
+        /// Schema constant for the Authorization HTTP header
+        /// </summary>
+        public string AuthSchema { get; set; }
 
         /// <summary>
         /// The collection of notes displayed
@@ -93,7 +101,7 @@ namespace MobileNotes.WinPhoneApp.ViewModels
         {
             var note = new Note
             {
-                ID = this.GetNewNoteId(),
+                ID = Guid.NewGuid().ToString(),
                 Text = text,
                 TimeCreated = DateTime.Now
             };
@@ -120,9 +128,6 @@ namespace MobileNotes.WinPhoneApp.ViewModels
 
         #region Private Properties
 
-        //TODO: put your server name into this URI
-        public const string NotesDataServiceUri = "http://samantha-jr/MobileNotes.Web/Services/NotesDataService.svc";
-
         private NotesDataContext _context;
 
         private string _authenticationToken;
@@ -140,13 +145,15 @@ namespace MobileNotes.WinPhoneApp.ViewModels
             this.IsUiEnabled = false;
 
             // preparing a data context
-            this._context = new NotesDataContext(new Uri(NotesDataServiceUri));
+            this._context = new NotesDataContext(new Uri(ServiceUri + "/Services/NotesDataService.svc"));
+
+            Debug.Assert(!string.IsNullOrEmpty(this.AuthSchema), "The AuthSchema property should be initialized!");
 
             // passing the authentication token obtained from Microsoft Account via the Authorization header
             this._context.SendingRequest += (sender, args) =>
             {
                 // let our header look a bit custom
-                args.RequestHeaders["Authorization"] = Constants.AuthorizationHeaderPrefix + this._authenticationToken;
+                args.RequestHeaders["Authorization"] = this.AuthSchema + " " + this._authenticationToken;
             };
 
             var notes = new DataServiceCollection<Note>(this._context);
@@ -225,21 +232,6 @@ namespace MobileNotes.WinPhoneApp.ViewModels
                 }, null),
                 null
             );
-        }
-
-        /// <summary>
-        /// This is of course a completely wrong way to get an ID for a new Note
-        /// </summary>
-        /// <returns></returns>
-        private int GetNewNoteId()
-        {
-            if (this.Notes.Count <= 0)
-            {
-                return 1;
-            }
-
-            int newId = this.Notes.Max(n => n.ID) + 1;
-            return newId;
         }
 
         #endregion

@@ -5,7 +5,7 @@
         <Key>
           <PropertyRef Name="ID" />
         </Key>
-        <Property Name="ID" Type="Edm.Int32" Nullable="false" />
+        <Property Name="ID" Type="Edm.String" Nullable="false" />
         <Property Name="Text" Type="Edm.String" />
         <Property Name="TimeCreated" Type="Edm.DateTime" Nullable="false" />
       </EntityType>

@@ -102,7 +102,7 @@ namespace MobileNotes.WinPhoneApp.NotesServiceReference
         /// <param name="ID">Initial value of ID.</param>
         /// <param name="timeCreated">Initial value of TimeCreated.</param>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public static Note CreateNote(int ID, global::System.DateTime timeCreated)
+        public static Note CreateNote(string ID, global::System.DateTime timeCreated)
         {
             Note note = new Note();
             note.ID = ID;
@@ -114,7 +114,7 @@ namespace MobileNotes.WinPhoneApp.NotesServiceReference
         /// </summary>
         [global::System.Runtime.Serialization.DataMemberAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public int ID
+        public string ID
         {
             get
             {
@@ -129,8 +129,8 @@ namespace MobileNotes.WinPhoneApp.NotesServiceReference
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        private int _ID;
-        partial void OnIDChanging(int value);
+        private string _ID;
+        partial void OnIDChanging(string value);
         partial void OnIDChanged();
         /// <summary>
         /// There are no comments for Property Text in the schema.

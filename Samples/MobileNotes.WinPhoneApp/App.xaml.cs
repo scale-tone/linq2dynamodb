@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Resources;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Navigation;
@@ -13,7 +12,7 @@ namespace MobileNotes.WinPhoneApp
 {
     public partial class App : Application
     {
-        private static MainViewModel _viewModel = null;
+        private static MainViewModel _viewModel;
 
         /// <summary>
         /// A static ViewModel used by the views to bind against.

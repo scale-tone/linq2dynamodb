@@ -6,10 +6,8 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:my="clr-namespace:Microsoft.Live.Controls;assembly=Microsoft.Live.Controls"
     x:Class="MobileNotes.WinPhoneApp.MainPage"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignData SampleData/MainViewModelSampleData.xaml}"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -39,15 +37,6 @@
             <TextBlock Text="MobileNotes.WinPhoneApp" Style="{StaticResource PhoneTextNormalStyle}"/>
             <TextBlock Text="MY NOTES" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
         </StackPanel>
-
-        <my:SignInButton 
-            Grid.Row="1" 
-            x:Name="SigninButton"
-            TextType="SignIn"
-            Scopes="wl.signin" 
-            Branding="MicrosoftAccount"
-            SessionChanged="SignInButton_OnSessionChanged"
-        />
 
         <Grid x:Name="ContentPanel" Grid.Row="2" Margin="12,0,12,0">
 
