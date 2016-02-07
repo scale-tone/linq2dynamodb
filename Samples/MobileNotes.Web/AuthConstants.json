@@ -1,0 +1,10 @@
+﻿{
+    "JwtAuthSchema":  "JsonWebToken",
+
+    "LiveClientId": "<register-your-app-and-put-your-client-id>",
+    "LiveClientSecret": "<register-your-app-and-put-your-client-secret>",
+
+    "GoogleClientId": "<register-your-app-and-put-your-client-id>",
+    "GoogleClientSecret": "<register-your-app-and-put-your-client-secret>",
+    "GoogleRedirectUri": "http://localhost/callback"
+}
