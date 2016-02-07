@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <script src="js/platformOverrides.js"></script>
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+    <script src="lib/angular-resource/angular-resource.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/filters.js"></script>
+</head>
+
+<body ng-app="mobilenotesapp" ng-controller="maincontroller">
+
+<div ng-view class="container push-right">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <a class="google-sign-in btn btn-block" ng-click="login()">
+                <span class="btn-copy">Sign in with Google</span>
+            </a>
+        </div>
+        <div class="panel-body" ng-show="isLoggedIn">
+            <div class="col-xs-12">
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="newNoteText">
+
+                    <span class="input-group-btn">
+                        <a class="btn btn-default" ng-click="addNote()">Add</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="alert alert-danger" ng-show="errorMsg">{{errorMsg}}</div>
+        </div>
+    </div>
+
+    <ul class="list-group">
+        <li class="list-group-item" data-ng-repeat="note in notes.d">
+            <h4 class="list-group-item-heading">{{note.Text}}</h4>
+            <p class="list-group-item-text">{{note.TimeCreated | msJsonDate | date : 'medium'}}</p>
+        </li>
+    </ul>
+
+</div>
+
+</body>
+</html>
