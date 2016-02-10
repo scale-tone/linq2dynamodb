@@ -8,44 +8,41 @@ namespace Linq2DynamoDb.DataContext.Caching
         /// <summary>
         /// Implements the process of creating and filling the index
         /// </summary>
-        private class EnyimIndexCreator : IIndexCreator
+        private class EnyimIndexCreator : IndexCreator
         {
-            private readonly EnyimTableCache _parent;
+            private EnyimTableCache _tableCache
+			{
+				get { return (EnyimTableCache) _parent; }
+			}
 
-            private TableIndex _index;
-            private readonly string _indexKey;
-            private readonly string _indexKeyInCache;
             private ulong _indexVersionInCache;
 
             internal EnyimIndexCreator(EnyimTableCache parent, string indexKeyInCache, SearchConditions searchConditions)
+				: base(parent, indexKeyInCache, searchConditions)
             {
-                this._parent = parent;
-                this._index = new TableIndex(searchConditions);
-                this._indexKey = searchConditions.Key;
-                this._indexKeyInCache = indexKeyInCache;
             }
 
-            public bool StartCreatingIndex()
+            public override bool StartCreatingIndex()
             {
                 // Marking the index as being rebuilt.
                 // Note: we're using Set mode. This means, that if an index exists in cache, it will be 
                 // overwritten. That's OK, because if an index exists in cache, then in most cases we
                 // will not be in this place (the data will be simply read from cache).
-                if (!this._parent._cacheClient.Store(StoreMode.Set, this._indexKeyInCache, this._index, this._parent._ttl))
+                if (!_tableCache._cacheClient.SetValue(this._indexKeyInCache, this._index))
                 {
-                    this._parent._cacheClient.Remove(this._indexKeyInCache);
+					_tableCache._cacheClient.Remove(this._indexKeyInCache);
                     return false;
                 }
 
                 // (re)registering it in the list of indexes (it should be visible for update operations)
-                if (!this._parent.PutIndexToList(this._indexKey))
+				if (!_tableCache.PutIndexToList(this._indexKey))
                 {
-                    this._parent._cacheClient.Remove(this._indexKeyInCache);
+					_tableCache._cacheClient.Remove(this._indexKeyInCache);
                     return false;
                 }
 
                 // remembering the index's current version
-                var casResult = this._parent._cacheClient.GetWithCas<TableIndex>(this._indexKeyInCache);
+                var casResult = _tableCache._memcachedClient.GetWithCas<TableIndex>(this._indexKeyInCache);
                 if
                 (
                     (casResult.StatusCode != 0)
@@ -53,7 +50,7 @@ namespace Linq2DynamoDb.DataContext.Caching
                     (casResult.Result == null)
                 )
                 {
-                    this._parent._cacheClient.Remove(this._indexKeyInCache);
+					_tableCache._cacheClient.Remove(this._indexKeyInCache);
                     return false;
                 }
 
@@ -64,8 +61,8 @@ namespace Linq2DynamoDb.DataContext.Caching
 
             public void AddEntityToIndex(EntityKey entityKey, Document doc)
             {
-                string key = this._parent.GetEntityKeyInCache(entityKey);
-                if (key.Length > MaxKeyLength)
+				string key = _tableCache.GetEntityKeyInCache(entityKey);
+                if (key == null)
                 {
                     this._index = null;
                     return;
@@ -76,26 +73,26 @@ namespace Linq2DynamoDb.DataContext.Caching
 
                 // Putting the entity to cache, but only if it doesn't exist there.
                 // That's because when loading from DynamoDb whe should never overwrite local updates.
-                this._parent._cacheClient.Store(StoreMode.Add, key, new CacheDocumentWrapper(doc), this._parent._ttl);
+				_tableCache._cacheClient.AddValue(key, new CacheDocumentWrapper(doc));
             }
 
             public void Dispose()
             {
                 if (this._index == null)
                 {
-                    this._parent._cacheClient.Remove(this._indexKeyInCache);
+                    _tableCache._cacheClient.Remove(this._indexKeyInCache);
                     return;
                 }
 
                 this._index.IsBeingRebuilt = false;
 
                 // saving the index to cache only if it's version didn't change since we started reading results from DynamoDb
-                var casResult = this._parent._cacheClient.Cas
+                var casResult = _tableCache._memcachedClient.Cas
                 (
                     StoreMode.Replace, 
                     this._indexKeyInCache, 
-                    this._index, 
-                    this._parent._ttl, 
+                    this._index,
+					_tableCache._cacheClient.DefaultTimeToLive, 
                     this._indexVersionInCache
                 );
 

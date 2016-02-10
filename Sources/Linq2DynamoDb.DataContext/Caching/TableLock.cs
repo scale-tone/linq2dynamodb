@@ -7,11 +7,11 @@ namespace Linq2DynamoDb.DataContext.Caching
     /// </summary>
     internal class TableLock : IDisposable
     {
-        private readonly EnyimTableCache _cache;
+        private readonly TableCache _cache;
         private readonly string _lockKey;
         private bool _disposed;
 
-        internal TableLock(EnyimTableCache repository, string lockKey, TimeSpan lockTimeout)
+        internal TableLock(TableCache repository, string lockKey, TimeSpan lockTimeout)
         {
             this._cache = repository;
             this._lockKey = lockKey;
