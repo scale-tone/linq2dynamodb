@@ -19,28 +19,6 @@ namespace Linq2DynamoDb.DataContext.Caching
 			DefaultTimeToLive = defaultTtl ?? TimeSpan.FromMinutes(15);
 		}
 
-		//public string this[string key]
-		//{
-		//	get
-		//	{
-		//		throw new NotImplementedException();
-		//	}
-		//	set
-		//	{
-		//		throw new NotImplementedException();
-		//	}
-		//}
-
-		//public string this[string key, DateTime expiration]
-		//{
-		//	set { throw new NotImplementedException(); }
-		//}
-
-		//public string this[string key, TimeSpan? timeToLive]
-		//{
-		//	set { throw new NotImplementedException(); }
-		//}
-
 		public bool Remove(string key)
 		{
 			return _cacheClient.Remove(key);
@@ -62,21 +40,6 @@ namespace Linq2DynamoDb.DataContext.Caching
 			
 			return result.Success;
 		}
-
-		//public bool TryGetValue<T>(string key, out T value, out TimeSpan? timeToLive)
-		//{
-		//	throw new NotImplementedException();
-		//}
-
-		//public bool TryGetValue<T>(string key, out T value, out DateTime? expiration)
-		//{
-		//	throw new NotImplementedException();
-		//}
-
-		//public bool TryGetTimeToLive(string key, out TimeSpan? timetoLive)
-		//{
-		//	throw new NotImplementedException();
-		//}
 
 		public bool AddValue<T>(string key, T value)
 		{
@@ -136,14 +99,5 @@ namespace Linq2DynamoDb.DataContext.Caching
 			}
 			return _cacheClient.Store(mode, key, value, expiration.Value);
 		}
-
-		//public bool SetTimeToLive(string key, TimeSpan? timetoLive)
-		//{
-		//	object value;
-		//	if (!TryGetValue<object>(key, out value))
-		//		return false;
-
-		//	return ReplaceValue<object>(key, value, )
-		//}
 	}
 }
