@@ -10,5 +10,6 @@ namespace Linq2DynamoDb.DataContext.Caching
     public interface IIndexCreator : IDisposable
     {
         void AddEntityToIndex(EntityKey entityKey, Document doc);
+		bool StartCreatingIndex();
     }
 }

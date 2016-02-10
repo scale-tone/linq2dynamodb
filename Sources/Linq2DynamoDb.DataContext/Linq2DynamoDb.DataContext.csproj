@@ -48,6 +48,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EnyimMemcached.2.12\lib\net35\Enyim.Caching.dll</HintPath>
     </Reference>
+    <Reference Include="StackExchange.Redis, Version=1.0.316.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.1.0.488\lib\net45\StackExchange.Redis.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
@@ -65,7 +69,17 @@
     <Compile Include="Caching\CacheDocumentWrapper.cs" />
     <Compile Include="Caching\CacheDynamoDbEntryWrapper.cs" />
     <Compile Include="Caching\CachePrimitiveWrapper.cs" />
+    <Compile Include="Caching\EnyimMemcachedClient.cs" />
     <Compile Include="Caching\EnyimProjectionIndexCreator.cs" />
+    <Compile Include="Caching\EnyimTableCache.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Caching\ICacheClient.cs" />
+    <Compile Include="Caching\IndexCreator.cs" />
+    <Compile Include="Caching\ProjectionIndexCreator.cs" />
+    <Compile Include="Caching\RedisCacheClient.cs" />
+    <Compile Include="Caching\RedisTableCache.cs" />
+    <Compile Include="Caching\TableCache.cs" />
     <Compile Include="Caching\TableLock.cs" />
     <Compile Include="Caching\TableProjectionIndex.cs" />
     <Compile Include="CreateTableArgs.cs" />
@@ -89,7 +103,6 @@
     <Compile Include="EntityProxy.cs" />
     <Compile Include="EntityWrapper.cs" />
     <Compile Include="Caching\EnyimIndexCreator.cs" />
-    <Compile Include="Caching\EnyimTableCache.cs" />
     <Compile Include="ExpressionUtils\ColumnProjectionResult.cs" />
     <Compile Include="ExpressionUtils\ProjectionVisitor.cs" />
     <Compile Include="ExpressionUtils\SubtreeEvaluationVisitor.cs" />
@@ -111,6 +124,7 @@
     <Compile Include="Caching\TableIndex.cs" />
     <Compile Include="Caching\TableIndexList.cs" />
     <Compile Include="TableDefinitionWrapperBase.cs" />
+    <Compile Include="Utils\Base64Serializer.cs" />
     <Compile Include="Utils\TranslationResultUtils.cs" />
     <Compile Include="Utils\DynamoDbConversionUtils.cs" />
     <Compile Include="Utils\GeneralUtils.cs" />
