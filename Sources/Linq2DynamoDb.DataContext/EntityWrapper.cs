@@ -60,7 +60,9 @@ namespace Linq2DynamoDb.DataContext
                 if 
                 (
                     (!this._doc.ContainsKey(field.Key)) 
-                    && 
+                    &&
+                    (!(field.Value is DynamoDBList))
+                    &&
                     (field.Value.AsString() == null)
                 )
                 {
