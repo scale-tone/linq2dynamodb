@@ -24,12 +24,13 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
             /// <summary>
             /// Loads all entities from an index or throws, if something wasn't found
             /// </summary>
-            public static Document[] LoadProjectionIndexEntities(RedisWrapper redis, string indexKey)
+            public static Document[] LoadProjectionIndexEntities(RedisWrapper redis, string indexKey, string indexListKey)
             {
                 var rawIndex = redis.GetHashFieldsWithRetries(indexKey);
 
                 if (rawIndex.Length <= 0)
                 {
+                    redis.RemoveHashFieldsWithRetries(indexListKey, indexKey);
                     throw new RedisCacheException("Index wasn't found in cache");
                 }
 

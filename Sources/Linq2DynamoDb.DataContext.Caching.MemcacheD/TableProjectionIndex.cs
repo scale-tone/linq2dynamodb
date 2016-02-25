@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DocumentModel;
 
-namespace Linq2DynamoDb.DataContext.Caching
+namespace Linq2DynamoDb.DataContext.Caching.MemcacheD
 {
     /// <summary>
     /// Implements a projection index stored in cache

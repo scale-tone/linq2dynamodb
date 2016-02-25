@@ -36,7 +36,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
                     Task.Run(() => this.TryKeepIndexListSlim(indexKey));
 
                     // creating an index and marking it as being rebuilt
-                    this._parent._redis.SetHashWithRetries(this.IndexKeyInCache, IndexVersionField.Name, IndexVersionField.IsBeingRebuiltValue, true);
+                    this._parent._redis.CreateNewHashWithRetries(this.IndexKeyInCache, IndexVersionField.Name, IndexVersionField.IsBeingRebuiltValue);
 
                     this.RedisTransaction = this._parent._redis.BeginTransaction(IndexVersionField.IsBeingRebuiltCondition(this.IndexKeyInCache));
                     this._parent.Log("Index ({0}) was marked as being rebuilt", this._searchConditions.Key);
@@ -87,12 +87,13 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
             /// <summary>
             /// Loads all entities from an index or throws, if something wasn't found
             /// </summary>
-            public static Document[] LoadIndexEntities(RedisWrapper redis, string indexKey)
+            public static Document[] LoadIndexEntities(RedisWrapper redis, string indexKey, string indexListKey)
             {
                 var rawIndex = redis.GetHashFieldsWithRetries(indexKey);
 
                 if (rawIndex.Length <= 0)
                 {
+                    redis.RemoveHashFieldsWithRetries(indexListKey, indexKey);
                     throw new RedisCacheException("Index wasn't found in cache");
                 }
 
@@ -111,8 +112,18 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
                     throw new RedisCacheException("Index is being rebuilt");
                 }
 
-                var wrappers = redis.GetWithRetries<CacheDocumentWrapper>(entityKeys.Select(k => k.ToRedisKey()).ToArray());
-                return wrappers.Select(w => w.Document).ToArray();
+                try
+                {
+                    var wrappers = redis.GetWithRetries<CacheDocumentWrapper>(entityKeys.Select(k => k.ToRedisKey()).ToArray());
+                    return wrappers.Select(w => w.Document).ToArray();
+                }
+                catch (Exception)
+                {
+                    // if failed to load all entities - dropping the index
+                    redis.RemoveHashFieldsWithRetries(indexListKey, indexKey);
+                    redis.RemoveWithRetries(indexKey);
+                    throw;
+                }
             }
 
             /// <summary>

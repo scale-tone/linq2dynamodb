@@ -90,7 +90,8 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
             throw exception ?? new RedisCacheException("This should never happen");
         }
 
-        public void SetHashWithRetries(RedisKey hashKey, RedisValue fieldName, RedisValue fieldValue, bool clearHashFirst = false)
+
+        public void SetHashWithRetries(RedisKey hashKey, RedisValue fieldName, RedisValue fieldValue)
         {
             var redis = this.GetDatabase();
             Exception exception = null;
@@ -98,11 +99,28 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
             {
                 try
                 {
-                    if (clearHashFirst)
-                    {
-                        redis.KeyDelete(hashKey);
-                    }
                     redis.HashSet(hashKey, fieldName, fieldValue);
+                    return;
+                }
+                catch (TimeoutException ex)
+                {
+                    exception = ex;
+                }
+            }
+            throw exception ?? new RedisCacheException("This should never happen");
+        }
+
+        public void CreateNewHashWithRetries(RedisKey hashKey, RedisValue fieldName, RedisValue fieldValue)
+        {
+            var redis = this.GetDatabase();
+            Exception exception = null;
+            for (int i = 0; i < RetryCount; i++)
+            {
+                try
+                {
+                    redis.KeyDelete(hashKey);
+                    redis.HashSet(hashKey, fieldName, fieldValue);
+                    redis.KeyExpire(hashKey, this._ttl);
                     return;
                 }
                 catch (TimeoutException ex)

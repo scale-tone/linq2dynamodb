@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Amazon.DynamoDBv2.DocumentModel;
 
-namespace Linq2DynamoDb.DataContext.Caching
+namespace Linq2DynamoDb.DataContext.Caching.MemcacheD
 {
     /// <summary>
     /// Implements an index stored in cache

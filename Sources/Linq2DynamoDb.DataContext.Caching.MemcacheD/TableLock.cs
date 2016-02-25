@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Linq2DynamoDb.DataContext.Caching
+namespace Linq2DynamoDb.DataContext.Caching.MemcacheD
 {
     /// <summary>
     /// A lock object. Should be used as follows: using(cache.AcquireTableLock("some lock key")){...}

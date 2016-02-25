@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DynamoDb.DataContext", "Linq2DynamoDb.DataContext\Linq2DynamoDb.DataContext.csproj", "{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}"
 EndProject
@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DynamoDb.DataContext.Caching.Redis", "Linq2DynamoDb.DataContext.Caching.Redis\Linq2DynamoDb.DataContext.Caching.Redis.csproj", "{8374FB75-7813-4848-819C-793B73FCCA65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DynamoDb.DataContext.Caching.MemcacheD", "Linq2DynamoDb.DataContext.Caching.MemcacheD\Linq2DynamoDb.DataContext.Caching.MemcacheD.csproj", "{86CE780E-69A0-4B7F-895E-510B775FD1CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,16 @@ Global
 		{8374FB75-7813-4848-819C-793B73FCCA65}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8374FB75-7813-4848-819C-793B73FCCA65}.Verbose|Any CPU.ActiveCfg = Release|Any CPU
 		{8374FB75-7813-4848-819C-793B73FCCA65}.Verbose|Any CPU.Build.0 = Release|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Log Output|Any CPU.ActiveCfg = Release|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Log Output|Any CPU.Build.0 = Release|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Mono|Any CPU.ActiveCfg = Release|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Mono|Any CPU.Build.0 = Release|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Verbose|Any CPU.ActiveCfg = Release|Any CPU
+		{86CE780E-69A0-4B7F-895E-510B775FD1CF}.Verbose|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

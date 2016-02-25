@@ -676,9 +676,9 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
         [Test]
         public void TableCache_ManyLargeIndexesAreCreatedAndUpdated()
         {
-            const int IndexCount = 10;
+            const int IndexCount = 3;
             const int IndexSize = 1000;
-            const int FilterSize = 5;
+            const int FilterSize = 3;
 
             var filters = new Dictionary<SearchConditions, List<EntityKey>>();
             var dt = DateTime.Parse("1601-01-01");

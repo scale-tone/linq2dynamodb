@@ -104,6 +104,10 @@
     <Compile Include="UtilityTests\TableManagementTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Linq2DynamoDb.DataContext.Caching.MemcacheD\Linq2DynamoDb.DataContext.Caching.MemcacheD.csproj">
+      <Project>{86ce780e-69a0-4b7f-895e-510b775fd1cf}</Project>
+      <Name>Linq2DynamoDb.DataContext.Caching.MemcacheD</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Linq2DynamoDb.DataContext.Caching.Redis\Linq2DynamoDb.DataContext.Caching.Redis.csproj">
       <Project>{8374fb75-7813-4848-819c-793b73fcca65}</Project>
       <Name>Linq2DynamoDb.DataContext.Caching.Redis</Name>

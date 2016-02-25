@@ -44,10 +44,6 @@
     <Reference Include="AWSSDK.DynamoDBv2">
       <HintPath>..\packages\AWSSDK.DynamoDBv2.3.1.0.1\lib\net45\AWSSDK.DynamoDBv2.dll</HintPath>
     </Reference>
-    <Reference Include="Enyim.Caching, Version=2.12.0.0, Culture=neutral, PublicKeyToken=cec98615db04012e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\EnyimMemcached.2.12\lib\net35\Enyim.Caching.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
@@ -65,9 +61,6 @@
     <Compile Include="Caching\CacheDocumentWrapper.cs" />
     <Compile Include="Caching\CacheDynamoDbEntryWrapper.cs" />
     <Compile Include="Caching\CachePrimitiveWrapper.cs" />
-    <Compile Include="Caching\EnyimProjectionIndexCreator.cs" />
-    <Compile Include="Caching\TableLock.cs" />
-    <Compile Include="Caching\TableProjectionIndex.cs" />
     <Compile Include="CreateTableArgs.cs" />
     <Compile Include="DataContextExtensions.cs" />
     <Compile Include="ExpressionUtils\ScalarMethodsVisitor.cs" />
@@ -88,8 +81,6 @@
     <Compile Include="EntityKeyGetter.cs" />
     <Compile Include="EntityProxy.cs" />
     <Compile Include="EntityWrapper.cs" />
-    <Compile Include="Caching\EnyimIndexCreator.cs" />
-    <Compile Include="Caching\EnyimTableCache.cs" />
     <Compile Include="ExpressionUtils\ColumnProjectionResult.cs" />
     <Compile Include="ExpressionUtils\ProjectionVisitor.cs" />
     <Compile Include="ExpressionUtils\SubtreeEvaluationVisitor.cs" />
@@ -108,7 +99,6 @@
     <Compile Include="DataTable.cs" />
     <Compile Include="Readers\SingleDocReader.cs" />
     <Compile Include="TableDefinitionWrapper.cs" />
-    <Compile Include="Caching\TableIndex.cs" />
     <Compile Include="Caching\TableIndexList.cs" />
     <Compile Include="TableDefinitionWrapperBase.cs" />
     <Compile Include="Utils\TranslationResultUtils.cs" />

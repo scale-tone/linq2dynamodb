@@ -87,23 +87,24 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         public IEnumerable<Document> GetEntities(SearchConditions searchConditions, IEnumerable<string> projectedFields, string orderByFieldName, bool orderByDesc)
         {
             string indexKey = this.GetIndexKey(searchConditions);
+            string indexListKey = this.GetIndexListKeyInCache();
             try
             {
                 Document[] result = null;
 
                 // if a full index was found
-                if (this._redis.HashFieldExistsWithRetries(this.GetIndexListKeyInCache(), indexKey))
+                if (this._redis.HashFieldExistsWithRetries(indexListKey, indexKey))
                 {
-                    result = RedisIndex.LoadIndexEntities(this._redis, indexKey);
+                    result = RedisIndex.LoadIndexEntities(this._redis, indexKey, indexListKey);
                 }
                 else if (projectedFields != null)
                 {
                     // then trying to use a projection index
                     indexKey = this.GetIndexKey(searchConditions, projectedFields);
 
-                    if (this._redis.HashFieldExistsWithRetries(this.GetIndexListKeyInCache(), indexKey))
+                    if (this._redis.HashFieldExistsWithRetries(indexListKey, indexKey))
                     {
-                        result = RedisProjectionIndex.LoadProjectionIndexEntities(this._redis, indexKey);
+                        result = RedisProjectionIndex.LoadProjectionIndexEntities(this._redis, indexKey, indexListKey);
                     }
                 }
 

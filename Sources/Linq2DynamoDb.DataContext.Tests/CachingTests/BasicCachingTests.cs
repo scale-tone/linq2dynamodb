@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Enyim.Caching;
 using Linq2DynamoDb.DataContext.Caching;
+using Linq2DynamoDb.DataContext.Caching.MemcacheD;
 using Linq2DynamoDb.DataContext.Tests.Entities;
 using Linq2DynamoDb.DataContext.Tests.Helpers;
 using NUnit.Framework;

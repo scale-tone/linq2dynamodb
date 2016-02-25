@@ -19,7 +19,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
 
         public void Set(RedisKey key, RedisValue value)
         {
-            this.WrapTaskWithLogging(this._redisTransaction.StringSetAsync(key, value));
+            this.WrapTaskWithLogging(this._redisTransaction.StringSetAsync(key, value, this._ttl));
         }
 
         public void Remove(RedisKey key)

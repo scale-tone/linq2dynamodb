@@ -2,7 +2,7 @@
 using Amazon.DynamoDBv2.DocumentModel;
 using Enyim.Caching.Memcached;
 
-namespace Linq2DynamoDb.DataContext.Caching
+namespace Linq2DynamoDb.DataContext.Caching.MemcacheD
 {
     public partial class EnyimTableCache
     {

@@ -9,7 +9,7 @@ using Enyim.Caching;
 using Enyim.Caching.Memcached;
 using Linq2DynamoDb.DataContext.Utils;
 
-namespace Linq2DynamoDb.DataContext.Caching
+namespace Linq2DynamoDb.DataContext.Caching.MemcacheD
 {
     /// <summary>
     /// Implements caching in MemcacheD/ElastiCache via Enyim caching client
