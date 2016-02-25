@@ -289,90 +289,10 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
 
         #endregion
 
-        #region Internal Members
-
-        /// <summary>
-        /// Acquires a named lock around the table by storing a random value in cache
-        /// </summary>
-        internal void LockTable(string lockKey, TimeSpan lockTimeout)
-        {
-            if (this._lockIds.ContainsKey(lockKey))
-            {
-                throw new NotSupportedException("Recursive locks are not supported. Or maybe you're trying to use EnyimTableCache object from multiple threads?");
-            }
-
-            string cacheLockKey = this.GetLockKeyInCache(this.HashKeyValue, lockKey);
-            int cacheLockId = Rnd.Next();
-
-            var timeStart = DateTime.Now;
-            while (true)
-            {
-                if (DateTime.Now - timeStart > lockTimeout)
-                {
-                    break;
-                }
-
-                try
-                {
-                    // Trying to create a new value in cache
-                    this._redis.SetWithRetries(cacheLockKey, cacheLockId, When.NotExists);
-                    this._lockIds[lockKey] = cacheLockId;
-                    return;
-                }
-                catch (Exception)
-                {
-                    Thread.Sleep(10);
-                }
-            }
-
-            // If we failed to acquire a lock within CacheLockTimeoutInSeconds 
-            // (this means, that another process crached), then we should forcibly acquire it
-
-            this.Log("Forcibly acquiring the table lock object {0} after {1} ms of waiting", lockKey, lockTimeout.TotalMilliseconds);
-
-            this._redis.SetWithRetries(cacheLockKey, cacheLockId);
-            this._lockIds[lockKey] = cacheLockId;
-        }
-
-        /// <summary>
-        /// Releases a named lock around the table
-        /// </summary>
-        internal void UnlockTable(string lockKey)
-        {
-            int lockId;
-            if (!this._lockIds.TryRemove(lockKey, out lockId))
-            {
-                throw new InvalidOperationException( string.Format("The table lock {0} wasn't acquired, so it cannot be released. Check your code!", lockKey));
-            }
-
-            string cacheLockKey = this.GetLockKeyInCache(this.HashKeyValue, lockKey);
-            int cacheLockId;
-            try
-            {
-                cacheLockId = this._redis.GetWithRetries<int>(cacheLockKey).Single();
-            }
-            catch (Exception)
-            {
-                // The cache miss might happen here, if a cache server crashed.
-                // In this case we just silently return.
-                this.Log("The table lock object {0} is missing in cache, but we don't care about that too much (probably, the cache node was restarted)", lockKey);
-                return;
-            }
-
-            if (((int)cacheLockId) != lockId)
-            {
-                // This means, that another process has forcibly replaced our lock.
-                throw new InvalidOperationException( string.Format("The table lock {0} was forcibly acquired by another process", lockKey));
-            }
-
-            this._redis.RemoveWithRetries(cacheLockKey);
-        }
-
-        #endregion
-
         #region Private Members
 
         private const string ProjectionIndexKeyPrefix = "[projection]";
+        private static readonly Random Rnd = new Random(DateTime.Now.Millisecond);
 
         protected string TableName;
         protected string HashKeyValue;
@@ -381,15 +301,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         private readonly int _dbIndex;
         private readonly TimeSpan _cacheItemsTtl;
         private RedisWrapper _redis;
-
         private Type _tableEntityType;
-
-        /// <summary>
-        /// Here all lock keys and their IDs are stored, for debugging purposes
-        /// </summary>
-        private readonly ConcurrentDictionary<string, int> _lockIds = new ConcurrentDictionary<string, int>();
-
-        private static readonly Random Rnd = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         /// Returns a key prefix to be prepended to all keys in Redis.
@@ -416,9 +328,9 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         /// <summary>
         /// Gets a cache key for a table-wide lock
         /// </summary>
-        private string GetLockKeyInCache(string lockKey, string hashKeyValue)
+        private string GetLockKeyInCache(string lockKey)
         {
-            return this.TableName + hashKeyValue + lockKey;
+            return this.TableName + this.HashKeyValue + lockKey;
         }
 
         /// <summary>
