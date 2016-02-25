@@ -4,7 +4,7 @@ using Amazon;
 using Amazon.DynamoDBv2;
 using Enyim.Caching;
 using Linq2DynamoDb.DataContext;
-using Linq2DynamoDb.DataContext.Caching;
+using Linq2DynamoDb.DataContext.Caching.MemcacheD;
 using MobileNotes.Web.Common;
 
 namespace MobileNotes.Web.Model

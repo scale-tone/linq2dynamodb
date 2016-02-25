@@ -28,7 +28,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <MvcProjectUpgradeChecked>true</MvcProjectUpgradeChecked>
     <FileUpgradeFlags>40</FileUpgradeFlags>
-    <UpgradeBackupLocation>C:\Konst\projects\LINQ2DynamoDB-github\Samples\Backup14\</UpgradeBackupLocation>
+    <UpgradeBackupLocation>C:\Konst\projects\LINQ2DynamoDB-github\Samples\Backup16\</UpgradeBackupLocation>
     <OldToolsVersion>4.0</OldToolsVersion>
     <UseGlobalApplicationHostFile />
   </PropertyGroup>

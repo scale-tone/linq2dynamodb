@@ -306,6 +306,10 @@
       <Project>{64694925-a58d-45b0-9c9f-c6dc7b9e07a0}</Project>
       <Name>Linq2DynamoDb.AspNet.DataSource</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Sources\Linq2DynamoDb.DataContext.Caching.MemcacheD\Linq2DynamoDb.DataContext.Caching.MemcacheD.csproj">
+      <Project>{86ce780e-69a0-4b7f-895e-510b775fd1cf}</Project>
+      <Name>Linq2DynamoDb.DataContext.Caching.MemcacheD</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sources\Linq2DynamoDb.DataContext\Linq2DynamoDb.DataContext.csproj">
       <Project>{0e11b3f3-2347-4f2f-a469-2f6b1a0f1374}</Project>
       <Name>Linq2DynamoDb.DataContext</Name>
