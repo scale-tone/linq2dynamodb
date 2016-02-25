@@ -5,6 +5,7 @@ using System.Linq;
 using Amazon.DynamoDBv2.DataModel;
 using Enyim.Caching;
 using Linq2DynamoDb.DataContext.Caching;
+using Linq2DynamoDb.DataContext.Caching.MemcacheD;
 using Linq2DynamoDb.DataContext.Tests.Helpers;
 using NUnit.Framework;
 
