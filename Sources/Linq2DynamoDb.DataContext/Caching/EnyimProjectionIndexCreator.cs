@@ -28,6 +28,13 @@ namespace Linq2DynamoDb.DataContext.Caching
 
             public bool StartCreatingIndex()
             {
+                // (re)registering it in the list of indexes (it should be visible for update operations)
+                if (!this._parent.PutIndexToList(this._indexKey))
+                {
+                    this._parent._cacheClient.Remove(this._indexKeyInCache);
+                    return false;
+                }
+
                 // Marking the index as being rebuilt.
                 // Note: we're using Set mode. This means, that if an index exists in cache, it will be 
                 // overwritten. That's OK, because if an index exists in cache, then in most cases we
@@ -38,15 +45,8 @@ namespace Linq2DynamoDb.DataContext.Caching
                     return false;
                 }
 
-                // (re)registering it in the list of indexes (it should be visible for update operations)
-                if (!this._parent.PutIndexToList(this._indexKey))
-                {
-                    this._parent._cacheClient.Remove(this._indexKeyInCache);
-                    return false;
-                }
-
                 // remembering the index's current version
-                var casResult = this._parent._cacheClient.GetWithCas<TableIndex>(this._indexKeyInCache);
+                var casResult = this._parent._cacheClient.GetWithCas<TableProjectionIndex>(this._indexKeyInCache);
                 if
                 (
                     (casResult.StatusCode != 0)

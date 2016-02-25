@@ -199,7 +199,8 @@ namespace Linq2DynamoDb.DataContext.Caching
                 this.Log("Failed to put updates for table {0} to cache", this._tableName);
 
                 Parallel.ForEach(allEntities, entityPair => this._cacheClient.Remove(entityPair.Key));
-                return;
+
+                // Still need to proceed updating indexes. They shouldn't become stale because of a communication error during the previous step.
             }
 
             // now updating indexes
@@ -496,7 +497,7 @@ namespace Linq2DynamoDb.DataContext.Caching
                     ? 
                     this.UpdateProjectionIndex(indexKey, indexKeyInCache, addedEntities, modifiedEntities, removedEntities) 
                     : 
-                    this.UpdateIndex(indexKey, indexKeyInCache, addedEntities, removedEntities);
+                    this.UpdateIndex(indexKey, indexKeyInCache, addedEntities, modifiedEntities, removedEntities);
 
                 if (!indexUpdateSucceeded)
                 {
@@ -514,7 +515,7 @@ namespace Linq2DynamoDb.DataContext.Caching
         /// <summary>
         /// Adds matching entities and removes removed entities from an index
         /// </summary>
-        private bool UpdateIndex(string indexKey, string indexKeyInCache, IDictionary<EntityKey, Document> addedEntities, ICollection<EntityKey> removedEntities)
+        private bool UpdateIndex(string indexKey, string indexKeyInCache, IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, ICollection<EntityKey> removedEntities)
         {
             for (int i = 0; i < MaxUpdateAttempts; i++)
             {
@@ -532,13 +533,26 @@ namespace Linq2DynamoDb.DataContext.Caching
                     // adding added entities, if they match the index conditions
                     foreach 
                     (
-                        var entityPair in addedEntities.Where
+                        var entityPair in addedEntities.Union(modifiedEntities).Where
                         (
                             entityPair => index.MatchesSearchConditions(entityPair.Value, this._tableEntityType)
                         )
                     )
                     {
                         index.Index.Add(entityPair.Key);
+                        indexChanged = true;
+                    }
+
+                    // removing modified entities, if they do not match the index conditions any more
+                    foreach
+                    (
+                        var entityPair in modifiedEntities.Where
+                        (
+                            entityPair => !index.MatchesSearchConditions(entityPair.Value, this._tableEntityType)
+                        )
+                    )
+                    {
+                        index.Index.Remove(entityPair.Key);
                         indexChanged = true;
                     }
                 }
@@ -635,7 +649,17 @@ namespace Linq2DynamoDb.DataContext.Caching
                     return false;
                 }
 
-                var indexes = indexesGetResult.Result ?? new TableIndexList(MaxNumberOfIndexes);
+                TableIndexList indexes;
+                if (indexesGetResult.Result == null)
+                {
+                    indexes = new TableIndexList(MaxNumberOfIndexes);
+
+                    // saving the newly created value and re-reading CAS token
+                    this._cacheClient.Store(StoreMode.Add, indexListKeyInCache, indexes);
+                    continue;
+                }
+                indexes = indexesGetResult.Result;
+                
                 if (indexes.Contains(indexKey))
                 {
                     return true;
@@ -659,10 +683,12 @@ namespace Linq2DynamoDb.DataContext.Caching
             return false;
         }
 
-        private void RemoveIndexFromList(string indexKey, string indexKeyInCache, string indexListKeyInCache)
+        private void RemoveIndexFromList(string indexKey, string indexKeyInCache)
         {
             // always removing the index itself
             this._cacheClient.Remove(indexKeyInCache);
+
+            string indexListKeyInCache = this.GetIndexListKeyInCache(this._hashKeyValue);
 
             // trying multiple times
             for (int i = 0; i < MaxUpdateAttempts; i++)
@@ -852,8 +878,7 @@ namespace Linq2DynamoDb.DataContext.Caching
             this.RemoveIndexFromList
             (
                 indexKey,
-                this.GetIndexKeyInCache(indexKey, this._hashKeyValue),
-                this.GetIndexListKeyInCache(this._hashKeyValue)
+                this.GetIndexKeyInCache(indexKey, this._hashKeyValue)
             );
             return null;
         }

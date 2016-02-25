@@ -27,18 +27,18 @@ namespace Linq2DynamoDb.DataContext.Caching
 
             public bool StartCreatingIndex()
             {
-                // Marking the index as being rebuilt.
-                // Note: we're using Set mode. This means, that if an index exists in cache, it will be 
-                // overwritten. That's OK, because if an index exists in cache, then in most cases we
-                // will not be in this place (the data will be simply read from cache).
-                if (!this._parent._cacheClient.Store(StoreMode.Set, this._indexKeyInCache, this._index, this._parent._ttl))
+                // (re)registering it in the list of indexes (it should be visible for update operations)
+                if (!this._parent.PutIndexToList(this._indexKey))
                 {
                     this._parent._cacheClient.Remove(this._indexKeyInCache);
                     return false;
                 }
 
-                // (re)registering it in the list of indexes (it should be visible for update operations)
-                if (!this._parent.PutIndexToList(this._indexKey))
+                // Marking the index as being rebuilt. If we don't mark it, a parallel read might return 0 records.
+                // Note: we're using Set mode. This means, that if an index exists in cache, it will be 
+                // overwritten. That's OK, because if an index exists in cache, then in most cases we
+                // will not be in this place (the data will be simply read from cache).
+                if (!this._parent._cacheClient.Store(StoreMode.Set, this._indexKeyInCache, this._index, this._parent._ttl))
                 {
                     this._parent._cacheClient.Remove(this._indexKeyInCache);
                     return false;
@@ -57,6 +57,14 @@ namespace Linq2DynamoDb.DataContext.Caching
                     return false;
                 }
 
+                // Checking, that index wasn't changed between previous two operations.
+                // This is the only way, because there's no such operation as 'AddAndReturnCas' in Enyim
+                if((!casResult.Result.IsBeingRebuilt) || (casResult.Result.Index.Count != 0))
+                {
+                    this._parent._cacheClient.Remove(this._indexKeyInCache);
+                    return false;
+                }
+
                 this._indexVersionInCache = casResult.Cas;
                 this._parent.Log("Index ({0}) was marked as being rebuilt", (object)this._indexKey);
                 return true;
@@ -64,6 +72,12 @@ namespace Linq2DynamoDb.DataContext.Caching
 
             public void AddEntityToIndex(EntityKey entityKey, Document doc)
             {
+                // stop filling index, if at least one entity failed to be added
+                if (this._index == null)
+                {
+                    return;
+                }
+
                 string key = this._parent.GetEntityKeyInCache(entityKey);
                 if (key.Length > MaxKeyLength)
                 {
@@ -71,7 +85,7 @@ namespace Linq2DynamoDb.DataContext.Caching
                     return;
                 }
 
-                // adding key to index (it's essential to do this _before_ checking the key length - the index should fail to be read next time)
+                // adding key to index
                 this._index.Index.Add(entityKey);
 
                 // Putting the entity to cache, but only if it doesn't exist there.
@@ -83,6 +97,7 @@ namespace Linq2DynamoDb.DataContext.Caching
             {
                 if (this._index == null)
                 {
+                    this._parent.Log("Index ({0}) wasn't saved to cache, probably, because entity key was too large", (object)this._indexKey);
                     this._parent._cacheClient.Remove(this._indexKeyInCache);
                     return;
                 }
