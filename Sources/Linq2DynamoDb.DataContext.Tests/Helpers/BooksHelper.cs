@@ -77,7 +77,10 @@ namespace Linq2DynamoDb.DataContext.Tests.Helpers
                 Logger.DebugFormat("Created in-memory book: {0}", bookData);
 		    }
 
-		    _recordsForCleanup.Enqueue(book);
+		    if (_recordsForCleanup != null)
+		    {
+                _recordsForCleanup.Enqueue(book);
+            }
 
 			return book;
 		}

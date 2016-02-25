@@ -52,6 +52,10 @@
     <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="StackExchange.Redis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\StackExchange.Redis.1.0.488\lib\net45\StackExchange.Redis.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -65,9 +69,12 @@
   <ItemGroup>
     <Compile Include="CachingTests\BasicCachingTests.cs" />
     <Compile Include="CachingTests\BatchGetTests.cs" />
+    <Compile Include="CachingTests\RedisTableCacheTests.cs" />
+    <Compile Include="CachingTests\EnyimTableCacheTests.cs" />
     <Compile Include="CachingTests\PredefinedHashKeyCachingTests2.cs" />
     <Compile Include="CachingTests\PredefinedHashKeyCachingTests.cs" />
     <Compile Include="CachingTests\StringFieldComparisonTests.cs" />
+    <Compile Include="CachingTests\TableCacheTestsBase.cs" />
     <Compile Include="DataContextTests.cs" />
     <Compile Include="Entities\BooksComparer.cs" />
     <Compile Include="EntityManagementTests\EntityCreationTests.cs" />
@@ -97,6 +104,10 @@
     <Compile Include="UtilityTests\TableManagementTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Linq2DynamoDb.DataContext.Caching.Redis\Linq2DynamoDb.DataContext.Caching.Redis.csproj">
+      <Project>{8374fb75-7813-4848-819c-793b73fcca65}</Project>
+      <Name>Linq2DynamoDb.DataContext.Caching.Redis</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Linq2DynamoDb.DataContext\Linq2DynamoDb.DataContext.csproj">
       <Project>{0e11b3f3-2347-4f2f-a469-2f6b1a0f1374}</Project>
       <Name>Linq2DynamoDb.DataContext</Name>
