@@ -23,183 +23,69 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
 
         public IEnumerable<T> GetWithRetries<T>(params RedisKey[] keys)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
+            return this.DoWithRetries(redis =>
             {
-                try
-                {
-                    var values = redis.StringGet(keys);
+                var values = redis.StringGet(keys);
 
-                    // returning iterator only if all entities succeeded to be loaded
-                    if ((values == null) || values.Any(v => v.IsNull))
-                    {
-                        throw new RedisCacheException("The following keys not found in cache: " + keys.Aggregate(string.Empty, (s, k) => s + k + ","));
-                    }
-
-                    return values.Select(v => v.ToObject<T>());
-                }
-                catch (TimeoutException ex)
+                // returning iterator only if all entities succeeded to be loaded
+                if ((values == null) || values.Any(v => v.IsNull))
                 {
-                    exception = ex;
+                    throw new RedisCacheException("The following keys not found in cache: " + keys.Aggregate(string.Empty, (s, k) => s + (string)k + ","));
                 }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+
+                return values.Select(v => v.ToObject<T>());
+            });
         }
 
         public void SetWithRetries<T>(RedisKey key, T value, When when = When.Always)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
+            this.DoWithRetries(redis =>
             {
-                try
+                if (!redis.StringSet(key, value.ToRedisValue(), this._ttl, when))
                 {
-                    if (redis.StringSet(key, value.ToRedisValue(), this._ttl, when))
-                    {
-                        return;
-                    }
                     throw new RedisCacheException("Setting value for key {0} failed", key.ToString());
                 }
-                catch (TimeoutException ex)
-                {
-                    exception = ex;
-                }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+            });
         }
 
         public void RemoveWithRetries(params RedisKey[] keys)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
-            {
-                try
-                {
-                    redis.KeyDelete(keys);
-                    return;
-                }
-                catch (TimeoutException ex)
-                {
-                    exception = ex;
-                }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+            this.DoWithRetries(redis => redis.KeyDelete(keys));
         }
-
 
         public void SetHashWithRetries(RedisKey hashKey, RedisValue fieldName, RedisValue fieldValue)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
-            {
-                try
-                {
-                    redis.HashSet(hashKey, fieldName, fieldValue);
-                    return;
-                }
-                catch (TimeoutException ex)
-                {
-                    exception = ex;
-                }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+            this.DoWithRetries(redis => redis.HashSet(hashKey, fieldName, fieldValue));
         }
 
         public void CreateNewHashWithRetries(RedisKey hashKey, RedisValue fieldName, RedisValue fieldValue)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
+            this.DoWithRetries(redis =>
             {
-                try
-                {
-                    redis.KeyDelete(hashKey);
-                    redis.HashSet(hashKey, fieldName, fieldValue);
-                    redis.KeyExpire(hashKey, this._ttl);
-                    return;
-                }
-                catch (TimeoutException ex)
-                {
-                    exception = ex;
-                }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+                redis.KeyDelete(hashKey);
+                redis.HashSet(hashKey, fieldName, fieldValue);
+                redis.KeyExpire(hashKey, this._ttl);
+            });
         }
 
         public void RemoveHashFieldsWithRetries(RedisKey hashKey, params RedisValue[] fieldNames)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
-            {
-                try
-                {
-                    redis.HashDelete(hashKey, fieldNames);
-                    return;
-                }
-                catch (TimeoutException ex)
-                {
-                    exception = ex;
-                }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+            this.DoWithRetries(redis => redis.HashDelete(hashKey, fieldNames));
         }
 
         public long GetHashLengthWithRetries(RedisKey hashKey)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
-            {
-                try
-                {
-                    return redis.HashLength(hashKey);
-                }
-                catch (TimeoutException ex)
-                {
-                    exception = ex;
-                }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+            return this.DoWithRetries(redis => redis.HashLength(hashKey));
         }
 
         public HashEntry[] GetHashFieldsWithRetries(RedisKey hashKey)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
-            {
-                try
-                {
-                    return redis.HashGetAll(hashKey);
-                }
-                catch (TimeoutException ex)
-                {
-                    exception = ex;
-                }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+            return this.DoWithRetries(redis => redis.HashGetAll(hashKey));
         }
 
         public bool HashFieldExistsWithRetries(RedisKey hashKey, RedisValue fieldName)
         {
-            var redis = this.GetDatabase();
-            Exception exception = null;
-            for (int i = 0; i < RetryCount; i++)
-            {
-                try
-                {
-                    return redis.HashExists(hashKey, fieldName);
-                }
-                catch (TimeoutException ex)
-                {
-                    exception = ex;
-                }
-            }
-            throw exception ?? new RedisCacheException("This should never happen");
+            return this.DoWithRetries(redis => redis.HashExists(hashKey, fieldName));
         }
 
         public RedisTransactionWrapper BeginTransaction(params Condition[] conditions)
@@ -224,6 +110,43 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         private readonly RedisKey _keyPrefix;
         private readonly TimeSpan _ttl;
         private readonly Action<string> _onLog;
+
+        private T DoWithRetries<T>(Func<IDatabase, T> todo)
+        {
+            var redis = this._redisConn.GetDatabase(this._dbIndex).WithKeyPrefix(this._keyPrefix);
+            Exception exception = new RedisCacheException("Unknown error");
+            for (int i = 0; i < RetryCount; i++)
+            {
+                try
+                {
+                    return todo(redis);
+                }
+                catch (TimeoutException ex)
+                {
+                    exception = ex;
+                }
+            }
+            throw exception;
+        }
+
+        private void DoWithRetries(Action<IDatabase> todo)
+        {
+            var redis = this._redisConn.GetDatabase(this._dbIndex).WithKeyPrefix(this._keyPrefix);
+            Exception exception = new RedisCacheException("Unknown error");
+            for (int i = 0; i < RetryCount; i++)
+            {
+                try
+                {
+                    todo(redis);
+                    return;
+                }
+                catch (TimeoutException ex)
+                {
+                    exception = ex;
+                }
+            }
+            throw exception;
+        }
 
         private IDatabase GetDatabase()
         {
