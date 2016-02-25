@@ -22,7 +22,7 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 
         protected override void DropIndexEntityFromCache(string indexKey)
         {
-            indexKey = "{Books}; " + indexKey;
+            indexKey = "{Books}:" + indexKey;
             bool success = this._redisConn.GetDatabase().KeyDelete(indexKey);
             Assert.IsTrue(success, "The index wasn't dropped from cache. Check the key format.");
         }

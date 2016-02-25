@@ -10,8 +10,13 @@ using StackExchange.Redis;
 
 namespace Linq2DynamoDb.DataContext.Caching.Redis
 {
+    /// <summary>
+    /// Implements caching in Redis
+    /// </summary>
     public partial class RedisTableCache : ITableCache
     {
+        #region ctors
+
         public RedisTableCache(ConnectionMultiplexer redisConn, int dbIndex, TimeSpan cacheItemsTtl)
         {
             this._redisConn = redisConn;
@@ -26,6 +31,10 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         public RedisTableCache(ConnectionMultiplexer redisConn, int dbIndex = -1) : this(redisConn, dbIndex, TimeSpan.MaxValue)
         {
         }
+
+        #endregion
+
+        #region ITableCache implementation
 
         public void Initialize(string tableName, Type tableEntityType, Primitive hashKeyValue)
         {
@@ -277,8 +286,9 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         public event Action OnMiss;
         public event Action<string> OnLog;
 
-        #region Internal Members
+        #endregion
 
+        #region Internal Members
 
         /// <summary>
         /// Acquires a named lock around the table by storing a random value in cache
@@ -361,7 +371,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
 
         #region Private Members
 
-        private const string ProjectionIndexKeyPrefix = "[proj]";
+        private const string ProjectionIndexKeyPrefix = "[projection]";
 
         protected string TableName;
         protected string HashKeyValue;
@@ -417,11 +427,11 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         {
             if (projectedFields == null)
             {
-                return this.HashKeyValue + "; " + searchConditions.Key;
+                return this.HashKeyValue + ":" + searchConditions.Key;
             }
             else
             {
-                return ProjectionIndexKeyPrefix + this.HashKeyValue + "; " + projectedFields.Aggregate((i, s) => i + "," + s) + "; " + searchConditions.Key;
+                return ProjectionIndexKeyPrefix + this.HashKeyValue + ":" + projectedFields.Aggregate((i, s) => i + "," + s) + "; " + searchConditions.Key;
             }
         }
 

@@ -40,9 +40,9 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
             // filling the cache in
             var books = new Dictionary<EntityKey, Book>
             {
-                [new EntityKey(1, Guid.NewGuid())] = BooksHelper.CreateBook(persistToDynamoDb: false),
-                [new EntityKey(Guid.NewGuid(), "2")] = BooksHelper.CreateBook(persistToDynamoDb: false),
-                [new EntityKey(DateTime.Now, 1.23456)] = BooksHelper.CreateBook(persistToDynamoDb: false)
+                {new EntityKey(1, Guid.NewGuid()),  BooksHelper.CreateBook(persistToDynamoDb: false)},
+                {new EntityKey(Guid.NewGuid(), "2"), BooksHelper.CreateBook(persistToDynamoDb: false)},
+                {new EntityKey(DateTime.Now, 1.23456), BooksHelper.CreateBook(persistToDynamoDb: false)}
             };
 
             // some garnish
@@ -107,9 +107,9 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
         {
             var indexBooks = new Dictionary<EntityKey, Book>
             {
-                [new EntityKey(Guid.NewGuid(), Guid.NewGuid())] = BooksHelper.CreateBook(persistToDynamoDb: false),
-                [new EntityKey(Guid.NewGuid(), Guid.NewGuid())] = BooksHelper.CreateBook(persistToDynamoDb: false),
-                [new EntityKey(Guid.NewGuid(), Guid.NewGuid())] = BooksHelper.CreateBook(persistToDynamoDb: false)
+                {new EntityKey(Guid.NewGuid(), Guid.NewGuid()), BooksHelper.CreateBook(persistToDynamoDb: false)},
+                {new EntityKey(Guid.NewGuid(), Guid.NewGuid()), BooksHelper.CreateBook(persistToDynamoDb: false)},
+                {new EntityKey(Guid.NewGuid(), Guid.NewGuid()), BooksHelper.CreateBook(persistToDynamoDb: false)}
             };
 
             var conditions = new SearchConditions();
@@ -577,9 +577,9 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
         {
             var indexBooks = new Dictionary<EntityKey, Book>
             {
-                [new EntityKey(Guid.NewGuid(), Guid.NewGuid())] = BooksHelper.CreateBook(persistToDynamoDb: false),
-                [new EntityKey(Guid.NewGuid(), Guid.NewGuid())] = BooksHelper.CreateBook(persistToDynamoDb: false),
-                [new EntityKey(Guid.NewGuid(), Guid.NewGuid())] = BooksHelper.CreateBook(persistToDynamoDb: false)
+                {new EntityKey(Guid.NewGuid(), Guid.NewGuid()), BooksHelper.CreateBook(persistToDynamoDb: false)},
+                {new EntityKey(Guid.NewGuid(), Guid.NewGuid()), BooksHelper.CreateBook(persistToDynamoDb: false)},
+                {new EntityKey(Guid.NewGuid(), Guid.NewGuid()), BooksHelper.CreateBook(persistToDynamoDb: false)}
             };
 
             // creating indexes in parallel
