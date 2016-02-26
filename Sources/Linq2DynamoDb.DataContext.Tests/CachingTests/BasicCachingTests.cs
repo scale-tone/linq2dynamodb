@@ -120,6 +120,10 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 
             foreach (var book in bookTable)
             {
+                if (book.ReviewsList == null)
+                {
+                    continue;
+                }
                 Assert.AreEqual(book.ReviewsList.Single(r => r.Author == "Beavis").ToString(), createdBook.ReviewsList.Single(r => r.Author == "Beavis").ToString(), "Complex object list field failed wasn't loaded from table");
                 Assert.AreEqual(book.ReviewsList.Single(r => r.Author == "Butt-head").ToString(), createdBook.ReviewsList.Single(r => r.Author == "Butt-head").ToString(), "Complex object list field failed wasn't loaded from table");
             }
@@ -128,6 +132,11 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 
             foreach (var book in bookTable)
             {
+                if (book.ReviewsList == null)
+                {
+                    continue;
+                }
+
                 Assert.AreEqual(book.ReviewsList.Single(r => r.Author == "Beavis").ToString(), createdBook.ReviewsList.Single(r => r.Author == "Beavis").ToString(), "Complex object list field failed wasn't loaded from table");
                 Assert.AreEqual(book.ReviewsList.Single(r => r.Author == "Butt-head").ToString(), createdBook.ReviewsList.Single(r => r.Author == "Butt-head").ToString(), "Complex object list field failed wasn't loaded from table");
             }
@@ -306,6 +315,30 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 
             Assert.AreNotEqual(0, this._cacheHitCount, "Query result wasn't loaded from cache");
             Assert.AreEqual(shakespeareBooksCount, shakespeareBooksCountFromCache, "The number of books in cache differs from the number of books in DynamoDB");
+        }
+
+        [Test]
+        public void DataContext_Caching_ComplexObjectListFieldSavedSuccessfully()
+        {
+            BooksHelper.CreateBook(name: "The Hitchhiker's Guide to the Galaxy", reviews: new List<Book.ReviewDto> { new Book.ReviewDto { Author = "Beavis", Text = "Cool" } });
+
+            var bookTable = Context.GetTable<Book>(() => this.TableCache);
+            var loadedBook = bookTable.Where(b => b.Name == "The Hitchhiker's Guide to the Galaxy").ToArray().Single();
+
+            // Modifying the existing list object is not supported. We need to replace the whole property value.
+            loadedBook.ReviewsList = new List<Book.ReviewDto>
+            {
+                new Book.ReviewDto { Author = "Beavis", Text = "Cool" },
+                new Book.ReviewDto { Author = "Butt-head", Text = "This sucks!" }
+            };
+
+            Context.SubmitChanges();
+            this._cacheHitCount = 0;
+
+            var loadedBook2 = bookTable.Where(b => b.Name == "The Hitchhiker's Guide to the Galaxy").ToArray().Single();
+            Assert.AreNotEqual(0, this._cacheHitCount, "Query result wasn't loaded from cache");
+            Assert.AreEqual(2, loadedBook2.ReviewsList.Count);
+            Assert.IsTrue(loadedBook2.ReviewsList.Exists(r => r.Author == "Butt-head"));
         }
 
         private static EnyimTableCache GetEnyimTableCache(MemcachedClient memcachedClient)
