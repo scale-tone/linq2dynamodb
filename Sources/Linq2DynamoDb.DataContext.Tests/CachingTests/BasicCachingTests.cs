@@ -263,9 +263,9 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 
         private void DataContext_Caching_ProjectionLoadedFromCacheBase(bool loadFullEntitiesBefore)
         {
-            BooksHelper.CreateBook(author: "Shakespeare");
+            BooksHelper.CreateBook(author: "S hakespeare");
             BooksHelper.CreateBook(author: "William Shakespeare");
-            BooksHelper.CreateBook(author: "Shakespeare William");
+            BooksHelper.CreateBook(author: "S hakespeare William");
             BooksHelper.CreateBook(author: "Chakespare");
 
             var bookTable = Context.GetTable<Book>(() => this.TableCache);

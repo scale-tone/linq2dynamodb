@@ -152,6 +152,8 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
                         indexKeys.RemoveAt(i);
                     }
 
+                    this._parent.Log("Dropping {0} indexes from cache", indexKeysToRemove.Count);
+
                     this._parent._redis.RemoveHashFieldsWithRetries(this._parent.GetIndexListKeyInCache(), indexKeysToRemove.ToArray());
                 }
                 catch (Exception ex)

@@ -342,7 +342,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
             }
             else
             {
-                return ProjectionIndexKeyPrefix + this.HashKeyValue + ":" + projectedFields.Aggregate((i, s) => i + "," + s) + "; " + searchConditions.Key;
+                return ProjectionIndexKeyPrefix + this.HashKeyValue + ":" + projectedFields.Aggregate((i, s) => i + "," + s) + ":" + searchConditions.Key;
             }
         }
 

@@ -51,6 +51,7 @@
     <Compile Include="EnyimIndexCreator.cs" />
     <Compile Include="EnyimProjectionIndexCreator.cs" />
     <Compile Include="EnyimTableCache.cs" />
+    <Compile Include="GeneralUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TableIndex.cs" />
     <Compile Include="TableLock.cs" />

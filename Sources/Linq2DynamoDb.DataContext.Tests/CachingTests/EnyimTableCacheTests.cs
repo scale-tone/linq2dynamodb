@@ -24,7 +24,7 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
             this.CacheClient = new MemcachedClient();
             this.CacheClient.FlushAll();
 
-            this.TableCache = new EnyimTableCache(this.CacheClient, TimeSpan.FromDays(1));
+            this.TableCache = new EnyimTableCache(this.CacheClient, TimeSpan.FromSeconds(60));
 
             base.SetUp();
         }
@@ -82,6 +82,10 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
         protected override void DropIndexEntityFromCache(string indexKey)
         {
             indexKey = ("Books" + indexKey).ToBase64();
+            if (indexKey.Length > 250)
+            {
+                indexKey = indexKey.ToMd5String();
+            }
             bool success = this.CacheClient.Remove(indexKey);
             Assert.IsTrue(success, "The index wasn't dropped from cache. Check the key format.");
         }

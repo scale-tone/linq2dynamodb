@@ -452,7 +452,8 @@ namespace Linq2DynamoDb.DataContext.Caching.MemcacheD
         private string GetIndexKeyInCache(string indexKey, string hashKeyValue)
         {
             // indexKey might contain spaces, which are not allowed for MemcacheD keys
-            return (this._tableName + hashKeyValue + indexKey).ToBase64();
+            string key = (this._tableName + hashKeyValue + indexKey).ToBase64();
+            return key.Length <= MaxKeyLength ? key : key.ToMd5String();
         }
 
         /// <summary>
@@ -460,7 +461,8 @@ namespace Linq2DynamoDb.DataContext.Caching.MemcacheD
         /// </summary>
         private string GetIndexListKeyInCache(string hashKeyValue)
         {
-            return (this._tableName + hashKeyValue + ":indexes").ToBase64();
+            string key = (this._tableName + hashKeyValue + ":indexes").ToBase64();
+            return key.Length <= MaxKeyLength ? key : key.ToMd5String();
         }
 
         /// <summary>
@@ -468,7 +470,8 @@ namespace Linq2DynamoDb.DataContext.Caching.MemcacheD
         /// </summary>
         private string GetLockKeyInCache(string lockKey, string hashKeyValue)
         {
-            return (this._tableName + hashKeyValue + lockKey).ToBase64();
+            string key = (this._tableName + hashKeyValue + lockKey).ToBase64();
+            return key.Length <= MaxKeyLength ? key : key.ToMd5String();
         }
 
         /// <summary>
