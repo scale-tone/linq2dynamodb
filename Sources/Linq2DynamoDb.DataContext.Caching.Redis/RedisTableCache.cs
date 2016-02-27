@@ -211,10 +211,13 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
 
         public void UpdateCacheAndIndexes(IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, ICollection<EntityKey> removedEntities)
         {
-            var affectedHashKeys = new List<string>();
+            var affectedIndexKeys = new List<RedisKey>();
             try
             {
                 var transaction = this._redis.BeginTransaction();
+
+                // remembering the list of indexes, that will be affected by this transaction
+                transaction.OnKeyAffected += affectedIndexKeys.Add;
 
                 // first updating the entities themselves
                 foreach (var entity in addedEntities.Union(modifiedEntities))
@@ -226,8 +229,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
                     transaction.Remove(entityKey.ToRedisKey());
                 }
 
-                // now updating indexes
-                affectedHashKeys.Add(this.HashKeyValue);
+                var affectedHashKeys = new List<string> {this.HashKeyValue};
 
                 // To support scenarios, when a context contains both a full table and a table filtered by a HashKey,
                 // by updating HashKey-filtered indexes we also should update indexes of the full table.
@@ -271,8 +273,16 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
             catch (Exception ex)
             {
                 this.Log("Failed to update indexes. {0}", ex);
-                // dropping everything
-                this.TryDropIndexLists(affectedHashKeys);
+
+                // dropping all affected indexes
+                try
+                {
+                    this._redis.RemoveWithRetries(affectedIndexKeys.ToArray());
+                }
+                catch (Exception ex2)
+                {
+                    this.Log("Failed to drop the indexes affected by failed update transaction. {0}", ex2);
+                }
             }
         }
 
@@ -352,22 +362,6 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         private bool IsProjectionIndex(string indexKey)
         {
             return indexKey.StartsWith(ProjectionIndexKeyPrefix);
-        }
-
-        private void TryDropIndexLists(IEnumerable<string> hashKeys)
-        {
-            Parallel.ForEach(hashKeys, hashKey =>
-            {
-                string indexListKey = this.GetIndexListKeyInCache(hashKey);
-                try
-                {
-                    this._redis.RemoveWithRetries(indexListKey);
-                }
-                catch (Exception ex)
-                {
-                    this.Log("Failed to drop index list {0}. {1}", indexListKey, ex);
-                }
-            });
         }
 
         /// <summary>
@@ -460,7 +454,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
             )
             {
                 // then the only option for us is to drop the index - as we don't know, if these entities conform to index's conditions or not
-                this.Log("Projection index ({0}) removed because of some added entities", indexKey);
+                this.Log("Projection index ({0}) removed because of some modified entities", indexKey);
                 transaction.HashRemove(this.GetIndexListKeyInCache(hashKeyValue), indexKey);
                 transaction.Remove(indexKey);
             }
