@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Linq2DynamoDb.DataContext.Caching.Redis</id>
+        <version>2.0.0</version>
+        <title>Linq2DynamoDb.DataContext.Caching.Redis</title>
+        <authors>linq2dynamodb</authors>
+        <owners>linq2dynamodb</owners>
+        <projectUrl>https://github.com/scale-tone/linq2dynamodb/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Implements caching in Redis (including AWS ElastiCache implementation) for Linq2DynamoDb.DataContext.</description>
+        <summary>Implements caching in Redis for Linq2DynamoDb.DataContext.</summary>
+        <releaseNotes />
+        <copyright>Copyright 2016</copyright>
+        <tags>Linq2DynamoDb AWS DynamoDb caching Redis</tags>
+        <dependencies>
+          <dependency id="AWSSDK.Core" version="3.1.4.3" />
+          <dependency id="AWSSDK.DynamoDBv2" version="3.1.1.5" />
+          <dependency id="StackExchange.Redis" version="1.0.488" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Release\Linq2DynamoDb.DataContext.Caching.Redis.dll" target="lib\net45\Linq2DynamoDb.DataContext.Caching.Redis.dll" />
+        <file src="bin\Release\Linq2DynamoDb.DataContext.Caching.Redis.pdb" target="lib\net45\Linq2DynamoDb.DataContext.Caching.Redis.pdb" />
+    </files>
+</package>

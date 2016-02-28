@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>Linq2DynamoDb.DataContext</id>
-        <version>1.4.2</version>
+        <version>2.0.0</version>
         <title>Linq2DynamoDb.DataContext</title>
         <authors>linq2dynamodb</authors>
         <owners>linq2dynamodb</owners>
@@ -11,12 +11,11 @@
         <description>A type-safe data context for AWS DynamoDB with LINQ and in-memory caching support. Allows to combine DynamoDB's durability with cache speed and read consistency. Translates LINQ queries into corresponding DynamoDB Get/Query/Scan operations (trying to choose the most effective one) and stores query results in an in-memory cache. When data is modified, it's saved both to DynamoDB and to cache.</description>
         <summary>A type-safe data context for AWS DynamoDB with LINQ and in-memory caching support. Allows to combine DynamoDB's durability with cache speed and read consistency.</summary>
         <releaseNotes />
-        <copyright>Copyright 2015</copyright>
+        <copyright>Copyright 2016</copyright>
         <tags>Linq2DynamoDb AWS DynamoDb context caching LINQ .Net</tags>
         <dependencies>
-          <dependency id="AWSSDK.Core" version="3.1.1.0" />
-          <dependency id="AWSSDK.DynamoDBv2" version="3.1.0.1" />
-          <dependency id="EnyimMemcached" version="2.12" />
+          <dependency id="AWSSDK.Core" version="3.1.4.3" />
+          <dependency id="AWSSDK.DynamoDBv2" version="3.1.1.5" />
         </dependencies>
     </metadata>
     <files>

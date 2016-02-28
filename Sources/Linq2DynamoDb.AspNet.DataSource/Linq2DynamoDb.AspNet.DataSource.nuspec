@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>Linq2DynamoDb.AspNet.DataSource</id>
-        <version>1.4.2</version>
+        <version>2.0.0</version>
         <title>Linq2DynamoDb.AspNet.DataSource</title>
         <authors>linq2dynamodb</authors>
         <owners>linq2dynamodb</owners>
@@ -11,11 +11,11 @@
         <description>A set of extensions to Linq2DynamoDb.DataContext for use in ASP.Net projects. Includes an ASP.Net DataSource implementation. Extends Linq2DynamoDb.DataContext to allow exposing it as an OData endpoint. </description>
         <summary>A set of extensions to Linq2DynamoDb.DataContext for use in ASP.Net projects. Includes an ASP.Net DataSource implementation. Extends Linq2DynamoDb.DataContext to allow exposing it as an OData endpoint. </summary>
         <releaseNotes />
-        <copyright>Copyright 2015</copyright>
+        <copyright>Copyright 2016</copyright>
         <tags>Linq2DynamoDb AWS DynamoDb context caching LINQ ASP.NET DataSource OData</tags>
         <dependencies>
-            <dependency id="AWSSDK.Core" version="3.1.1.0" />
-            <dependency id="AWSSDK.DynamoDBv2" version="3.1.0.1" />
+			<dependency id="AWSSDK.Core" version="3.1.4.3" />
+			<dependency id="AWSSDK.DynamoDBv2" version="3.1.1.5" />
             <dependency id="Microsoft.Data.Edm" version="5.0.2" />
             <dependency id="Microsoft.Data.OData" version="5.0.2" />
             <dependency id="Microsoft.Data.Services" version="5.0.2" />
