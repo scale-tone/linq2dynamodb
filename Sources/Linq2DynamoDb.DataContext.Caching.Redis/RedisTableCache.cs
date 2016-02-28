@@ -369,9 +369,18 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         /// </summary>
         private void UpdateIndexes(RedisTransactionWrapper transaction, string hashKeyValue, IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, ICollection<EntityKey> removedEntities)
         {
-            foreach (var indexEntry in this._redis.GetHashFieldsWithRetries(this.GetIndexListKeyInCache(hashKeyValue)))
+            string indexListKey = this.GetIndexListKeyInCache(hashKeyValue);
+            foreach (var indexEntry in this._redis.GetHashFieldsWithRetries(indexListKey))
             {
                 string indexKey = indexEntry.Name;
+
+                // The index itself might be dropped from cache already. We don't want the transaction to fail because of this
+                if (!this._redis.HashFieldExistsWithRetries(indexKey, IndexVersionField.Name))
+                {
+                    this._redis.RemoveHashFieldsWithRetries(indexListKey, indexKey);
+                    continue;
+                }
+
                 var filter = indexEntry.Value.ToObject<SearchConditions>();
 
                 if (this.IsProjectionIndex(indexKey))
