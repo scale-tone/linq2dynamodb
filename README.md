@@ -4,6 +4,8 @@ A type-safe data context for AWS DynamoDB with LINQ and in-memory caching suppor
 [Nuget:](http://www.nuget.org/packages/Linq2DynamoDb.DataContext)
 ```
 PM> Install-Package Linq2DynamoDb.DataContext
+PM> Install-Package Linq2DynamoDb.DataContext.Caching.MemcacheD
+PM> Install-Package Linq2DynamoDb.DataContext.Caching.Redis
 PM> Install-Package Linq2DynamoDb.AspNet.DataSource
 ```
 
