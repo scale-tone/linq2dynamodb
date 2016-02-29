@@ -1,6 +1,11 @@
 # Linq2DynamoDb.DataContext.Caching.Redis
 Implements caching in Redis.
 
+[Nuget:](http://www.nuget.org/packages/Linq2DynamoDb.DataContext.Caching.Redis)
+```
+PM> Install-Package Linq2DynamoDb.DataContext.Caching.Redis
+```
+
 Indexes are stored as Redis Hashes. 
 Full index contains entity keys as fields, the entities themselves are stored as Redis Strings.
 Projection (readonly) index contains entities as field values.
