@@ -11,6 +11,8 @@ PM> Install-Package Linq2DynamoDb.AspNet.DataSource
 
 Sorry, the full documentation is still on [CodePlex](https://linq2dynamodb.codeplex.com/documentation).
 
+Please, also take a look at the series of posts ([one](https://www.linkedin.com/pulse/dynamodb-elasticache-linq2dynamodb-odata-theory-lepeshenkov), [two](https://www.linkedin.com/pulse/dynamodb-elasticache-linq2dynamodb-odata-practice-lepeshenkov), [three](https://www.linkedin.com/pulse/dynamodb-elasticache-linq2dynamodb-ionic-practice-lepeshenkov)) on LinkedId.
+
 AWS DynamoDB is a cool, highly-available and highly-durable NoSQL database. Yet, because of it's throughput capacity restrictions, it might get:
 * unpredictably slow,
 * unpredictably expensive.
