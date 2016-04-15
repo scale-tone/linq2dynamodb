@@ -6,7 +6,6 @@ using NUnit.Framework;
 
 namespace Linq2DynamoDb.DataContext.Tests.IndexTests
 {
-
     public class GameScores : EntityBase
     {
         public string UserId { get; set; }
@@ -16,7 +15,6 @@ namespace Linq2DynamoDb.DataContext.Tests.IndexTests
         public int Wins { get; set; }
         public int Losses { get; set; }
     }
-
 
     public static class GameScoresQueries
     {
@@ -334,6 +332,44 @@ namespace Linq2DynamoDb.DataContext.Tests.IndexTests
         public void DataContext_QueryByGameTitleReturnsEqualResults()
         {
             this.TestAllThreeTables(GameScoresQueries.QueryByGameTitle, false, true, "GameTitleTopScoreIndex", "GameTitleTopScoreIndex");
+        }
+
+        [Test]
+        public void DataContext_EntitiesLoadedBySecondaryIndexCanBeModified()
+        {
+            var testScore = new GameScores
+            {
+                UserId = "Unknown",
+                GameTitle = "DataContext_EntitiesLoadedBySecondaryIndexCanBeModified",
+            };
+            if (!this.OneIndexThreadTable.Any(scores => scores.GameTitle == testScore.GameTitle))
+            {
+                this.OneIndexThreadTable.InsertOnSubmit(testScore);
+                this.OneIndexContext.SubmitChanges();
+            }
+
+            var entity = this.OneIndexThreadTable.First(scores => scores.GameTitle == testScore.GameTitle);
+            entity.TopScore = 123;
+            this.OneIndexContext.SubmitChanges();
+        }
+
+        [Test]
+        public void DataContext_EntitiesLoadedBySecondaryIndexCanBeDeleted()
+        {
+            var testScore = new GameScores
+            {
+                UserId = "Unknown",
+                GameTitle = "DataContext_EntitiesLoadedBySecondaryIndexCanBeDeleted",
+            };
+            if (!this.OneIndexThreadTable.Any(scores => scores.GameTitle == testScore.GameTitle))
+            {
+                this.OneIndexThreadTable.InsertOnSubmit(testScore);
+                this.OneIndexContext.SubmitChanges();
+            }
+
+            var entity = this.OneIndexThreadTable.First(scores => scores.GameTitle == testScore.GameTitle);
+            this.OneIndexThreadTable.RemoveOnSubmit(entity);
+            this.OneIndexContext.SubmitChanges();
         }
     }
 }
