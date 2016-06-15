@@ -78,10 +78,15 @@
     <Compile Include="CachingTests\StringFieldComparisonTests.cs" />
     <Compile Include="CachingTests\TableCacheTestsBase.cs" />
     <Compile Include="DataContextTests.cs" />
+    <Compile Include="Entities\BookPoco.cs" />
     <Compile Include="Entities\BooksComparer.cs" />
     <Compile Include="EntityManagementTests\EntityCreationTests.cs" />
     <Compile Include="EntityManagementTests\EntityModificationTests.cs" />
     <Compile Include="EntityManagementTests\EntityRemovalTests.cs" />
+    <Compile Include="EntityManagementTests\Poco\PocoCreationTests.cs" />
+    <Compile Include="EntityManagementTests\Poco\PocoModificationTests.cs" />
+    <Compile Include="EntityManagementTests\Poco\PocoRemovalTests.cs" />
+    <Compile Include="Helpers\BookPocoHelper.cs" />
     <Compile Include="Helpers\BooksHelper.cs" />
     <Compile Include="Helpers\MemcachedController.cs" />
     <Compile Include="IndexTests\GlobalSecondaryIndexTests.cs" />

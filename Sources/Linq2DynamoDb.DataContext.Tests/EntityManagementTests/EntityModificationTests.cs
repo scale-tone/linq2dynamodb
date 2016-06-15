@@ -1,6 +1,7 @@
 ﻿using Linq2DynamoDb.DataContext.Tests.Entities;
 using Linq2DynamoDb.DataContext.Tests.Helpers;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Linq2DynamoDb.DataContext.Tests.EntityManagementTests
 {
@@ -30,6 +31,24 @@ namespace Linq2DynamoDb.DataContext.Tests.EntityManagementTests
 
             var storedBook = booksTable.Find(book.Name, book.PublishYear);
             Assert.AreEqual(book.PopularityRating, storedBook.PopularityRating, "Record was not updated");
+        }
+
+        [Test]
+        public void DataContext_EntityModification_UpdateRecordWithNewArray() 
+        {
+            var book = BooksHelper.CreateBook(rentingHistory: null, persistToDynamoDb: false);
+            var booksTable = this.Context.GetTable<Book>();
+            booksTable.InsertOnSubmit(book);
+            this.Context.SubmitChanges();
+
+            var storedBook = booksTable.Find(book.Name, book.PublishYear);
+
+            storedBook.RentingHistory = new List<string>() { "non-empty array" };
+            this.Context.SubmitChanges();
+
+            var storedBookAfterModification = booksTable.Find(book.Name, book.PublishYear);
+            
+            CollectionAssert.AreEquivalent(storedBook.RentingHistory, storedBookAfterModification.RentingHistory);
         }
 
         [Ignore("This behavior is currently expected. SubmitChanges() uses DocumentBatchWrite, which only supports PUT operations with default 'replace' behavior")]

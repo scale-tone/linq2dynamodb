@@ -14,12 +14,14 @@ namespace Linq2DynamoDb.DataContext.Tests
         public static void ClassInit()
         {
             BooksHelper.StartSession();
+            BookPocosHelper.StartSession();
         }
 
         [TestFixtureTearDown]
         public static void ClassClean()
         {
             BooksHelper.CleanSession();
+            BookPocosHelper.CleanSession();
         }
 
         [SetUp]
