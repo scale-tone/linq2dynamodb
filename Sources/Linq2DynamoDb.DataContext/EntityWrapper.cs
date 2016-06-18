@@ -63,6 +63,8 @@ namespace Linq2DynamoDb.DataContext
                     &&
                     (!(field.Value is DynamoDBList))
                     &&
+                    (!(field.Value is PrimitiveList))
+                    &&
                     (field.Value.AsString() == null)
                 )
                 {
