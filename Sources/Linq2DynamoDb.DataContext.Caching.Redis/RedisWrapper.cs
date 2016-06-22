@@ -12,7 +12,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
     /// </summary>
     internal class RedisWrapper
     {
-        public RedisWrapper(ConnectionMultiplexer redisConn, int dbIndex, RedisKey keyPrefix, TimeSpan ttl, Action<string> onLog)
+        public RedisWrapper(IConnectionMultiplexer redisConn, int dbIndex, RedisKey keyPrefix, TimeSpan ttl, Action<string> onLog)
         {
             this._redisConn = redisConn;
             this._dbIndex = dbIndex;
@@ -105,7 +105,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
 
         private const int RetryCount = 3;
 
-        private readonly ConnectionMultiplexer _redisConn;
+        private readonly IConnectionMultiplexer _redisConn;
         private readonly int _dbIndex;
         private readonly RedisKey _keyPrefix;
         private readonly TimeSpan _ttl;
