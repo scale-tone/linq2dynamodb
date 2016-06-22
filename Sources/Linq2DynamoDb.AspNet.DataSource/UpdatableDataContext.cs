@@ -147,7 +147,7 @@ namespace Linq2DynamoDb.DataContext
             // The only thing we can do is to try to remove the entity from all of them.
             foreach (var pair in this.TableWrappers.Where(pair => pair.Key.Item1 == entityType))
             {
-                pair.Value.RemoveEntity(targetResource);
+                pair.Value.Value.RemoveEntity(targetResource);
             }
         }
 
@@ -165,7 +165,7 @@ namespace Linq2DynamoDb.DataContext
         {
             foreach (var pair in this.TableWrappers)
             {
-                pair.Value.ClearModifications();
+                pair.Value.Value.ClearModifications();
             }
         }
 

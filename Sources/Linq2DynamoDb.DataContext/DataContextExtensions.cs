@@ -23,7 +23,7 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         public static async Task SubmitChangesAsync(this DataContext context)
         {
-            await Task.WhenAll(context.TableWrappers.Values.Select(t => t.SubmitChangesAsync()));
+            await Task.WhenAll(context.TableWrappers.Values.Select(t => t.Value.SubmitChangesAsync()));
         }
 
         /// <summary>
