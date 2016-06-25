@@ -15,18 +15,18 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
     {
         #region ctors
 
-        public RedisTableCache(ConnectionMultiplexer redisConn, int dbIndex, TimeSpan cacheItemsTtl)
+        public RedisTableCache(IConnectionMultiplexer redisConn, int dbIndex, TimeSpan cacheItemsTtl)
         {
             this._redisConn = redisConn;
             this._dbIndex = dbIndex;
             this._cacheItemsTtl = cacheItemsTtl;
         }
 
-        public RedisTableCache(ConnectionMultiplexer redisConn, TimeSpan cacheItemsTtl) : this(redisConn, -1, cacheItemsTtl)
+        public RedisTableCache(IConnectionMultiplexer redisConn, TimeSpan cacheItemsTtl) : this(redisConn, -1, cacheItemsTtl)
         {
         }
 
-        public RedisTableCache(ConnectionMultiplexer redisConn, int dbIndex = -1) : this(redisConn, dbIndex, TimeSpan.MaxValue)
+        public RedisTableCache(IConnectionMultiplexer redisConn, int dbIndex = -1) : this(redisConn, dbIndex, TimeSpan.MaxValue)
         {
         }
 
@@ -305,7 +305,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         protected string TableName;
         protected string HashKeyValue;
 
-        private readonly ConnectionMultiplexer _redisConn;
+        private readonly IConnectionMultiplexer _redisConn;
         private readonly int _dbIndex;
         private readonly TimeSpan _cacheItemsTtl;
         private RedisWrapper _redis;
