@@ -1,0 +1,20 @@
+﻿{
+  "title": "Linq2DynamoDb.AspNet.DataSource",
+  "copyright": "Copyright © 2017",
+  "version": "2.1.0-*",
+  "dependencies": {
+    "AWSSDK.DynamoDBv2": "3.3.2.1",
+    "Linq2DynamoDb.DataContext": "2.1.0-*",
+    "NETStandard.Library": "1.6.1"
+  },
+  "frameworks": {
+    "net461": {
+      "frameworkAssemblies": {
+        "System.Data.Services": "4.0.0.0",
+        "System.Web": "4.0.0.0",
+        "System.Web.Extensions": "4.0.0.0",
+        "System.Web.Services": "4.0.0.0"
+      }
+    }
+  }
+}

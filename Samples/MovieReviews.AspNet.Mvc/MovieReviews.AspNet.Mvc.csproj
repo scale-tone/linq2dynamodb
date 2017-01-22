@@ -28,7 +28,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <MvcProjectUpgradeChecked>true</MvcProjectUpgradeChecked>
     <FileUpgradeFlags>40</FileUpgradeFlags>
-    <UpgradeBackupLocation>C:\Konst\projects\LINQ2DynamoDB-github\Samples\Backup18\</UpgradeBackupLocation>
+    <UpgradeBackupLocation>C:\konst\projects\linq2dynamodb\Samples\Backup3\</UpgradeBackupLocation>
     <OldToolsVersion>4.0</OldToolsVersion>
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
@@ -52,9 +52,21 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AWSSDK.Core, Version=3.1.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.Core.3.1.4.3\lib\net45\AWSSDK.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AWSSDK.DynamoDBv2, Version=3.1.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.DynamoDBv2.3.1.1.5\lib\net45\AWSSDK.DynamoDBv2.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Enyim.Caching, Version=2.12.0.0, Culture=neutral, PublicKeyToken=cec98615db04012e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EnyimMemcached.2.12\lib\net35\Enyim.Caching.dll</HintPath>
+    </Reference>
+    <Reference Include="Linq2DynamoDb.DataContext, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Linq2DynamoDb.DataContext.2.0.1\lib\net45\Linq2DynamoDb.DataContext.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="MvcSiteMapProvider">
@@ -283,7 +295,9 @@
     <Content Include="Views\Shared\DisplayTemplates\SiteMapNodeModelList.ascx" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapPathHelperModel.ascx" />
     <Content Include="Views\Shared\DisplayTemplates\SiteMapTitleHelperModel.ascx" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -371,14 +385,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Sources\Linq2DynamoDb.DataContext\Linq2DynamoDb.DataContext.csproj">
-      <Project>{0e11b3f3-2347-4f2f-a469-2f6b1a0f1374}</Project>
-      <Name>Linq2DynamoDb.DataContext</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MovieReviews.DataModel\MovieReviews.DataModel.csproj">
       <Project>{b02844bb-816a-418c-ae0c-1b2ae32e9e3b}</Project>
       <Name>MovieReviews.DataModel</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AWSSDK.DynamoDBv2.3.1.1.5\analyzers\dotnet\cs\AWSSDK.DynamoDBv2.CodeAnalysis.dll" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
@@ -65,16 +64,14 @@ namespace Linq2DynamoDb.DataContext.Tests.Helpers
                 ReviewsList = reviews,
 			};
 
-		    var bookData = new JavaScriptSerializer().Serialize(book);
-
 		    if (persistToDynamoDb)
 		    {
-		        Logger.DebugFormat("Persisting book: {0}", bookData);
+		        Logger.DebugFormat("Persisting book: {0}", book.Name);
 		        PersistenceContext.Save(book);
 		    }
 		    else
             {
-                Logger.DebugFormat("Created in-memory book: {0}", bookData);
+                Logger.DebugFormat("Created in-memory book: {0}", book.Name);
 		    }
 
 		    if (_recordsForCleanup != null)

@@ -19,6 +19,10 @@ namespace Linq2DynamoDb.DataContext.Tests
 
 	    public static readonly string MemcachedBinaryPath = ConfigurationManager.AppSettings["MemcachedBinaryPath"];
 
+        public static readonly string RedisBinaryPath = ConfigurationManager.AppSettings["RedisBinaryPath"];
+
+        public static readonly string RedisLocalAddress = ConfigurationManager.AppSettings["RedisLocalAddress"];
+
         private static readonly string AwsCredentialsFilePath = ConfigurationManager.AppSettings["AwsCredentialsFilePath"];
 
         private static readonly ILog DataContextLogger = LogManager.GetLogger(typeof(DataContext));

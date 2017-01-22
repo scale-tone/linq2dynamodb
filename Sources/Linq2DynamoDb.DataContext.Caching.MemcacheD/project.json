@@ -1,0 +1,15 @@
+﻿{
+  "title": "Linq2DynamoDb.DataContext.Caching.MemcacheD",
+  "copyright": "Copyright © 2017",
+  "version": "2.1.0-*",
+  "dependencies": {
+    "EnyimMemcached": "2.16.0",
+    "Linq2DynamoDb.DataContext": "2.1.0-*",
+    "NETStandard.Library": "1.6.1"
+  },
+  "frameworks": {
+    "net461": {
+      "frameworkAssemblies": {}
+    }
+  }
+}

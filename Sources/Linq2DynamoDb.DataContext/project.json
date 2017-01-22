@@ -1,0 +1,16 @@
+﻿{
+  "title": "Linq2DynamoDb.DataContext",
+  "copyright": "Copyright © 2017",
+  "version": "2.1.0-*",
+  "dependencies": {
+    "AWSSDK.DynamoDBv2": "3.3.2.1",
+    "NETStandard.Library": "1.6.1",
+    "System.Linq.Queryable": "4.3.0",
+    "System.Runtime.Serialization.Formatters": "4.3.0"
+  },
+  "frameworks": {
+    "net461": {
+      "frameworkAssemblies": {}
+    }
+  }
+}

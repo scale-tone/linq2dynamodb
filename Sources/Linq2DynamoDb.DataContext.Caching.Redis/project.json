@@ -1,0 +1,15 @@
+﻿{
+  "title": "Linq2DynamoDb.DataContext.Caching.Redis",
+  "copyright": "Copyright © 2017",
+  "version": "2.1.0-*",
+  "dependencies": {
+    "Linq2DynamoDb.DataContext": "2.1.0-*",
+    "NETStandard.Library": "1.6.1",
+    "StackExchange.Redis": "1.2.0"
+  },
+  "frameworks": {
+    "net461": {
+      "frameworkAssemblies": {}
+    }
+  }
+}
