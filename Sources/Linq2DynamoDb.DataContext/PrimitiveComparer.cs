@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using Amazon.DynamoDBv2.DocumentModel;
 using Linq2DynamoDb.DataContext.Utils;
 
@@ -20,7 +21,7 @@ namespace Linq2DynamoDb.DataContext
 
             // creating a default Comparer<T> instance for the specified field type
             var comparerType = typeof (Comparer<>).MakeGenericType(this._fieldType);
-            var defaultPropInfo = comparerType.GetProperty("Default");
+            var defaultPropInfo = comparerType.GetTypeInfo().GetProperty("Default");
             this._comparer = (IComparer)defaultPropInfo.GetValue(null, null);
         }
 

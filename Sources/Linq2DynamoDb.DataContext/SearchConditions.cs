@@ -226,12 +226,13 @@ namespace Linq2DynamoDb.DataContext
                 }
 
                 var fieldType = fieldPropertyInfo.PropertyType;
+                var fieldBaseType = fieldType.GetTypeInfo().BaseType;
                 var fieldValues = condition.Item2.Values;
 
                 // operation of getting a Document property value by it's name 
                 Expression getFieldExp = Expression.Property(docParameter, "Item", Expression.Constant(fieldName));
 
-                if (fieldType.BaseType == typeof(Enum))
+                if (fieldBaseType == typeof(Enum))
                 {
                     // need to convert enums to ints
                     getFieldExp = Expression.Convert(getFieldExp, typeof(int));
@@ -263,7 +264,7 @@ namespace Linq2DynamoDb.DataContext
                 {
                     Expression valueExp = Expression.Constant(fieldValues[0]);
 
-                    if (fieldType.BaseType == typeof(Enum))
+                    if (fieldBaseType == typeof(Enum))
                     {
                         // need to convert enums to ints
                         valueExp = Expression.Convert(valueExp, typeof(int));
@@ -360,12 +361,13 @@ namespace Linq2DynamoDb.DataContext
             }
         }
 
-        private static readonly MethodInfo StringCompareMethodInfo = ((Func<string, string, StringComparison, int>)string.Compare).Method;
-        private static readonly MethodInfo StartsWithMethodInfo = ((Func<string, bool>)"".StartsWith).Method;
-        private static readonly MethodInfo ContainsMethodInfo = ((Func<string, bool>)"".Contains).Method;
+        private static readonly MethodInfo StringCompareMethodInfo = ((Func<string, string, StringComparison, int>)string.Compare).GetMethodInfo();
+        private static readonly MethodInfo StartsWithMethodInfo = ((Func<string, bool>)"".StartsWith).GetMethodInfo();
+        private static readonly MethodInfo ContainsMethodInfo = ((Func<string, bool>)"".Contains).GetMethodInfo();
 
         #endregion
 
+#if !NETSTANDARD1_6
         #region ISerializable custom implementation is needed, because enyim uses BinaryFormatter by default, which is stupid enough
 
         public SearchConditions(SerializationInfo info, StreamingContext context) : base(info, context)
@@ -373,5 +375,6 @@ namespace Linq2DynamoDb.DataContext
         }
 
         #endregion
+#endif
     }
 }

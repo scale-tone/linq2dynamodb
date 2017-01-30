@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETSTANDARD1_6
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
@@ -133,3 +134,4 @@ namespace Linq2DynamoDb.DataContext
         public void Commit() {}
     }
 }
+#endif

@@ -103,7 +103,7 @@ namespace Linq2DynamoDb.DataContext.Tests.Entities
 
 			public object FromEntry(DynamoDBEntry entry)
 			{
-                if (entry == null)
+                if ((entry == null) || (entry is DynamoDBNull))
                 {
                     return null;
                 }

@@ -22,7 +22,7 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
         /// <summary>
         /// MethodInfo of the method, that will be used for getting column values from underlying Document
         /// </summary>
-        private static readonly MethodInfo GetColumnValueByNameMethodInfo = ((Func<Document, string, Type, object>)GetColumnValueByName).Method;
+        private static readonly MethodInfo GetColumnValueByNameMethodInfo = ((Func<Document, string, Type, object>)GetColumnValueByName).GetMethodInfo();
 
         /// <summary>
         /// The list of columns to get from DynamoDb

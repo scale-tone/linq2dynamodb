@@ -79,8 +79,7 @@ namespace Linq2DynamoDb.DataContext
                         {
                             return false;
                         }
-
-                        this._currentBatch = this._search.GetNextSet();
+                        this._currentBatch = this._search.GetNextSetAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                     }
                     while (this._currentBatch.Count == 0);
 

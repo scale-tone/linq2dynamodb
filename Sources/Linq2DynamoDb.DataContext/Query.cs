@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Linq2DynamoDb.DataContext
 {
@@ -22,7 +23,7 @@ namespace Linq2DynamoDb.DataContext
 
         public Query(QueryProvider provider, Expression expression)
         {
-            if (!typeof(IQueryable<TEntity>).IsAssignableFrom(expression.Type))
+            if (!typeof(IQueryable<TEntity>).GetTypeInfo().IsAssignableFrom(expression.Type))
             {
                 throw new ArgumentOutOfRangeException("expression");
             }

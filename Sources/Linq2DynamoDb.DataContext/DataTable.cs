@@ -10,7 +10,10 @@ namespace Linq2DynamoDb.DataContext
     /// <summary>
     /// Represents a table in DynamoDb
     /// </summary>
-    public class DataTable<TEntity> : Query<TEntity>, ITableCudOperations, IListSource
+    public class DataTable<TEntity> : Query<TEntity>, ITableCudOperations
+#if !NETSTANDARD1_6
+        , IListSource
+#endif
     {
         private readonly TableDefinitionWrapper _tableWrapper;
 
@@ -59,7 +62,7 @@ namespace Linq2DynamoDb.DataContext
             this._tableWrapper.ThingsToDoUponSubmit += _ => tableLock.Dispose();
         }
 
-        #region ITableCudOperations
+#region ITableCudOperations
 
         void ITableCudOperations.CreateEntity(object entity)
         {
@@ -84,10 +87,10 @@ namespace Linq2DynamoDb.DataContext
             get { return this._tableWrapper; }
         }
 
-        #endregion
+#endregion
 
-        #region IListSource implementation
-
+#region IListSource implementation
+#if !NETSTANDARD1_6
         private EntityBindingList<TEntity> _bindingList;
 
         public IList GetList()
@@ -105,7 +108,7 @@ namespace Linq2DynamoDb.DataContext
         }
 
         public bool ContainsListCollection { get { return false; } }
-
-        #endregion
+#endif
+#endregion
     }
 }

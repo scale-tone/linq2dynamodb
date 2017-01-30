@@ -6,6 +6,8 @@ using Linq2DynamoDb.DataContext.Utils;
 
 namespace Linq2DynamoDb.DataContext
 {
+    using System.Reflection;
+
     /// <summary>
     /// Base class for all readers
     /// </summary>
@@ -16,20 +18,20 @@ namespace Linq2DynamoDb.DataContext
             this.Table = table;
             this.ProjectionFunc = projectionFunc;
 
+#if !NETSTANDARD1_6
             // choosing a wrapper for the entity depending on whether it's inherited from EntityBase
             if (typeof (EntityBase).IsAssignableFrom(this.EntityType))
             {
                 // then using a TransparentProxy
                 this._entityWrapperCreator = doc => new EntityProxy(doc, this.EntityType, this.Table.KeyNames);
+                return;
             }
-            else
-            {
-                // unobtrusive mode - using EntityWrapper
-                this._entityWrapperCreator = doc => new EntityWrapper(doc, this.EntityType, this.Table.ToDocumentConversionFunctor, this.Table.EntityKeyGetter);
-            }
+#endif
+            // unobtrusive mode - using EntityWrapper
+            this._entityWrapperCreator = doc => new EntityWrapper(doc, this.EntityType, this.Table.ToDocumentConversionFunctor, this.Table.EntityKeyGetter);
         }
 
-        #region ISupervisableEnumerable implementation
+#region ISupervisableEnumerable implementation
 
         public event Action<Document, IEntityWrapper> EntityDocumentEnumerated;
         public event Action EnumerationFinished;
@@ -39,9 +41,9 @@ namespace Linq2DynamoDb.DataContext
             this.EnumerationFinished.FireSafely();
         }
 
-        #endregion
+#endregion
 
-        #region IEnumerable implementation
+#region IEnumerable implementation
 
         public IEnumerator<TEntity> GetEnumerator()
         {
@@ -58,9 +60,9 @@ namespace Linq2DynamoDb.DataContext
             return this.GetEnumerator();
         }
 
-        #endregion
+#endregion
 
-        #region IEnumerator implementation
+#region IEnumerator implementation
 
         public TEntity Current { get; protected set; }
 
@@ -74,7 +76,7 @@ namespace Linq2DynamoDb.DataContext
         public void Reset() {}
         public void Dispose() {}
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Chooses a proper wrapper around the document.

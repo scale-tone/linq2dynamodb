@@ -160,7 +160,8 @@ namespace Linq2DynamoDb.DataContext.Utils
                 return typeof(IEnumerable<>).MakeGenericType(collectionType.GetElementType());
             }
 
-            if (collectionType.IsGenericType)
+            var typeInfo = collectionType.GetTypeInfo();
+            if (typeInfo.IsGenericType)
             {
                 foreach
                 (
@@ -184,9 +185,9 @@ namespace Linq2DynamoDb.DataContext.Utils
                 return iEnumerableType;
             }
 
-            if ((collectionType.BaseType != null) && (collectionType.BaseType != typeof(object)))
+            if ((typeInfo.BaseType != null) && (typeInfo.BaseType != typeof(object)))
             {
-                return FindIEnumerable(collectionType.BaseType);
+                return FindIEnumerable(typeInfo.BaseType);
             }
 
             return null;
@@ -194,7 +195,8 @@ namespace Linq2DynamoDb.DataContext.Utils
 
         public static bool ImplementsInterface(this Type targetType, Type interfaceType)
         {
-            if (!interfaceType.IsInterface)
+            var typeInfo = interfaceType.GetTypeInfo();
+            if (!typeInfo.IsInterface)
             {
                 throw new ArgumentOutOfRangeException("interfaceType", "Type is not an interface");
             }
@@ -206,12 +208,13 @@ namespace Linq2DynamoDb.DataContext.Utils
                     return true;
                 }
 
-                if (!interfaceType.IsGenericTypeDefinition || !inter.IsGenericType)
+                var interTypeInfo = inter.GetTypeInfo();
+                if (!typeInfo.IsGenericTypeDefinition || !interTypeInfo.IsGenericType)
                 {
                     continue;
                 }
 
-                if (inter.GetGenericTypeDefinition() == interfaceType)
+                if (interTypeInfo.GetGenericTypeDefinition() == interfaceType)
                 {
                     return true;
                 }
@@ -241,7 +244,7 @@ namespace Linq2DynamoDb.DataContext.Utils
                 type.IsAssignableFrom(typeof(Guid)) ||
                 type.IsAssignableFrom(typeof(byte[])) ||
                 type.IsAssignableFrom(typeof(MemoryStream)) ||
-                type.BaseType == typeof(Enum)
+                type.GetTypeInfo().BaseType == typeof(Enum)
             );
         }
 

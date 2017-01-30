@@ -9,6 +9,8 @@ using Expression = System.Linq.Expressions.Expression;
 
 namespace Linq2DynamoDb.DataContext.ExpressionUtils
 {
+    using System.Reflection;
+
     /// <summary>
     /// Visits the Where clause and collects conditions
     /// </summary>
@@ -177,7 +179,7 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
                         from 
                             object v in (IEnumerable)listExp.Value 
                         select
-                            v.ToDynamoDbEntry(listExp.Type.GetGenericArguments().First())
+                            v.ToDynamoDbEntry(listExp.Type.GetTypeInfo().GetGenericArguments().First())
                     )
                     .ToArray()
                 );

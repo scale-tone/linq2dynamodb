@@ -8,8 +8,16 @@
     "StackExchange.Redis": "1.2.0"
   },
   "frameworks": {
-    "net461": {
-      "frameworkAssemblies": {}
+    "net462": {
+      "frameworkAssemblies": {},
+      "dependencies": {
+      }
+    },
+    "netstandard1.6": {
+      "imports": "dnxcore50",
+      "dependencies": {
+        "Newtonsoft.Json": "9.0.1"
+      }
     }
   }
 }

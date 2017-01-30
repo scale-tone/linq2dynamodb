@@ -277,7 +277,7 @@ namespace Linq2DynamoDb.DataContext
             else
             {
                 // if the entity is not found in cache - then getting it from DynamoDb
-                resultDoc = this.TableDefinition.GetItem
+                resultDoc = this.TableDefinition.GetItemAsync
                     (
                         this.EntityKeyGetter.GetKeyDictionary(entityKey),
                         new GetItemOperationConfig
@@ -285,7 +285,10 @@ namespace Linq2DynamoDb.DataContext
                             AttributesToGet = translationResult.AttributesToGet,
                             ConsistentRead = this._consistentRead
                         }
-                    );
+                    )
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
 
                 // putting the entity to cache as well
                 this.Cache.PutSingleLoadedEntity(entityKey, resultDoc);
@@ -314,8 +317,8 @@ namespace Linq2DynamoDb.DataContext
             {
                 batchGet.AttributesToGet = translationResult.AttributesToGet;
             }
-
-            batchGet.Execute();
+            // using async method, because it's the only available in .Net Core version
+            batchGet.ExecuteAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             this.Log("DynamoDb batch get: {0}", translationResult);
 

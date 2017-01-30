@@ -4,6 +4,8 @@ using System.Linq.Expressions;
 
 namespace Linq2DynamoDb.DataContext.ExpressionUtils
 {
+    using System.Reflection;
+
     /// <summary> 
     /// Evaluates & replaces sub-trees when first candidate is reached (top-down) 
     /// </summary> 
@@ -114,12 +116,14 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
 
             private bool CanBeEvaluatedLocally(Expression expression)
             {
+                var expressionTypeInfo = expression.Type.GetTypeInfo();
+
                 // preventing recursion around Expression.Constant(DataTable<TEntity>)
                 bool typeIsDataTable =
                     (
-                        expression.Type.IsGenericType
+                        expressionTypeInfo.IsGenericType
                         &&
-                        expression.Type.GetGenericTypeDefinition() == typeof (DataTable<>)
+                        expressionTypeInfo.GetGenericTypeDefinition() == typeof (DataTable<>)
                     );
 
                 return

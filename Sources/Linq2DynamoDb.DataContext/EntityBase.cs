@@ -6,7 +6,10 @@ namespace Linq2DynamoDb.DataContext
     /// Allows for creating transparent proxies around entities.
     /// Entities should derive from this base class.
     /// </summary>
-    public class EntityBase : MarshalByRefObject
+    public class EntityBase
+#if !NETSTANDARD1_6
+        : MarshalByRefObject
+#endif
     {
         /// <summary>
         /// Internal fake property.

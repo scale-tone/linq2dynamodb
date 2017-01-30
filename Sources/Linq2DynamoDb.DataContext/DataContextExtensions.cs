@@ -114,17 +114,22 @@ namespace Linq2DynamoDb.DataContext
             string status = string.Empty;
             do
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(1));
                 try
                 {
+#if AWSSDK_1_5
                     status = client.DescribeTable
                     (
                         new DescribeTableRequest { TableName = tableName }
                     )
-#if AWSSDK_1_5
-                    .DescribeTableResult
+                    .DescribeTableResult.Table.TableStatus;
+#else
+                    var response = await client.DescribeTableAsync
+                    (
+                        new DescribeTableRequest { TableName = tableName }
+                    );
+                    status = response.Table.TableStatus;
 #endif
-                    .Table.TableStatus;
                 }
                 catch (ResourceNotFoundException)
                 {
@@ -162,13 +167,10 @@ namespace Linq2DynamoDb.DataContext
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(1));
                 try
                 {
-                    client.DescribeTable(new DescribeTableRequest
-                    {
-                        TableName = tableName
-                    });
+                    await client.DescribeTableAsync(new DescribeTableRequest { TableName = tableName });
                 }
                 catch (ResourceNotFoundException)
                 {

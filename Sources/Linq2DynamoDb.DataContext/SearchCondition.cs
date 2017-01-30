@@ -13,8 +13,8 @@ namespace Linq2DynamoDb.DataContext
     [Serializable]
     public class SearchCondition : ISerializable
     {
-        public ScanOperator Operator { get; private set; }
-        public DynamoDBEntry[] Values { get; private set; }
+        public ScanOperator Operator { get; set; }
+        public DynamoDBEntry[] Values { get; set; }
 
         public SearchCondition(ScanOperator op, params DynamoDBEntry[] values)
         {
@@ -35,7 +35,7 @@ namespace Linq2DynamoDb.DataContext
             {
                 if (en.Name == "Operator")
                 {
-                    this.Operator = (ScanOperator) en.Value;
+                    this.Operator = (ScanOperator)en.Value;
                 }
                 else
                 {

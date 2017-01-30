@@ -151,13 +151,13 @@ namespace Linq2DynamoDb.DataContext.Utils
         {
             return
             (
-                (((Func<int>)obj.GetHashCode).Method != ObjectGetHashCode)
+                (((Func<int>)obj.GetHashCode).GetMethodInfo() != ObjectGetHashCode)
                 &&
-                (((Predicate<object>)obj.Equals).Method != ObjectEquals)
+                (((Predicate<object>)obj.Equals).GetMethodInfo() != ObjectEquals)
             );
         }
-        private static readonly MethodInfo ObjectGetHashCode = ((Func<int>)new object().GetHashCode).Method;
-        private static readonly MethodInfo ObjectEquals = ((Predicate<object>)new object().Equals).Method;
+        private static readonly MethodInfo ObjectGetHashCode = ((Func<int>)new object().GetHashCode).GetMethodInfo();
+        private static readonly MethodInfo ObjectEquals = ((Predicate<object>)new object().Equals).GetMethodInfo();
 
     }
 }

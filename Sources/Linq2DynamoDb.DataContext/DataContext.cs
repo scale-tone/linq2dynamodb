@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using Amazon;
 using Amazon.DynamoDBv2.DataModel;
@@ -236,10 +237,10 @@ namespace Linq2DynamoDb.DataContext
         {
             string fullTableName;
 
-            var entityAttributes = entityType.GetCustomAttributes(typeof(DynamoDBTableAttribute), true);
-            if (entityAttributes.Length > 0)
+            var entityAttributes = entityType.GetTypeInfo().GetCustomAttributes(typeof(DynamoDBTableAttribute), true);
+            if (entityAttributes.Any())
             {
-                fullTableName = this._tableNamePrefix + ((DynamoDBTableAttribute)entityAttributes[0]).TableName;
+                fullTableName = this._tableNamePrefix + ((DynamoDBTableAttribute)entityAttributes.First()).TableName;
             }
             else
             {

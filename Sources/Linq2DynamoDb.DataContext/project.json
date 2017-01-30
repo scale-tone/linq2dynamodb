@@ -9,8 +9,11 @@
     "System.Runtime.Serialization.Formatters": "4.3.0"
   },
   "frameworks": {
-    "net461": {
+    "net462": {
       "frameworkAssemblies": {}
+    },
+    "netstandard1.6": {
+      "imports": "dnxcore50"
     }
   }
 }

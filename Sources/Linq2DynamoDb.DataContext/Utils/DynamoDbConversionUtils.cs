@@ -67,7 +67,7 @@ namespace Linq2DynamoDb.DataContext.Utils
         /// </summary>
         public static object ToObject(this DynamoDBEntry value, Type valueType)
         {
-            return value == null ? ReflectionUtils.DefaultValue(valueType)() : FromDynamoDbEntryConvertor(valueType)(value);
+            return ((value == null) || (value is DynamoDBNull)) ? ReflectionUtils.DefaultValue(valueType)() : FromDynamoDbEntryConvertor(valueType)(value);
         }
 
         #region Entity -> Document converter functor
@@ -180,7 +180,7 @@ namespace Linq2DynamoDb.DataContext.Utils
             var valueParameter = Expression.Parameter(typeof(object));
 
             // first converting to a valueType (or to int, if it's an enum)
-            var conversionExp = Expression.Convert(valueParameter, valueType.BaseType == typeof (Enum) ? typeof(int) : valueType);
+            var conversionExp = Expression.Convert(valueParameter, valueType.GetTypeInfo().BaseType == typeof (Enum) ? typeof(int) : valueType);
             // then to Primitive
             conversionExp = Expression.Convert(conversionExp, typeof(Primitive));
 
@@ -208,7 +208,7 @@ namespace Linq2DynamoDb.DataContext.Utils
             if (valueType.IsPrimitive())
             {
                 // first converting to a valueType (or to int, if it's an enum)
-                var primitiveConversionExp = Expression.Convert(valueParameter, valueType.BaseType == typeof(Enum) ? typeof(int) : valueType);
+                var primitiveConversionExp = Expression.Convert(valueParameter, valueType.GetTypeInfo().BaseType == typeof(Enum) ? typeof(int) : valueType);
                 // then to Primitive | Since AWSSDK 2.3.2.0, conversion to DynamoDbEntry type now yields object of internal type UnconvertedDynamoDBEntry which is not derived from Primitive thus breaking Linq2DynamoDb
                 primitiveConversionExp = Expression.Convert(primitiveConversionExp, typeof(Primitive));
 
@@ -234,7 +234,7 @@ namespace Linq2DynamoDb.DataContext.Utils
 
             var conversionExp = Expression.Call
             (
-                elementType.IsPrimitive() ? ((Func<object, Type, PrimitiveList>)ToPrimitiveList).Method : ((Func<object, Type, DynamoDBList>)ToDynamoDbList).Method, 
+                elementType.IsPrimitive() ? ((Func<object, Type, PrimitiveList>)ToPrimitiveList).GetMethodInfo() : ((Func<object, Type, DynamoDBList>)ToDynamoDbList).GetMethodInfo(), 
                 valueParameter, 
                 Expression.Constant(elementType)
             );
@@ -286,7 +286,7 @@ namespace Linq2DynamoDb.DataContext.Utils
             var valueParameter = Expression.Parameter(typeof(Primitive));
 
             UnaryExpression conversionExp;
-            if (valueType.BaseType == typeof (Enum))
+            if (valueType.GetTypeInfo().BaseType == typeof (Enum))
             {
                 // first to int, then to valueType
                 conversionExp = Expression.Convert(valueParameter, typeof(int));
@@ -326,7 +326,7 @@ namespace Linq2DynamoDb.DataContext.Utils
             {
                 Expression conversionExp;
 
-                if (valueType.BaseType == typeof (Enum))
+                if (valueType.GetTypeInfo().BaseType == typeof (Enum))
                 {
                     conversionExp = Expression.Convert(valueParameter, typeof(int));
                     conversionExp = Expression.Convert(conversionExp, valueType);
@@ -349,7 +349,7 @@ namespace Linq2DynamoDb.DataContext.Utils
                 fillPropExp = Expression.Call
                 (
                     typeof(DynamoDbConversionUtils),
-                    elementType.IsPrimitive() ? ((Func<PrimitiveList, Type, object>)FillArrayFromPrimitiveList<object>).Method.Name : ((Func<DynamoDBList, Type, object>)FillArrayFromDynamoDbList<object>).Method.Name,
+                    elementType.IsPrimitive() ? ((Func<PrimitiveList, Type, object>)FillArrayFromPrimitiveList<object>).GetMethodInfo().Name : ((Func<DynamoDBList, Type, object>)FillArrayFromDynamoDbList<object>).GetMethodInfo().Name,
                     new[] { elementType },
                     Expression.Convert(valueParameter, elementType.IsPrimitive() ? typeof(PrimitiveList) : typeof(DynamoDBList)),
                     Expression.Constant(elementType, typeof(Type))
@@ -361,7 +361,7 @@ namespace Linq2DynamoDb.DataContext.Utils
 
                 fillPropExp = Expression.Call
                 (
-                    elementType.IsPrimitive() ? ((Func<IList, PrimitiveList, Type, object>)FillListFromPrimitiveList).Method : ((Func<IList, DynamoDBList, Type, object>)FillListFromDynamoDbList).Method,
+                    elementType.IsPrimitive() ? ((Func<IList, PrimitiveList, Type, object>)FillListFromPrimitiveList).GetMethodInfo() : ((Func<IList, DynamoDBList, Type, object>)FillListFromDynamoDbList).GetMethodInfo(),
                     Expression.New(valueType),
                     Expression.Convert(valueParameter, elementType.IsPrimitive() ? typeof(PrimitiveList) : typeof(DynamoDBList)),
                     Expression.Constant(elementType, typeof(Type))
@@ -374,7 +374,7 @@ namespace Linq2DynamoDb.DataContext.Utils
                 fillPropExp = Expression.Call
                 (
                     typeof(DynamoDbConversionUtils),
-                    elementType.IsPrimitive() ? ((Func<ICollection<object>, PrimitiveList, Type, object>)FillCollectionFromPrimitiveList).Method.Name : ((Func<ICollection<object>, DynamoDBList, Type, object>)FillCollectionFromDynamoDbList).Method.Name,
+                    elementType.IsPrimitive() ? ((Func<ICollection<object>, PrimitiveList, Type, object>)FillCollectionFromPrimitiveList).GetMethodInfo().Name : ((Func<ICollection<object>, DynamoDBList, Type, object>)FillCollectionFromDynamoDbList).GetMethodInfo().Name,
                     new[] { elementType },
                     Expression.New(valueType),
                     Expression.Convert(valueParameter, elementType.IsPrimitive() ? typeof(PrimitiveList) : typeof(DynamoDBList)),
@@ -385,7 +385,7 @@ namespace Linq2DynamoDb.DataContext.Utils
             {
                 fillPropExp = Expression.Call
                 (
-                    ((Func<Document, Type, object>)ToObject).Method,
+                    ((Func<Document, Type, object>)ToObject).GetMethodInfo(),
                     Expression.Convert(valueParameter, typeof(Document)),
                     Expression.Constant(valueType, typeof(Type))
                 );

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if !NETSTANDARD1_6
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace Linq2DynamoDb.DataContext
@@ -30,3 +31,4 @@ namespace Linq2DynamoDb.DataContext
         }
     }
 }
+#endif

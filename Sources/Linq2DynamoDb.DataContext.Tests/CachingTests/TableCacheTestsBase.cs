@@ -742,6 +742,24 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
             });
         }
 
+
+        [Test]
+        public void TableCache_TableLockIsAcquired()
+        {
+            string lockKey1 = Guid.NewGuid().ToString();
+            string lockKey2 = Guid.NewGuid().ToString();
+
+            this.TableCache.AcquireTableLock(lockKey1, TimeSpan.FromSeconds(5)).Dispose();
+
+            // acquiring another lock in parallel
+            var lock2 = this.TableCache.AcquireTableLock(lockKey2, TimeSpan.FromSeconds(5));
+
+            // now the previous lock is disposed, and we should be able to acquire it again
+            this.TableCache.AcquireTableLock(lockKey1, TimeSpan.FromSeconds(5)).Dispose();
+
+            lock2.Dispose();
+        }
+
         protected virtual void DropEntityFromCache(EntityKey key)
         {
             this.TableCache.RemoveEntities(new[] { key });
