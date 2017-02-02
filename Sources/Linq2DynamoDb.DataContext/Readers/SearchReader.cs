@@ -17,9 +17,7 @@ namespace Linq2DynamoDb.DataContext
             var reader = (ISupervisableEnumerable)Activator.CreateInstance
             (
                 typeof(SearchReader<>).MakeGenericType(resultEntityType),
-                BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new [] { this, queryResult, projectionFunc },
-                null
+                new [] { this, queryResult, projectionFunc }
             );
 
             this.InitReader(reader);
@@ -36,7 +34,7 @@ namespace Linq2DynamoDb.DataContext
             /// <summary>
             /// ctor used for iterating through a search result
             /// </summary>
-            private SearchReader(TableDefinitionWrapper table, Search search, Func<Document, TEntity> projectionFunc)
+            public SearchReader(TableDefinitionWrapper table, Search search, Func<Document, TEntity> projectionFunc)
                 :
                 base(table, projectionFunc)
             {

@@ -15,9 +15,7 @@ namespace Linq2DynamoDb.DataContext
             var reader = (ISupervisableEnumerable)Activator.CreateInstance
             (
                 typeof(SingleDocReader<>).MakeGenericType(resultEntityType),
-                BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { this, doc, projectionFunc },
-                null
+                new object[] { this, doc, projectionFunc }
             );
 
             this.InitReader(reader);
@@ -34,7 +32,7 @@ namespace Linq2DynamoDb.DataContext
             /// <summary>
             /// ctor, that iterates through a single document
             /// </summary>
-            private SingleDocReader(TableDefinitionWrapper table, Document singleDoc, Func<Document, TEntity> projectionFunc)
+            public SingleDocReader(TableDefinitionWrapper table, Document singleDoc, Func<Document, TEntity> projectionFunc)
                 :
                 base(table, projectionFunc)
             {

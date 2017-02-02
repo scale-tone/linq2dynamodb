@@ -17,10 +17,7 @@ namespace Linq2DynamoDb.DataContext
             var reader = (ISupervisableEnumerable)Activator.CreateInstance
             (
                 typeof(DocArrayReader<>).MakeGenericType(resultEntityType),
-                BindingFlags.Instance | BindingFlags.NonPublic, 
-                null,
-                new object[] { this, docs, projectionFunc },
-                null
+                new object[] { this, docs, projectionFunc }
             );
 
             this.InitReader(reader);
@@ -36,7 +33,7 @@ namespace Linq2DynamoDb.DataContext
             /// <summary>
             /// ctor used for iterating through an array taken from cache
             /// </summary>
-            private DocArrayReader(TableDefinitionWrapper table, IEnumerable<Document> docs, Func<Document, TEntity> projectionFunc)
+            public DocArrayReader(TableDefinitionWrapper table, IEnumerable<Document> docs, Func<Document, TEntity> projectionFunc)
                 :
                 base(table, projectionFunc)
             {
