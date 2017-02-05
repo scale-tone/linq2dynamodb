@@ -1,0 +1,3 @@
+# MobileNotes
+
+Demonstrates how to expose a DynamoDB table as [an OData endpoint](https://github.com/scale-tone/linq2dynamodb/tree/master/Samples/MobileNotes/MobileNotes.Web) and how to consume that endpoint with an [Ionic application](https://github.com/scale-tone/linq2dynamodb/tree/master/Samples/MobileNotes/MobileNotes.IonicApp) and with a [Windows Phone application](https://github.com/scale-tone/linq2dynamodb/tree/master/Samples/MobileNotes/MobileNotes.WinPhoneApp).
