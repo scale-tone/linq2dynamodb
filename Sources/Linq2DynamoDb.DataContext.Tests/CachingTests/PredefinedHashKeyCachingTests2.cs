@@ -10,9 +10,11 @@ using NUnit.Framework;
 
 namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 {
-	[TestFixture]
+    [TestFixture]
 	class PredefinedHashKeyCachingTests2
-	{
+    {
+        private static readonly string tablePrefix = "def";
+
 		// ReSharper disable InconsistentNaming
 		private static MemcachedClient cacheClient;
 
@@ -77,12 +79,12 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 		};
 
 
-		[TestFixtureSetUp]
+		[SetUp]
 		public static void ClassInit()
         {
             MemcachedController.StartIfRequired();
 			cacheClient = new MemcachedClient();
-            var ctx = TestConfiguration.GetDataContext();
+            var ctx = TestConfiguration.GetDataContext(tablePrefix);
 
 			ctx.CreateTableIfNotExists
 			(
@@ -95,13 +97,13 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 					() => initialEntities
 				)
 			);
-		}
+        }
 
-		[TestFixtureTearDown]
+        [TearDown]
 		public static void ClassClean()
         {
             MemcachedController.Stop();
-            var ctx = TestConfiguration.GetDataContext();
+            var ctx = TestConfiguration.GetDataContext(tablePrefix);
 
 			ctx.DeleteTable<FullEntity>();
 		}
@@ -118,7 +120,7 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
             cacheClient.FlushAll();
             this._cacheHitCount = 0;
 
-            var ctx = TestConfiguration.GetDataContext();
+            var ctx = TestConfiguration.GetDataContext(tablePrefix);
 
             var fullTable = ctx.GetTable<FullEntity>(() =>
             {
@@ -221,6 +223,5 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
             Assert.AreEqual(0, userSpecificQuery2.AsEnumerable().Count(), "The user-specific query2 should return 0 entities");
             Assert.AreEqual(0, this._cacheHitCount, "Cache wasn't flushed for some strange reason");
         }
-
-	}
+    }
 }

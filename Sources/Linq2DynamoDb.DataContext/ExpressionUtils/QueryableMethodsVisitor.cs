@@ -16,12 +16,15 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
         public readonly TranslationResult TranslationResult;
         public readonly ParameterExpression EnumerableParameterExp;
 
+        public readonly Type EntityType;
+
         #endregion
 
         private readonly Type _tableEntityType;
 
         public QueryableMethodsVisitor(Type entityType, Type tableEntityType)
         {
+            this.EntityType = entityType;
             this._tableEntityType = tableEntityType;
             this.EnumerableParameterExp = Expression.Parameter(typeof(IQueryable<>).MakeGenericType(entityType));
 

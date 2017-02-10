@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 {
-	[DynamoDBTable("FullEntity")]
+    [DynamoDBTable("FullEntity")]
 	class UserEntity : EntityBase
 	{
 		public string RangeKey { get; set; }
@@ -28,8 +28,10 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 	[TestFixture]
 	class PredefinedHashKeyCachingTests
 	{
-		// ReSharper disable InconsistentNaming
-		private static MemcachedClient cacheClient;
+        private static readonly string tablePrefix = "abc";
+
+        // ReSharper disable InconsistentNaming
+        private static MemcachedClient cacheClient;
 
 		private static readonly Guid userId1 = Guid.NewGuid();
 		private static readonly Guid userId2 = Guid.NewGuid();
@@ -92,12 +94,12 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 		};
 
 
-		[TestFixtureSetUp]
+		[SetUp]
 		public static void ClassInit()
         {
             MemcachedController.StartIfRequired();
 			cacheClient = new MemcachedClient();
-            var ctx = TestConfiguration.GetDataContext();
+            var ctx = TestConfiguration.GetDataContext(tablePrefix);
 
 			ctx.CreateTableIfNotExists
 			(
@@ -112,16 +114,15 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 			);
 		}
 
-		[TestFixtureTearDown]
+		[TearDown]
 		public static void ClassClean()
         {
             MemcachedController.Stop();
-            var ctx = TestConfiguration.GetDataContext();
+            var ctx = TestConfiguration.GetDataContext(tablePrefix);
+            ctx.DeleteTable<FullEntity>();
+        }
 
-			ctx.DeleteTable<FullEntity>();
-		}
-
-		private volatile int _cacheHitCount;
+        private volatile int _cacheHitCount;
 		private void OnCacheHit()
 		{
 			this._cacheHitCount++;
@@ -134,7 +135,7 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
 			cacheClient.FlushAll();
 			this._cacheHitCount = 0;
 
-            var ctx = TestConfiguration.GetDataContext();
+            var ctx = TestConfiguration.GetDataContext(tablePrefix);
 
 			var fullTable = ctx.GetTable<FullEntity>(() =>
 				{

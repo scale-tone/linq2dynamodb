@@ -9,6 +9,8 @@ using Linq2DynamoDb.DataContext.Utils;
 
 namespace Linq2DynamoDb.DataContext
 {
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Implementation of IQueryProvider. Also does some magic of pre- and post-evaluating LINQ expressions.
     /// </summary>
@@ -32,51 +34,25 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         internal object ExecuteQuery(Expression expression)
         {
-            // replacing Count(predicate) with Where(predicate).Count()
-            expression = ScalarMethodsVisitor.Visit(expression);
-
-            // pre-executing everything, that can be executed locally
-            expression = SubtreeEvaluator.Value.EvaluateSubtree(expression);
-
-            // traversing the expression to find out the type of entities to be returned
-            var entityTypeExtractor = new EntityTypeExtractionVisitor();
-            entityTypeExtractor.Visit(expression);
-
-            if (entityTypeExtractor.TableEntityType == null)
-            {
-                throw new InvalidOperationException("Failed to extract the table entity type from the query");
-            }
-
-            Type entityType = entityTypeExtractor.EntityType ?? entityTypeExtractor.TableEntityType;
-
-            // translating the query into set of conditions and converting the expression at the same time
-            // (all Queryable method calls will be replaced by a param of IQueryable<T> type)
-            var visitor = new QueryableMethodsVisitor(entityType, entityTypeExtractor.TableEntityType);
-            expression = visitor.Visit(expression);
+            var visitor = this.PreEvaluateExpressionAndGetQueryableMethodsVisitor(ref expression);
 
             // executing get/query/scan operation against DynamoDb table
-            var result = this._tableWrapper.LoadEntities(visitor.TranslationResult, entityType);
+            var result = this._tableWrapper.LoadEntities(visitor.TranslationResult, visitor.EntityType);
 
-            // trying to support other (mostly Enumerable's single-entity) operations 
-            var enumerableResult = result as IEnumerable;
-            if (enumerableResult != null)
-            {
-                var queryableResult = enumerableResult.AsQueryable();
+            return this.PostEvaluateExpression(expression, visitor, result);
+        }
 
-                var lambda = Expression.Lambda(expression, visitor.EnumerableParameterExp);
+        /// <summary>
+        /// Evaluates LINQ expression and queries DynamoDb table for results
+        /// </summary>
+        internal async Task<object> ExecuteQueryAsync(Expression expression)
+        {
+            var visitor = this.PreEvaluateExpressionAndGetQueryableMethodsVisitor(ref expression);
 
-                // Here the default methods for IEnumerable<T> are called.
-                // This allows to support First(), Last(), Any() etc.
-                try
-                {
-                    result = lambda.Compile().DynamicInvoke(queryableResult);
-                }
-                catch (TargetInvocationException ex)
-                {
-                    throw ex.InnerException;
-                }
-            }
-            return result;
+            // executing get/query/scan operation against DynamoDb table
+            var result = await this._tableWrapper.LoadEntitiesAsync(visitor.TranslationResult, visitor.EntityType);
+
+            return this.PostEvaluateExpression(expression, visitor, result);
         }
 
         #region IQueryProvider implementation. Copied from IQToolkit
@@ -113,5 +89,56 @@ namespace Linq2DynamoDb.DataContext
         }
 
         #endregion
+
+        private QueryableMethodsVisitor PreEvaluateExpressionAndGetQueryableMethodsVisitor(ref Expression expression)
+        {
+            // replacing Count(predicate) with Where(predicate).Count()
+            expression = ScalarMethodsVisitor.Visit(expression);
+
+            // pre-executing everything, that can be executed locally
+            expression = SubtreeEvaluator.Value.EvaluateSubtree(expression);
+
+            // traversing the expression to find out the type of entities to be returned
+            var entityTypeExtractor = new EntityTypeExtractionVisitor();
+            entityTypeExtractor.Visit(expression);
+
+            if (entityTypeExtractor.TableEntityType == null)
+            {
+                throw new InvalidOperationException("Failed to extract the table entity type from the query");
+            }
+
+            var entityType = entityTypeExtractor.EntityType ?? entityTypeExtractor.TableEntityType;
+
+            // translating the query into set of conditions and converting the expression at the same time
+            // (all Queryable method calls will be replaced by a param of IQueryable<T> type)
+            var visitor = new QueryableMethodsVisitor(entityType, entityTypeExtractor.TableEntityType);
+            expression = visitor.Visit(expression);
+
+            return visitor;
+        }
+
+        private object PostEvaluateExpression(Expression expression, QueryableMethodsVisitor visitor, object result)
+        {
+            // trying to support other (mostly Enumerable's single-entity) operations 
+            var enumerableResult = result as IEnumerable;
+            if (enumerableResult != null)
+            {
+                var queryableResult = enumerableResult.AsQueryable();
+
+                var lambda = Expression.Lambda(expression, visitor.EnumerableParameterExp);
+
+                // Here the default methods for IEnumerable<T> are called.
+                // This allows to support First(), Last(), Any() etc.
+                try
+                {
+                    result = lambda.Compile().DynamicInvoke(queryableResult);
+                }
+                catch (TargetInvocationException ex)
+                {
+                    throw ex.InnerException ?? ex;
+                }
+            }
+            return result;
+        }
     }
 }

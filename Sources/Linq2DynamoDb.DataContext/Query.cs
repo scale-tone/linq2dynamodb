@@ -7,6 +7,9 @@ using System.Reflection;
 
 namespace Linq2DynamoDb.DataContext
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// IQueryable implementation. This black magic is mostly copied from IQToolkit
     /// </summary>
@@ -49,6 +52,12 @@ namespace Linq2DynamoDb.DataContext
             // note, that server is requeried every time a new enumerator is requested
             var enumerableResult = (IEnumerable)this.Provider.ExecuteQuery(this._expression);
             return enumerableResult.GetEnumerator();
+        }
+
+        public async Task<List<TEntity>> ToListAsync()
+        {
+            var enumerableResult = await this.Provider.ExecuteQueryAsync(this._expression);
+            return ((IEnumerable<TEntity>)enumerableResult).ToList();
         }
     }
 }

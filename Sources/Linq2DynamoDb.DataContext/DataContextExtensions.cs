@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DocumentModel;
@@ -14,10 +15,23 @@ using Amazon.DynamoDBv2;
 namespace Linq2DynamoDb.DataContext
 {
     /// <summary>
-    /// Moved async methods here to enable .Net 4.0 support
+    /// A set of async extensions for DataContext
     /// </summary>
     public static class DataContextExtensions
     {
+        /// <summary>
+        /// Asynchronously executes the query and returns results as a List
+        /// </summary>
+        public static Task<List<T>> ToListAsync<T>(this IQueryable<T> source)
+        {
+            var query = source as Query<T>;
+            if (query == null)
+            {
+                throw new InvalidOperationException("This extension method works only with Linq2DynamoDB.DataTable. Please, don't try to use it for other IQueryables.");
+            }
+            return query.ToListAsync();
+        }
+
         /// <summary>
         /// Asyncronously saves all modifications to DynamoDb and to cache, if one is used
         /// </summary>

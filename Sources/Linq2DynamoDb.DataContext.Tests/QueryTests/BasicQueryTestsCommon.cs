@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Amazon.DynamoDBv2.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Linq2DynamoDb.DataContext.Tests.Entities;
 using Linq2DynamoDb.DataContext.Tests.Helpers;
@@ -358,6 +360,30 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
 			Assert.AreEqual(DataSetLength, numberOfRecordsInDb);
 		}
 
-		// ReSharper restore InconsistentNaming
-	}
+        [Test]
+        public void DateContext_RetrievesManyRecords()
+        {
+            const int DataSetLength = 500;
+            var bookRev1 = BooksHelper.CreateBook();
+            Parallel.For(1, DataSetLength,
+                i => 
+                {
+                    try
+                    {
+                        BooksHelper.CreateBook(bookRev1.Name, bookRev1.PublishYear + i);
+                    }
+                    catch (ProvisionedThroughputExceededException)
+                    {
+                        Thread.Sleep(10000);
+                        // trying one more time
+                        BooksHelper.CreateBook(bookRev1.Name, bookRev1.PublishYear + i);
+                    }
+                });
+
+            var allBooks = Context.GetTable<Book>().Where(book => book.Name == bookRev1.Name).ToList();
+            Assert.AreEqual(DataSetLength, allBooks.Count);
+        }
+
+        // ReSharper restore InconsistentNaming
+    }
 }

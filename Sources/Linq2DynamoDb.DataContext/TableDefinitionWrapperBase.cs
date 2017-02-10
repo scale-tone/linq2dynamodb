@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DocumentModel;
 using Linq2DynamoDb.DataContext.Caching;
 using Linq2DynamoDb.DataContext.ExpressionUtils;
@@ -53,29 +55,86 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         internal object LoadEntities(TranslationResult translationResult, Type entityType)
         {
-            // cancelling the previous index creation, if there was one
-            this.CurrentIndexCreator = null;
+            this.PrepareToLoadEntities(translationResult);
 
-            // skipping added and removed entities
-            this.ClearModifications();
-
-            // if a HashKey value was explicitly specified
-            if (this.HashKeyValue != null)
+            // first trying to execute get
+            object result = this.TryExecuteGetAsync(translationResult, entityType).ConfigureAwait(false).GetAwaiter().GetResult();
+            if (result != null)
             {
-                // then adding a condition for it
-                translationResult.Conditions.AddCondition
-                    (
-                        this.TableDefinition.HashKeys[0],
-                        new SearchCondition(ScanOperator.Equal, this.HashKeyValue)
-                    );
+                return result;
             }
 
-#if DEBUG
-            this._loadOperationStopwatch = new Stopwatch();
-            this._loadOperationStopwatch.Start();
-#endif
+            // now trying to load a query from cache
+            result = this.TryLoadFromCache(translationResult, entityType);
+            if (result != null)
+            {
+                return result;
+            }
 
-            return this.InternalLoadEntities(translationResult, entityType);
+            // finally requesting data from DynamoDb
+            result = this.TryExecuteBatchGetAsync(translationResult, entityType).ConfigureAwait(false).GetAwaiter().GetResult();
+            if (result == null)
+            {
+                var search = this.TryExecuteQuery(translationResult, entityType);
+                if (search == null)
+                {
+                    search = this.ExecuteScan(translationResult, entityType);
+                }
+
+                // creating a batch reader for results
+                result = this.CreateReader(search, entityType, translationResult.ProjectionFunc);
+            }
+
+            return this.ApplyClientSideOperators(result, translationResult, entityType);
+        }
+
+        /// <summary>
+        /// Asyncronously executes a get/query/scan request against the table
+        /// </summary>
+        internal async Task<object> LoadEntitiesAsync(TranslationResult translationResult, Type entityType)
+        {
+            this.PrepareToLoadEntities(translationResult);
+
+            // first trying to execute get
+            object result = await this.TryExecuteGetAsync(translationResult, entityType);
+            if (result != null)
+            {
+                return result;
+            }
+
+            // now trying to load a query from cache
+            result = this.TryLoadFromCache(translationResult, entityType);
+            if (result != null)
+            {
+                return result;
+            }
+
+            // finally requesting data from DynamoDb
+            result = await this.TryExecuteBatchGetAsync(translationResult, entityType);
+            if (result == null)
+            {
+                var search = this.TryExecuteQuery(translationResult, entityType);
+                if (search == null)
+                {
+                    search = this.ExecuteScan(translationResult, entityType);
+                }
+
+                // asynchronously fetching all results and creating an array reader from them
+                var resultDocs = await this.FetchResultsAsync(search);
+                result = this.CreateDocArrayReader(resultDocs, entityType, translationResult.ProjectionFunc);
+            }
+
+            return this.ApplyClientSideOperators(result, translationResult, entityType);
+        }
+
+        private async Task<List<Document>> FetchResultsAsync(Search search)
+        {
+            var resultDocList = new List<Document>();
+            while (!search.IsDone)
+            {
+                resultDocList.AddRange(await search.GetNextSetAsync());
+            }
+            return resultDocList;
         }
 
         /// <summary>
@@ -161,54 +220,33 @@ namespace Linq2DynamoDb.DataContext
 
         #region Private Methods
 
-        private object InternalLoadEntities(TranslationResult translationResult, Type entityType)
+        private void PrepareToLoadEntities(TranslationResult translationResult)
         {
-            // first trying to execute get
-            object result;
-            if (this.TryExecuteGet(translationResult, entityType, out result))
+            // cancelling the previous index creation, if there was one
+            this.CurrentIndexCreator = null;
+
+            // skipping added and removed entities
+            this.ClearModifications();
+
+            // if a HashKey value was explicitly specified
+            if (this.HashKeyValue != null)
             {
-                return result;
+                // then adding a condition for it
+                translationResult.Conditions.AddCondition
+                    (
+                        this.TableDefinition.HashKeys[0],
+                        new SearchCondition(ScanOperator.Equal, this.HashKeyValue)
+                    );
             }
 
-            // now trying to load a query from cache
-            if (this.TryLoadFromCache(translationResult, entityType, out result))
-            {
-                return result;
-            }
-
-            // finally requesting data from DynamoDb
-            if (!this.TryExecuteBatchGet(translationResult, entityType, out result))
-            {
-                if (!this.TryExecuteQuery(translationResult, entityType, out result))
-                {
-                    result = this.ExecuteScan(translationResult, entityType);
-                }
-            }
-
-            // Implementing Count().
-            // Currently Count() causes a full fetch of all matched entities from DynamoDb.
-            // Yes, there's an option to request just the count of them from DynamoDb. 
-            // But it will cost you the same money as a full fetch!
-            // So, it might be more efficient to request (and put to cache) all of them right now.
-            // TODO: implement an option for this.
-            if (translationResult.CountRequested)
-            {
-                return ((IEnumerable)result).Count(entityType);
-            }
-
-            // implementing OrderBy
-            if (!string.IsNullOrEmpty(translationResult.OrderByColumn))
-            {
-                result = ((IEnumerable)result).OrderBy(entityType, translationResult.OrderByColumn, translationResult.OrderByDesc);
-            }
-
-            return result;
+#if DEBUG
+            this._loadOperationStopwatch = new Stopwatch();
+            this._loadOperationStopwatch.Start();
+#endif
         }
 
-        private bool TryLoadFromCache(TranslationResult translationResult, Type entityType, out object result)
+        private object TryLoadFromCache(TranslationResult translationResult, Type entityType)
         {
-            result = null;
-
             var conditions4Cache = translationResult.Conditions;
             // if an explicit HashKey value is specified for table, then
             // we need to remove a condition for it from SearchConditions before passing them to cache 
@@ -224,8 +262,7 @@ namespace Linq2DynamoDb.DataContext
                 int? countFromCache = this.Cache.GetCount(conditions4Cache);
                 if (countFromCache.HasValue)
                 {
-                    result = countFromCache.Value;
-                    return true;
+                    return countFromCache.Value;
                 }
             }
             else
@@ -234,8 +271,7 @@ namespace Linq2DynamoDb.DataContext
                 var docsFromCache = this.Cache.GetEntities(conditions4Cache, translationResult.AttributesToGet, translationResult.OrderByColumn, translationResult.OrderByDesc);
                 if (docsFromCache != null)
                 {
-                    result = this.CreateDocArrayReader(docsFromCache, entityType, translationResult.ProjectionFunc);
-                    return true;
+                    return this.CreateDocArrayReader(docsFromCache, entityType, translationResult.ProjectionFunc);
                 }
             }
 
@@ -249,17 +285,15 @@ namespace Linq2DynamoDb.DataContext
                 this.Cache.StartCreatingProjectionIndex(conditions4Cache, translationResult.AttributesToGet)
             ;
 
-            return false;
+            return null;
         }
 
-        private bool TryExecuteGet(TranslationResult translationResult, Type entityType, out object result)
+        private async Task<object> TryExecuteGetAsync(TranslationResult translationResult, Type entityType)
         {
-            result = null;
-
             var entityKey = translationResult.TryGetEntityKeyForTable(this.TableDefinition);
             if (entityKey == null)
             {
-                return false;
+                return null;
             }
 
             Document resultDoc = null;
@@ -277,7 +311,7 @@ namespace Linq2DynamoDb.DataContext
             else
             {
                 // if the entity is not found in cache - then getting it from DynamoDb
-                resultDoc = this.TableDefinition.GetItemAsync
+                resultDoc = await this.TableDefinition.GetItemAsync
                     (
                         this.EntityKeyGetter.GetKeyDictionary(entityKey),
                         new GetItemOperationConfig
@@ -285,10 +319,7 @@ namespace Linq2DynamoDb.DataContext
                             AttributesToGet = translationResult.AttributesToGet,
                             ConsistentRead = this._consistentRead
                         }
-                    )
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                    );
 
                 // putting the entity to cache as well
                 this.Cache.PutSingleLoadedEntity(entityKey, resultDoc);
@@ -297,19 +328,15 @@ namespace Linq2DynamoDb.DataContext
             }
 
             // creating an enumerator for a single value or an empty enumerator
-            result = this.CreateSingleDocReader(resultDoc, entityType, translationResult.ProjectionFunc);
-
-            return true;
+            return this.CreateSingleDocReader(resultDoc, entityType, translationResult.ProjectionFunc);
         }
 
-        private bool TryExecuteBatchGet(TranslationResult translationResult, Type entityType, out object resultingReader)
+        private async Task<object> TryExecuteBatchGetAsync(TranslationResult translationResult, Type entityType)
         {
-            resultingReader = null;
-
             var batchGet = translationResult.GetBatchGetOperationForTable(this.TableDefinition);
             if (batchGet == null)
             {
-                return false;
+                return null;
             }
 
             // if a projection is specified - then getting only the required list of fields
@@ -318,17 +345,15 @@ namespace Linq2DynamoDb.DataContext
                 batchGet.AttributesToGet = translationResult.AttributesToGet;
             }
             // using async method, because it's the only available in .Net Core version
-            batchGet.ExecuteAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            await batchGet.ExecuteAsync();
 
             this.Log("DynamoDb batch get: {0}", translationResult);
 
-            resultingReader = this.CreateDocArrayReader(batchGet.Results, entityType, translationResult.ProjectionFunc);
-            return true;
+            return this.CreateDocArrayReader(batchGet.Results, entityType, translationResult.ProjectionFunc);
         }
 
-        private bool TryExecuteQuery(TranslationResult translationResult, Type entityType, out object resultingReader)
+        private Search TryExecuteQuery(TranslationResult translationResult, Type entityType)
         {
-            resultingReader = null;
             QueryFilter queryFilter;
             string indexName;
 
@@ -345,7 +370,7 @@ namespace Linq2DynamoDb.DataContext
 
                 if (matchingIndex == null)
                 {
-                    return false;
+                    return null;
                 }
 
                 indexName = matchingIndex.IndexName;
@@ -377,11 +402,10 @@ namespace Linq2DynamoDb.DataContext
                 this.Log("DynamoDb index query: {0}. Index name: {1}", translationResult, queryConfig.IndexName);
             }
 
-            resultingReader = this.CreateReader(searchResult, entityType, translationResult.ProjectionFunc);
-            return true;
+            return searchResult;
         }
 
-        private object ExecuteScan(TranslationResult translationResult, Type entityType)
+        private Search ExecuteScan(TranslationResult translationResult, Type entityType)
         {
             var scanConfig = new ScanOperationConfig
             {
@@ -399,7 +423,29 @@ namespace Linq2DynamoDb.DataContext
 
             this.Log("DynamoDb scan: {0}", translationResult);
 
-            return this.CreateReader(searchResult, entityType, translationResult.ProjectionFunc);
+            return searchResult;
+        }
+
+        private object ApplyClientSideOperators(object result, TranslationResult translationResult, Type entityType)
+        {
+            // Implementing Count().
+            // Currently Count() causes a full fetch of all matched entities from DynamoDb.
+            // Yes, there's an option to request just the count of them from DynamoDb. 
+            // But it will cost you the same money as a full fetch!
+            // So, it might be more efficient to request (and put to cache) all of them right now.
+            // TODO: implement an option for this.
+            if (translationResult.CountRequested)
+            {
+                return ((IEnumerable)result).Count(entityType);
+            }
+
+            // implementing OrderBy
+            if (!string.IsNullOrEmpty(translationResult.OrderByColumn))
+            {
+                result = ((IEnumerable)result).OrderBy(entityType, translationResult.OrderByColumn, translationResult.OrderByDesc);
+            }
+
+            return result;
         }
 
         protected virtual void InitReader(ISupervisableEnumerable reader)
