@@ -40,7 +40,7 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         public TEntity Find(params object[] keyValues)
         {
-            var enumerableResult = (IEnumerable<TEntity>)this._tableWrapper.FindAsync(keyValues).ConfigureAwait(false).GetAwaiter().GetResult();
+            var enumerableResult = (IEnumerable<TEntity>)this._tableWrapper.Find(keyValues);
             return enumerableResult.Single();
         }
 

@@ -314,35 +314,17 @@ namespace Linq2DynamoDb.DataContext
         /// <summary>
         /// Returns a single entity by it's keys. Very useful in ASP.Net MVC
         /// </summary>
+        protected internal object Find(params object[] keyValues)
+        {
+            return this.LoadEntities(this.GetTranslationResultForFind(keyValues), this.TableEntityType);
+        }
+
+        /// <summary>
+        /// Asyncronously returns a single entity by it's keys. Very useful in ASP.Net MVC
+        /// </summary>
         protected internal Task<object> FindAsync(params object[] keyValues)
         {
-            if (this.KeyNames.Length != keyValues.Length)
-            {
-                throw new InvalidOperationException
-                (
-                    string.Format
-                    (
-                        "Table {0} has {1} key fields, but {2} key values was provided",
-                        this.TableDefinition.TableName,
-                        this.KeyNames.Length,
-                        keyValues.Length
-                    )
-                );
-            }
-
-            // constructing a GET query
-            var tr = new TranslationResult(this.TableEntityType.Name);
-            for (int i = 0; i < keyValues.Length; i++)
-            {
-                var condition = new SearchCondition
-                (
-                    ScanOperator.Equal,
-                    keyValues[i].ToDynamoDbEntry(keyValues[i].GetType())
-                );
-                tr.Conditions[this.KeyNames[i]] = new List<SearchCondition> { condition };
-            }
-
-            return this.LoadEntitiesAsync(tr, this.TableEntityType);
+            return this.LoadEntitiesAsync(this.GetTranslationResultForFind(keyValues), this.TableEntityType);
         }
 
         /// <summary>
@@ -415,6 +397,38 @@ namespace Linq2DynamoDb.DataContext
                     }
                 }
             );
+        }
+
+
+        private TranslationResult GetTranslationResultForFind(params object[] keyValues)
+        {
+            if (this.KeyNames.Length != keyValues.Length)
+            {
+                throw new InvalidOperationException
+                (
+                    string.Format
+                    (
+                        "Table {0} has {1} key fields, but {2} key values was provided",
+                        this.TableDefinition.TableName,
+                        this.KeyNames.Length,
+                        keyValues.Length
+                    )
+                );
+            }
+
+            // constructing a GET query
+            var result = new TranslationResult(this.TableEntityType.Name);
+            for (int i = 0; i < keyValues.Length; i++)
+            {
+                var condition = new SearchCondition
+                (
+                    ScanOperator.Equal,
+                    keyValues[i].ToDynamoDbEntry(keyValues[i].GetType())
+                );
+                result.Conditions[this.KeyNames[i]] = new List<SearchCondition> { condition };
+            }
+
+            return result;
         }
 
         #endregion

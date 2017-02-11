@@ -58,7 +58,7 @@ namespace Linq2DynamoDb.DataContext
             this.PrepareToLoadEntities(translationResult);
 
             // first trying to execute get
-            object result = this.TryExecuteGetAsync(translationResult, entityType).ConfigureAwait(false).GetAwaiter().GetResult();
+            object result = this.TryExecuteGetAsync(translationResult, entityType).Result;
             if (result != null)
             {
                 return result;
@@ -72,7 +72,7 @@ namespace Linq2DynamoDb.DataContext
             }
 
             // finally requesting data from DynamoDb
-            result = this.TryExecuteBatchGetAsync(translationResult, entityType).ConfigureAwait(false).GetAwaiter().GetResult();
+            result = this.TryExecuteBatchGetAsync(translationResult, entityType).Result;
             if (result == null)
             {
                 var search = this.TryExecuteQuery(translationResult, entityType);
@@ -319,7 +319,8 @@ namespace Linq2DynamoDb.DataContext
                             AttributesToGet = translationResult.AttributesToGet,
                             ConsistentRead = this._consistentRead
                         }
-                    );
+                    )
+                .ConfigureAwait(false); // This is important, as this method can be called synchronously from outside. Without this line it will hang in ASP.Net. 
 
                 // putting the entity to cache as well
                 this.Cache.PutSingleLoadedEntity(entityKey, resultDoc);
@@ -345,7 +346,8 @@ namespace Linq2DynamoDb.DataContext
                 batchGet.AttributesToGet = translationResult.AttributesToGet;
             }
             // using async method, because it's the only available in .Net Core version
-            await batchGet.ExecuteAsync();
+            await batchGet.ExecuteAsync()
+                .ConfigureAwait(false); // This is important, as this method can be called synchronously from outside. Without this line it will hang in ASP.Net.
 
             this.Log("DynamoDb batch get: {0}", translationResult);
 
