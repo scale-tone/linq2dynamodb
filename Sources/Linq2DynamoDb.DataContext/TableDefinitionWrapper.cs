@@ -314,7 +314,7 @@ namespace Linq2DynamoDb.DataContext
         /// <summary>
         /// Returns a single entity by it's keys. Very useful in ASP.Net MVC
         /// </summary>
-        protected internal object Find(params object[] keyValues)
+        protected internal Task<object> FindAsync(params object[] keyValues)
         {
             if (this.KeyNames.Length != keyValues.Length)
             {
@@ -342,7 +342,7 @@ namespace Linq2DynamoDb.DataContext
                 tr.Conditions[this.KeyNames[i]] = new List<SearchCondition> { condition };
             }
 
-            return this.LoadEntities(tr, this.TableEntityType);
+            return this.LoadEntitiesAsync(tr, this.TableEntityType);
         }
 
         /// <summary>

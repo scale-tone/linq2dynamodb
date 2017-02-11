@@ -7,6 +7,8 @@ using Linq2DynamoDb.DataContext.Utils;
 
 namespace Linq2DynamoDb.DataContext
 {
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Represents a table in DynamoDb
     /// </summary>
@@ -38,7 +40,17 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         public TEntity Find(params object[] keyValues)
         {
-            var enumerableResult = (IEnumerable<TEntity>)this._tableWrapper.Find(keyValues);
+            var enumerableResult = (IEnumerable<TEntity>)this._tableWrapper.FindAsync(keyValues).ConfigureAwait(false).GetAwaiter().GetResult();
+            return enumerableResult.Single();
+        }
+
+        /// <summary>
+        /// Asyncronously returns a single entity by it's keys. Very useful in ASP.Net MVC.
+        /// The keys should be passed in the right order: HashKey, then RangeKey (if any)
+        /// </summary>
+        public async Task<TEntity> FindAsync(params object[] keyValues)
+        {
+            var enumerableResult = (IEnumerable<TEntity>) await this._tableWrapper.FindAsync(keyValues);
             return enumerableResult.Single();
         }
 
