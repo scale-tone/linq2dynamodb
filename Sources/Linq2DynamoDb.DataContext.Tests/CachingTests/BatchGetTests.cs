@@ -137,7 +137,7 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
             this._batchGetUsed = false;
 
             // then from cache
-            var result2 = this.HashKeyTable.Where(b => hashKeys.Contains(b.Name)).ToDictionary(b => b.Name);
+            var result2 = this.HashKeyTable.Where(b => hashKeys.Contains(b.Name)).ToListAsync().Result.ToDictionary(b => b.Name);
 
             Assert.IsFalse(this._batchGetUsed);
             Assert.AreEqual(1, this._cacheHitCount);
@@ -160,7 +160,7 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
             var rangeKeys = new List<string> { "C# for Dummies", "TurboPascal for Dummies" };
 
             // first from table
-            var result1 = this.HashAndRangeKeyTable.Where(b => b.Author == hashKey && rangeKeys.Contains(b.Name)).ToDictionary(b => b.Name);
+            var result1 = this.HashAndRangeKeyTable.Where(b => b.Author == hashKey && rangeKeys.Contains(b.Name)).ToListAsync().Result.ToDictionary(b => b.Name);
 
             Assert.IsTrue(this._batchGetUsed);
             this._batchGetUsed = false;

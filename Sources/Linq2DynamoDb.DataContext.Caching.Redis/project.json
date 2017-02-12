@@ -3,18 +3,17 @@
   "description": "Implements caching in Redis (including AWS ElastiCache implementation) for Linq2DynamoDb.DataContext.",
   "copyright": "Copyright © 2017",
   "authors": [ "linq2dynamodb" ],
-  "version": "2.1.0-*",
+  "version": "2.2.0-*",
   "packOptions": {
     "owners": [ "linq2dynamodb" ],
     "projectUrl": "https://github.com/scale-tone/linq2dynamodb/",
     "repository": { "url": "https://github.com/scale-tone/linq2dynamodb/" },
     "summary": "Implements caching in Redis for Linq2DynamoDb.DataContext.",
-    "releaseNotes": "Migrated to .Net Standard 1.6",
+    "releaseNotes": "Fixed nuget references.",
     "tags": [ "Linq2DynamoDb", "AWS", "DynamoDb", "caching", "Redis" ]
   },
   "dependencies": {
-    "Linq2DynamoDb.DataContext": "2.1.0-*",
-    "NETStandard.Library": "1.6.1",
+    "Linq2DynamoDb.DataContext": "2.2.0-*",
     "StackExchange.Redis": "1.2.0"
   },
   "frameworks": {
@@ -26,6 +25,7 @@
     "netstandard1.6": {
       "imports": "dnxcore50",
       "dependencies": {
+        "NETStandard.Library": "1.6.1",
         "Newtonsoft.Json": "9.0.1"
       }
     }

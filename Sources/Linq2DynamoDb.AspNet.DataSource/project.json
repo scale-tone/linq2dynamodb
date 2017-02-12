@@ -3,19 +3,18 @@
   "description": "A set of extensions to Linq2DynamoDb.DataContext for use in ASP.Net projects. Includes an ASP.Net DataSource implementation. Extends Linq2DynamoDb.DataContext to allow exposing it as an OData endpoint.",
   "copyright": "Copyright © 2017",
   "authors": [ "linq2dynamodb" ],
-  "version": "2.1.0-*",
+  "version": "2.2.0-*",
   "packOptions": {
     "owners": [ "linq2dynamodb" ],
     "projectUrl": "https://github.com/scale-tone/linq2dynamodb/",
     "repository": { "url": "https://github.com/scale-tone/linq2dynamodb/" },
     "summary": "A set of extensions to Linq2DynamoDb.DataContext for use in ASP.Net projects. Includes an ASP.Net DataSource implementation. Extends Linq2DynamoDb.DataContext to allow exposing it as an OData endpoint.",
-    "releaseNotes": "",
+    "releaseNotes": "Fixed nuget references.",
     "tags": [ "Linq2DynamoDb", "AWS", "DynamoDb", "context", "caching", "LINQ", "ASP.NET", "DataSource", "OData" ]
   },
   "dependencies": {
     "AWSSDK.DynamoDBv2": "3.3.2.1",
-    "Linq2DynamoDb.DataContext": "2.1.0-*",
-    "NETStandard.Library": "1.6.1"
+    "Linq2DynamoDb.DataContext": "2.2.0-*"
   },
   "frameworks": {
     "net462": {

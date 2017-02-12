@@ -24,6 +24,11 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
 
             Assert.AreEqual(book.Name, storedBook.Name, "Book with wrong name was returned");
             Assert.AreEqual(book.PublishYear, storedBook.PublishYear, "Book with wrong publishYear was returned");
+
+            var storedBook2 = bookTable.FindAsync(book.Name, book.PublishYear).Result;
+
+            Assert.AreEqual(book.Name, storedBook2.Name, "Book with wrong name was returned");
+            Assert.AreEqual(book.PublishYear, storedBook2.PublishYear, "Book with wrong publishYear was returned");
         }
 
         [Test]
@@ -32,6 +37,15 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
         {
             var bookTable = Context.GetTable<Book>();
             bookTable.Find(Guid.NewGuid().ToString(), 0);
+        }
+
+
+        [Test]
+        [ExpectedException(typeof(AggregateException))]
+        public void DataContext_FindAsync_ThrowsExceptionWhenRecordDoesNotExist()
+        {
+            var bookTable = Context.GetTable<Book>();
+            bookTable.FindAsync(Guid.NewGuid().ToString(), 0).Wait();
         }
 
         [Test]
@@ -346,9 +360,13 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
 			var numberOfRecordsInDb = Context.GetTable<Book>().Count(book => book.Name == bookRev1.Name);
 
 			Assert.AreEqual(DataSetLength, numberOfRecordsInDb);
-		}
-		
-		[Test]
+
+            numberOfRecordsInDb = Context.GetTable<Book>().ToListAsync().Result.Count(book => book.Name == bookRev1.Name);
+
+            Assert.AreEqual(DataSetLength, numberOfRecordsInDb);
+        }
+
+        [Test]
 		public void DateContext_Query_LongCountFunctionReturnsCorrectNumberOfRecordsOnSmallDataSets()
 		{
 			const int DataSetLength = 20;
@@ -381,6 +399,10 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
                 });
 
             var allBooks = Context.GetTable<Book>().Where(book => book.Name == bookRev1.Name).ToList();
+            Assert.AreEqual(DataSetLength, allBooks.Count);
+
+            var query = from b in Context.GetTable<Book>() where b.Name == bookRev1.Name select b;
+            allBooks = query.ToListAsync().Result;
             Assert.AreEqual(DataSetLength, allBooks.Count);
         }
 

@@ -3,19 +3,18 @@
   "description": "Implements caching in MemcacheD (including AWS ElastiCache implementation) for Linq2DynamoDb.DataContext.",
   "copyright": "Copyright © 2017",
   "authors": [ "linq2dynamodb" ],
-  "version": "2.1.0-*",
+  "version": "2.2.0-*",
   "packOptions": {
     "owners": [ "linq2dynamodb" ],
     "projectUrl": "https://github.com/scale-tone/linq2dynamodb/",
     "repository": { "url": "https://github.com/scale-tone/linq2dynamodb/" },
     "summary": "Implements caching in MemcacheD for Linq2DynamoDb.DataContext.",
-    "releaseNotes": "",
+    "releaseNotes": "Fixed nuget references.",
     "tags": [ "Linq2DynamoDb", "AWS", "DynamoDb", "caching", "memcached", "enyim" ]
   },
   "dependencies": {
     "EnyimMemcached": "2.16.0",
-    "Linq2DynamoDb.DataContext": "2.1.0-*",
-    "NETStandard.Library": "1.6.1"
+    "Linq2DynamoDb.DataContext": "2.2.0-*"
   },
   "frameworks": {
     "net462": {
