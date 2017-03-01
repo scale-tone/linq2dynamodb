@@ -509,40 +509,6 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
             Assert.AreEqual(1, query.Count());
         }
 
-        [Test]
-        public void DateContext_QueryIsUsedWhenMultipleConditionsAreSpecified()
-        {
-            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, numPages: 123);
-            BooksHelper.CreateBook(bookRev1.Name, 2013, numPages: 23);
-
-            var query = from b in Context.GetTable<Book>()//bookRev1.Name)
-                        where 
-                            b.Name == bookRev1.Name
-                            &&
-                            b.PublishYear >= 2012
-                            &&
-                            b.NumPages < 100
-                        select b;
-
-            Assert.AreEqual(1, query.Count());
-
-
-            /*
-                        var query = from b in Context.GetTable<Book>()
-                                    where 
-                                        b.Name == bookRev1.Name 
-                                        &&
-                                        b.PublishYear > 2012
-                                        && 
-                                        b.NumPages < 1
-                                    select b;
-
-                        Assert.AreEqual(1, query.Count());
-            //            Assert.AreEqual(1, query.Count());
-            */
-        }
-
-
         // ReSharper restore InconsistentNaming
     }
 }
