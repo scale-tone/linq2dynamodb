@@ -1,22 +1,37 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Linq2DynamoDb.DataContext.ExpressionUtils;
 using Linq2DynamoDb.DataContext.Utils;
+using Amazon.DynamoDBv2.DocumentModel;
+using Expression = System.Linq.Expressions.Expression;
 
 namespace Linq2DynamoDb.DataContext
 {
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Implementation of IQueryProvider. Also does some magic of pre- and post-evaluating LINQ expressions.
     /// </summary>
     public class QueryProvider : IQueryProvider
     {
         private readonly TableDefinitionWrapper _tableWrapper;
+
+        /// <summary>
+        /// Allows to specify custom FilterExpression for DynamoDb queries and scans
+        /// </summary>
+        internal Amazon.DynamoDBv2.DocumentModel.Expression CustomFilterExpression { get; set; }
+
+        /// <summary>
+        /// A callback for customizing QUERY operation params before executing the QUERY.
+        /// </summary>
+        internal Action<QueryOperationConfig> ConfigureQueryOperationCallback { get; set; }
+
+        /// <summary>
+        /// A callback for customizing SCAN operation params before executing the SCAN.
+        /// </summary>
+        internal Action<ScanOperationConfig> ConfigureScanOperationCallback { get; set; }
 
         // There should be one static instance of SubtreeEvaluationVisitor per thread, as it should be 
         // able to detect recursions
@@ -113,6 +128,10 @@ namespace Linq2DynamoDb.DataContext
             // (all Queryable method calls will be replaced by a param of IQueryable<T> type)
             var visitor = new QueryableMethodsVisitor(entityType, entityTypeExtractor.TableEntityType);
             expression = visitor.Visit(expression);
+
+            visitor.TranslationResult.CustomFilterExpression = this.CustomFilterExpression;
+            visitor.TranslationResult.ConfigureQueryOperationCallback = this.ConfigureQueryOperationCallback;
+            visitor.TranslationResult.ConfigureScanOperationCallback = this.ConfigureScanOperationCallback;
 
             return visitor;
         }

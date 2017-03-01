@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Amazon.DynamoDBv2.DocumentModel;
 
 namespace Linq2DynamoDb.DataContext.ExpressionUtils
 {
@@ -40,6 +41,20 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
         /// </summary>
         internal bool CountRequested { get; set; }
 
+        /// <summary>
+        /// A custom FilterExpression passed from outside. To be used with QUERY/SCAN operations.
+        /// </summary>
+        internal Expression CustomFilterExpression { get; set; }
+
+        /// <summary>
+        /// A callback for customizing QUERY operation params before executing the QUERY.
+        /// </summary>
+        internal Action<QueryOperationConfig> ConfigureQueryOperationCallback { get; set; }
+
+        /// <summary>
+        /// A callback for customizing SCAN operation params before executing the SCAN.
+        /// </summary>
+        internal Action<ScanOperationConfig> ConfigureScanOperationCallback { get; set; }
 
         internal TranslationResult(string tableNameForLoggingPurposes)
         {
@@ -75,6 +90,12 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
             {
                 sb.Append(" WHERE ");
                 sb.Append(whereClause);
+            }
+
+            if((this.CustomFilterExpression != null) && (!string.IsNullOrEmpty(this.CustomFilterExpression.ExpressionStatement)))
+            {
+                sb.Append(" FILTER EXPRESSION ");
+                sb.Append(this.CustomFilterExpression.ExpressionStatement);
             }
 
             if (!string.IsNullOrEmpty(this.OrderByColumn))

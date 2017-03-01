@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using Linq2DynamoDb.DataContext.Utils;
 
 #if AWSSDK_1_5
 using IAmazonDynamoDB = Amazon.DynamoDBv2.AmazonDynamoDB;
 #else
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 #endif
 
 namespace Linq2DynamoDb.DataContext
@@ -20,16 +20,38 @@ namespace Linq2DynamoDb.DataContext
     public static class DataContextExtensions
     {
         /// <summary>
+        /// Allows to customize the SCAN operation config before executing the SCAN.
+        /// </summary>
+        public static IQueryable<T> ConfigureScanOperation<T>(this IQueryable<T> source, Action<ScanOperationConfig> callback)
+        {
+            source.AsQuery().SetConfigureScanOperationCallback(callback);
+            return source;
+        }
+
+        /// <summary>
+        /// Allows to customize the QUERY operation config before executing the QUERY.
+        /// </summary>
+        public static IQueryable<T> ConfigureQueryOperation<T>(this IQueryable<T> source, Action<QueryOperationConfig> callback)
+        {
+            source.AsQuery().SetConfigureQueryOperationCallback(callback);
+            return source;
+        }
+
+        /// <summary>
+        /// Allows to specify custom FilterExpression for DynamoDb queries and scans
+        /// </summary>
+        public static IQueryable<T> WithFilterExpression<T>(this IQueryable<T> source, Expression expression)
+        {
+            source.AsQuery().SetCustomFilterExpression(expression);
+            return source;
+        }
+
+        /// <summary>
         /// Asynchronously executes the query and returns results as a List
         /// </summary>
         public static Task<List<T>> ToListAsync<T>(this IQueryable<T> source)
         {
-            var query = source as Query<T>;
-            if (query == null)
-            {
-                throw new InvalidOperationException("This extension method works only with Linq2DynamoDB.DataTable. Please, don't try to use it for other IQueryables.");
-            }
-            return query.ToListAsync();
+            return source.AsQuery().ToListAsync();
         }
 
         /// <summary>
@@ -120,6 +142,27 @@ namespace Linq2DynamoDb.DataContext
         }
 
         /// <summary>
+        /// Deletes a table asynchonously
+        /// </summary>
+        public static async Task DeleteTableAsync<TEntity>(this DataContext context)
+        {
+            var entityType = typeof(TEntity);
+            string tableName = context.GetTableNameForType(entityType);
+
+            await context.Client.DeleteTableAsync(new DeleteTableRequest { TableName = tableName });
+
+            await TillTableIsDeletedAsync(context.Client, tableName);
+        }
+
+        /// <summary>
+        /// Deletes a table
+        /// </summary>
+        public static void DeleteTable<TEntity>(this DataContext context)
+        {
+            GeneralUtils.SafelyRunSynchronously(context.DeleteTableAsync<TEntity>);
+        }
+
+        /// <summary>
         /// Asynchronously waits till a table is created
         /// TODO: add a timeout
         /// </summary>
@@ -153,28 +196,7 @@ namespace Linq2DynamoDb.DataContext
         }
 
         /// <summary>
-        /// Deletes a table asynchonously
-        /// </summary>
-        public static async Task DeleteTableAsync<TEntity>(this DataContext context)
-        {
-            var entityType = typeof(TEntity);
-            string tableName = context.GetTableNameForType(entityType);
-
-            await context.Client.DeleteTableAsync(new DeleteTableRequest { TableName = tableName });
-
-            await TillTableIsDeletedAsync(context.Client, tableName);
-        }
-
-        /// <summary>
-        /// Deletes a table
-        /// </summary>
-        public static void DeleteTable<TEntity>(this DataContext context)
-        {
-            GeneralUtils.SafelyRunSynchronously(context.DeleteTableAsync<TEntity>);
-        }
-
-        /// <summary>
-        /// Asynchronously waits till a table is created
+        /// Asynchronously waits till a table is deleted
         /// TODO: add a timeout
         /// </summary>
         private static async Task TillTableIsDeletedAsync(IAmazonDynamoDB client, string tableName)
@@ -192,6 +214,15 @@ namespace Linq2DynamoDb.DataContext
                 }
             }
         }
-  
+
+        private static Query<T> AsQuery<T>(this IQueryable<T> source)
+        {
+            var query = source as Query<T>;
+            if (query == null)
+            {
+                throw new InvalidOperationException("This extension method works only with Linq2DynamoDB.DataTable. Please, don't try to use it for other IQueryables.");
+            }
+            return query;
+        }
     }
 }

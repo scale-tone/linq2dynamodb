@@ -3,12 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Linq2DynamoDb.DataContext.Utils;
 
 namespace Linq2DynamoDb.DataContext
 {
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Represents a table in DynamoDb
     /// </summary>
@@ -74,7 +73,7 @@ namespace Linq2DynamoDb.DataContext
             this._tableWrapper.ThingsToDoUponSubmit += _ => tableLock.Dispose();
         }
 
-#region ITableCudOperations
+        #region ITableCudOperations
 
         void ITableCudOperations.CreateEntity(object entity)
         {

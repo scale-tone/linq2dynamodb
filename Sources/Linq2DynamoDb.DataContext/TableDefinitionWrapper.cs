@@ -402,7 +402,21 @@ namespace Linq2DynamoDb.DataContext
 
         private TranslationResult GetTranslationResultForFind(params object[] keyValues)
         {
-            if (this.KeyNames.Length != keyValues.Length)
+            var keyValuesList = new List<DynamoDBEntry>();
+
+            // if a HashKey value was explicitly specified
+            if (this.HashKeyValue != null)
+            {
+                // then adding it's value to the list of conditions
+                keyValuesList.Add(this.HashKeyValue);
+            }
+
+            foreach (var keyValue in keyValues)
+            {
+                keyValuesList.Add(keyValue.ToDynamoDbEntry(keyValue.GetType()));
+            }
+
+            if (this.KeyNames.Length != keyValuesList.Count)
             {
                 throw new InvalidOperationException
                 (
@@ -418,13 +432,9 @@ namespace Linq2DynamoDb.DataContext
 
             // constructing a GET query
             var result = new TranslationResult(this.TableEntityType.Name);
-            for (int i = 0; i < keyValues.Length; i++)
+            for (int i = 0; i < keyValuesList.Count; i++)
             {
-                var condition = new SearchCondition
-                (
-                    ScanOperator.Equal,
-                    keyValues[i].ToDynamoDbEntry(keyValues[i].GetType())
-                );
+                var condition = new SearchCondition(ScanOperator.Equal, keyValuesList[i]);
                 result.Conditions[this.KeyNames[i]] = new List<SearchCondition> { condition };
             }
 

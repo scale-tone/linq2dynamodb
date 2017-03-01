@@ -383,7 +383,8 @@ namespace Linq2DynamoDb.DataContext
                 Filter = queryFilter,
                 CollectResults = false,
                 ConsistentRead = this._consistentRead,
-                IndexName = indexName
+                IndexName = indexName,
+                FilterExpression = translationResult.CustomFilterExpression
             };
 
             // if a projection is specified - then getting only the required list of fields
@@ -392,6 +393,8 @@ namespace Linq2DynamoDb.DataContext
                 queryConfig.Select = SelectValues.SpecificAttributes;
                 queryConfig.AttributesToGet = translationResult.AttributesToGet;
             }
+
+            translationResult.ConfigureQueryOperationCallback?.Invoke(queryConfig);
 
             var searchResult = this.TableDefinition.Query(queryConfig);
 
@@ -412,7 +415,8 @@ namespace Linq2DynamoDb.DataContext
             var scanConfig = new ScanOperationConfig
             {
                 Filter = translationResult.GetScanFilterForTable(this.TableDefinition),
-                CollectResults = false
+                CollectResults = false,
+                FilterExpression = translationResult.CustomFilterExpression
             };
 
             if (translationResult.AttributesToGet != null)
@@ -420,6 +424,8 @@ namespace Linq2DynamoDb.DataContext
                 scanConfig.Select = SelectValues.SpecificAttributes;
                 scanConfig.AttributesToGet = translationResult.AttributesToGet;
             }
+
+            translationResult.ConfigureScanOperationCallback?.Invoke(scanConfig);
 
             var searchResult = this.TableDefinition.Scan(scanConfig);
 

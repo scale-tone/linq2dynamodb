@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2.Model;
+using Amazon.DynamoDBv2.DocumentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +59,16 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
             bookTable.Find(book.Name);
         }
 
-		[Test]
+        [Test]
+        public void DataContext_Find_RespectsPredefinedHashKey()
+        {
+            var book = BooksHelper.CreateBook(publishYear: 1234);
+
+            var bookTable = Context.GetTable<Book>(book.Name);
+            bookTable.Find(book.PublishYear);
+        }
+
+        [Test]
 		public void DataContext_Query_ReturnsEnumFieldsStoredAsInt()
 		{
 			var book = BooksHelper.CreateBook(userFeedbackRating: Book.Stars.Platinum);
@@ -405,6 +415,133 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
             allBooks = query.ToListAsync().Result;
             Assert.AreEqual(DataSetLength, allBooks.Count);
         }
+
+        [Test]
+        public void DateContext_QueryWithFilterExpressionReturnsExpectedResults()
+        {
+            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, numPages: 30);
+            BooksHelper.CreateBook(bookRev1.Name, 2013, numPages: 20);
+            BooksHelper.CreateBook(bookRev1.Name, 2014, numPages: 10);
+
+            var filterExp1 = new Expression()
+            {
+                ExpressionStatement = "#N1 < :V1 AND #N1 > :V2",
+                ExpressionAttributeNames = { { "#N1", "NumPages" } },
+                ExpressionAttributeValues = { { ":V1", 1000 }, { ":V2", 1 } }
+            };
+
+            var filterExp2 = new Expression()
+            {
+                ExpressionStatement = "#N1 >= :V1",
+                ExpressionAttributeNames = { { "#N1", "NumPages" } },
+                ExpressionAttributeValues = { { ":V1", 20 } }
+            };
+
+            var filterExp3 = new Expression()
+            {
+                ExpressionStatement = "#N1 > :V1",
+                ExpressionAttributeNames = { { "#N1", "NumPages" } },
+                ExpressionAttributeValues = { { ":V1", 100 } }
+            };
+
+            var query1 = from b in Context.GetTable<Book>().WithFilterExpression(filterExp1)
+                        where b.Name == bookRev1.Name
+                        select b;
+
+            var query2 = 
+                (
+                    from b in Context.GetTable<Book>()
+                    where b.Name == bookRev1.Name
+                    select b
+                )
+                .WithFilterExpression(filterExp2);
+
+            var query3 = Context.GetTable<Book>().Where(b => b.Name == bookRev1.Name);
+            query3.WithFilterExpression(filterExp3);
+
+            Assert.AreEqual(3, query1.Count());
+            Assert.AreEqual(3, query1.Count());
+
+            Assert.AreEqual(2, query2.Count());
+            Assert.AreEqual(2, query2.Count());
+
+            Assert.AreEqual(0, query3.Count());
+            Assert.AreEqual(0, query3.Count());
+
+            Assert.IsTrue(Context.GetTable<Book>().Count() > 2);
+        }
+
+        [Test]
+        public void DateContext_QueryOperationConfigCanBeCustomized()
+        {
+            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, numPages: 30);
+            BooksHelper.CreateBook(bookRev1.Name, 2013, numPages: 20);
+
+            var query = Context.GetTable<Book>().Where(b => b.Name == bookRev1.Name);
+
+            var filterExp = new Expression()
+            {
+                ExpressionStatement = "#N1 > :V1",
+                ExpressionAttributeNames = { { "#N1", "NumPages" } },
+                ExpressionAttributeValues = { { ":V1", 20 } }
+            };
+            query.ConfigureQueryOperation(config => { config.FilterExpression = filterExp; });
+
+            Assert.AreEqual(1, query.Count());
+        }
+
+        [Test]
+        public void DateContext_ScanOperationConfigCanBeCustomized()
+        {
+            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, numPages: 30);
+            BooksHelper.CreateBook(bookRev1.Name, 2013, numPages: 20);
+
+            var query = Context.GetTable<Book>();
+
+            var filterExp = new Expression()
+            {
+                ExpressionStatement = "#N1 = :V1 AND #N2 = :V2 ",
+                ExpressionAttributeNames = { { "#N1", "Name" }, { "#N2", "PublishYear" } },
+                ExpressionAttributeValues = { { ":V1", bookRev1.Name }, { ":V2", bookRev1.PublishYear } }
+            };
+            query.ConfigureScanOperation(config => { config.FilterExpression = filterExp; });
+
+            Assert.AreEqual(1, query.Count());
+        }
+
+        [Test]
+        public void DateContext_QueryIsUsedWhenMultipleConditionsAreSpecified()
+        {
+            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, numPages: 123);
+            BooksHelper.CreateBook(bookRev1.Name, 2013, numPages: 23);
+
+            var query = from b in Context.GetTable<Book>()//bookRev1.Name)
+                        where 
+                            b.Name == bookRev1.Name
+                            &&
+                            b.PublishYear >= 2012
+                            &&
+                            b.NumPages < 100
+                        select b;
+
+            Assert.AreEqual(1, query.Count());
+
+
+            /*
+                        var query = from b in Context.GetTable<Book>()
+                                    where 
+                                        b.Name == bookRev1.Name 
+                                        &&
+                                        b.PublishYear > 2012
+                                        && 
+                                        b.NumPages < 1
+                                    select b;
+
+                        Assert.AreEqual(1, query.Count());
+            //            Assert.AreEqual(1, query.Count());
+            */
+        }
+
 
         // ReSharper restore InconsistentNaming
     }

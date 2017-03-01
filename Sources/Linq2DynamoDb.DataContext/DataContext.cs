@@ -175,6 +175,14 @@ namespace Linq2DynamoDb.DataContext
             Task.WaitAll(this.TableWrappers.Values.Select(t => t.SubmitChangesAsync()).ToArray());
         }
 
+        /// <summary>
+        /// Asynchronously saves all modifications to DynamoDb and to cache, if one is used
+        /// </summary>
+        public Task SubmitChangesAsync()
+        {
+            return Task.WhenAll(this.TableWrappers.Values.Select(t => t.SubmitChangesAsync()).ToArray());
+        }
+
         #endregion
 
         #region Private Properties

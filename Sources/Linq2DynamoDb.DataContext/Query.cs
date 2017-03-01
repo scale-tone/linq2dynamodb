@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
+using Amazon.DynamoDBv2.DocumentModel;
+using Expression = System.Linq.Expressions.Expression;
 
 namespace Linq2DynamoDb.DataContext
 {
-    using System.Threading;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// IQueryable implementation. This black magic is mostly copied from IQToolkit
     /// </summary>
@@ -54,10 +54,25 @@ namespace Linq2DynamoDb.DataContext
             return enumerableResult.GetEnumerator();
         }
 
-        public async Task<List<TEntity>> ToListAsync()
+        internal async Task<List<TEntity>> ToListAsync()
         {
             var enumerableResult = await this.Provider.ExecuteQueryAsync(this._expression);
             return ((IEnumerable<TEntity>)enumerableResult).ToList();
+        }
+
+        internal void SetCustomFilterExpression(Amazon.DynamoDBv2.DocumentModel.Expression expression)
+        {
+            this.Provider.CustomFilterExpression = expression;
+        }
+
+        internal void SetConfigureQueryOperationCallback(Action<QueryOperationConfig> callback)
+        {
+            this.Provider.ConfigureQueryOperationCallback = callback;
+        }
+
+        internal void SetConfigureScanOperationCallback(Action<ScanOperationConfig> callback)
+        {
+            this.Provider.ConfigureScanOperationCallback = callback;
         }
     }
 }
