@@ -4,10 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
 using Linq2DynamoDb.DataContext.ExpressionUtils;
 using Linq2DynamoDb.DataContext.Utils;
-using Amazon.DynamoDBv2.DocumentModel;
-using Expression = System.Linq.Expressions.Expression;
 
 namespace Linq2DynamoDb.DataContext
 {
@@ -19,19 +18,9 @@ namespace Linq2DynamoDb.DataContext
         private readonly TableDefinitionWrapper _tableWrapper;
 
         /// <summary>
-        /// Allows to specify custom FilterExpression for DynamoDb queries and scans
+        /// Groups properties and callbacks that are used for customizing the GET/QUERY/SCAN operations
         /// </summary>
-        internal Amazon.DynamoDBv2.DocumentModel.Expression CustomFilterExpression { get; set; }
-
-        /// <summary>
-        /// A callback for customizing QUERY operation params before executing the QUERY.
-        /// </summary>
-        internal Action<QueryOperationConfig> ConfigureQueryOperationCallback { get; set; }
-
-        /// <summary>
-        /// A callback for customizing SCAN operation params before executing the SCAN.
-        /// </summary>
-        internal Action<ScanOperationConfig> ConfigureScanOperationCallback { get; set; }
+        internal CustomizationHooks CustomizationHooks { get; private set; }
 
         // There should be one static instance of SubtreeEvaluationVisitor per thread, as it should be 
         // able to detect recursions
@@ -41,6 +30,7 @@ namespace Linq2DynamoDb.DataContext
 
         internal QueryProvider(TableDefinitionWrapper tableWrapper)
         {
+            this.CustomizationHooks = new CustomizationHooks();
             this._tableWrapper = tableWrapper;
         }
 
@@ -129,9 +119,7 @@ namespace Linq2DynamoDb.DataContext
             var visitor = new QueryableMethodsVisitor(entityType, entityTypeExtractor.TableEntityType);
             expression = visitor.Visit(expression);
 
-            visitor.TranslationResult.CustomFilterExpression = this.CustomFilterExpression;
-            visitor.TranslationResult.ConfigureQueryOperationCallback = this.ConfigureQueryOperationCallback;
-            visitor.TranslationResult.ConfigureScanOperationCallback = this.ConfigureScanOperationCallback;
+            visitor.TranslationResult.CustomizationHooks = this.CustomizationHooks;
 
             return visitor;
         }

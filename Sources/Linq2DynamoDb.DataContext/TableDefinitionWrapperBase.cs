@@ -310,15 +310,18 @@ namespace Linq2DynamoDb.DataContext
             }
             else
             {
+                var config = new GetItemOperationConfig
+                {
+                    AttributesToGet = translationResult.AttributesToGet,
+                    ConsistentRead = this._consistentRead
+                };
+                translationResult.CustomizationHooks.ConfigureGetOperationCallback?.Invoke(config);
+
                 // if the entity is not found in cache - then getting it from DynamoDb
                 resultDoc = await this.TableDefinition.GetItemAsync
                     (
                         this.EntityKeyGetter.GetKeyDictionary(entityKey),
-                        new GetItemOperationConfig
-                        {
-                            AttributesToGet = translationResult.AttributesToGet,
-                            ConsistentRead = this._consistentRead
-                        }
+                        config
                     )
                 .ConfigureAwait(false); // This is important, as this method can be called synchronously from outside. Without this line it will hang in ASP.Net. 
 
@@ -345,6 +348,9 @@ namespace Linq2DynamoDb.DataContext
             {
                 batchGet.AttributesToGet = translationResult.AttributesToGet;
             }
+
+            translationResult.CustomizationHooks.ConfigureBatchGetOperationCallback?.Invoke(batchGet);
+
             // using async method, because it's the only available in .Net Core version
             await batchGet.ExecuteAsync()
                 .ConfigureAwait(false); // This is important, as this method can be called synchronously from outside. Without this line it will hang in ASP.Net.
@@ -384,7 +390,7 @@ namespace Linq2DynamoDb.DataContext
                 CollectResults = false,
                 ConsistentRead = this._consistentRead,
                 IndexName = indexName,
-                FilterExpression = translationResult.CustomFilterExpression
+                FilterExpression = translationResult.CustomizationHooks.CustomFilterExpression
             };
 
             // if a projection is specified - then getting only the required list of fields
@@ -394,7 +400,7 @@ namespace Linq2DynamoDb.DataContext
                 queryConfig.AttributesToGet = translationResult.AttributesToGet;
             }
 
-            translationResult.ConfigureQueryOperationCallback?.Invoke(queryConfig);
+            translationResult.CustomizationHooks.ConfigureQueryOperationCallback?.Invoke(queryConfig);
 
             var searchResult = this.TableDefinition.Query(queryConfig);
 
@@ -416,7 +422,7 @@ namespace Linq2DynamoDb.DataContext
             {
                 Filter = translationResult.GetScanFilterForTable(this.TableDefinition),
                 CollectResults = false,
-                FilterExpression = translationResult.CustomFilterExpression
+                FilterExpression = translationResult.CustomizationHooks.CustomFilterExpression
             };
 
             if (translationResult.AttributesToGet != null)
@@ -425,7 +431,7 @@ namespace Linq2DynamoDb.DataContext
                 scanConfig.AttributesToGet = translationResult.AttributesToGet;
             }
 
-            translationResult.ConfigureScanOperationCallback?.Invoke(scanConfig);
+            translationResult.CustomizationHooks.ConfigureScanOperationCallback?.Invoke(scanConfig);
 
             var searchResult = this.TableDefinition.Scan(scanConfig);
 

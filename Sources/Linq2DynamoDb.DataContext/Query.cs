@@ -10,6 +10,8 @@ using Expression = System.Linq.Expressions.Expression;
 
 namespace Linq2DynamoDb.DataContext
 {
+    using Linq2DynamoDb.DataContext.ExpressionUtils;
+
     /// <summary>
     /// IQueryable implementation. This black magic is mostly copied from IQToolkit
     /// </summary>
@@ -60,19 +62,9 @@ namespace Linq2DynamoDb.DataContext
             return ((IEnumerable<TEntity>)enumerableResult).ToList();
         }
 
-        internal void SetCustomFilterExpression(Amazon.DynamoDBv2.DocumentModel.Expression expression)
+        internal void UpdateCustomizationHooks(Action<CustomizationHooks> updater)
         {
-            this.Provider.CustomFilterExpression = expression;
-        }
-
-        internal void SetConfigureQueryOperationCallback(Action<QueryOperationConfig> callback)
-        {
-            this.Provider.ConfigureQueryOperationCallback = callback;
-        }
-
-        internal void SetConfigureScanOperationCallback(Action<ScanOperationConfig> callback)
-        {
-            this.Provider.ConfigureScanOperationCallback = callback;
+            updater(this.Provider.CustomizationHooks);
         }
     }
 }

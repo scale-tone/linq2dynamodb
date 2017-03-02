@@ -85,6 +85,7 @@
     <Compile Include="Caching\CachePrimitiveWrapper.cs" />
     <Compile Include="CreateTableArgs.cs" />
     <Compile Include="DataContextExtensions.cs" />
+    <Compile Include="ExpressionUtils\CustomizationHooks.cs" />
     <Compile Include="ExpressionUtils\ScalarMethodsVisitor.cs" />
     <Compile Include="ExpressionUtils\EntityTypeExtractionVisitor.cs" />
     <Compile Include="ExpressionUtils\ExpressionVisitorBase.cs" />

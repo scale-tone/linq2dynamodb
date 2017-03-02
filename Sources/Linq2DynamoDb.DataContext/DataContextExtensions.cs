@@ -20,11 +20,20 @@ namespace Linq2DynamoDb.DataContext
     public static class DataContextExtensions
     {
         /// <summary>
-        /// Allows to customize the SCAN operation config before executing the SCAN.
+        /// Allows to customize the Batch GET operation config before executing the Batch GET.
         /// </summary>
-        public static IQueryable<T> ConfigureScanOperation<T>(this IQueryable<T> source, Action<ScanOperationConfig> callback)
+        public static IQueryable<T> ConfigureBatchGetOperation<T>(this IQueryable<T> source, Action<DocumentBatchGet> callback)
         {
-            source.AsQuery().SetConfigureScanOperationCallback(callback);
+            source.AsQuery().UpdateCustomizationHooks(hooks => hooks.ConfigureBatchGetOperationCallback = callback);
+            return source;
+        }
+
+        /// <summary>
+        /// Allows to customize the GET operation config before executing the GET.
+        /// </summary>
+        public static IQueryable<T> ConfigureGetOperation<T>(this IQueryable<T> source, Action<GetItemOperationConfig> callback)
+        {
+            source.AsQuery().UpdateCustomizationHooks(hooks => hooks.ConfigureGetOperationCallback = callback);
             return source;
         }
 
@@ -33,16 +42,25 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         public static IQueryable<T> ConfigureQueryOperation<T>(this IQueryable<T> source, Action<QueryOperationConfig> callback)
         {
-            source.AsQuery().SetConfigureQueryOperationCallback(callback);
+            source.AsQuery().UpdateCustomizationHooks(hooks => hooks.ConfigureQueryOperationCallback = callback);
+            return source;
+        }
+
+        /// <summary>
+        /// Allows to customize the SCAN operation config before executing the SCAN.
+        /// </summary>
+        public static IQueryable<T> ConfigureScanOperation<T>(this IQueryable<T> source, Action<ScanOperationConfig> callback)
+        {
+            source.AsQuery().UpdateCustomizationHooks(hooks => hooks.ConfigureScanOperationCallback = callback);
             return source;
         }
 
         /// <summary>
         /// Allows to specify custom FilterExpression for DynamoDb queries and scans
         /// </summary>
-        public static IQueryable<T> WithFilterExpression<T>(this IQueryable<T> source, Expression expression)
+        public static IQueryable<T> WithFilterExpression<T>(this IQueryable<T> source, Amazon.DynamoDBv2.DocumentModel.Expression expression)
         {
-            source.AsQuery().SetCustomFilterExpression(expression);
+            source.AsQuery().UpdateCustomizationHooks(hooks => hooks.CustomFilterExpression = expression);
             return source;
         }
 

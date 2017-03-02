@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Linq2DynamoDb.DataContext.Tests.Entities;
 using Linq2DynamoDb.DataContext.Tests.Helpers;
 using NUnit.Framework;
+using System.Diagnostics;
 
 namespace Linq2DynamoDb.DataContext.Tests.QueryTests
 {
@@ -507,6 +508,29 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
             query.ConfigureScanOperation(config => { config.FilterExpression = filterExp; });
 
             Assert.AreEqual(1, query.Count());
+        }
+
+        [Test]
+        public void DateContext_GetOperationConfigCanBeCustomized()
+        {
+            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, numPages: 30);
+            BooksHelper.CreateBook(bookRev1.Name, 2013, numPages: 20);
+
+            var customQuery = Context.GetTable<Book>()
+                .Where(b => b.Name == bookRev1.Name && b.PublishYear == bookRev1.PublishYear);
+
+            customQuery = customQuery.ConfigureGetOperation(
+                config =>
+                    {
+                        config.AttributesToGet = new List<string>{"Name", "PublishYear"};
+                    });
+
+            Assert.AreEqual(0, customQuery.Single().NumPages, "The AttributesToGet parameter wasn't applied and therefore all the item fields were returned");
+
+            var normalQuery = Context.GetTable<Book>()
+                .Where(b => b.Name == bookRev1.Name && b.PublishYear == bookRev1.PublishYear);
+
+            Assert.AreEqual(30, normalQuery.Single().NumPages, "The customization callback wasn't cleaned out");
         }
 
         // ReSharper restore InconsistentNaming
