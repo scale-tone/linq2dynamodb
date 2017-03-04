@@ -446,8 +446,8 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
             };
 
             var query1 = from b in Context.GetTable<Book>().WithFilterExpression(filterExp1)
-                        where b.Name == bookRev1.Name
-                        select b;
+                         where b.Name == bookRev1.Name
+                         select b;
 
             var query2 = 
                 (
@@ -475,18 +475,11 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
         [Test]
         public void DateContext_QueryOperationConfigCanBeCustomized()
         {
-            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, numPages: 30);
-            BooksHelper.CreateBook(bookRev1.Name, 2013, numPages: 20);
+            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, author: "Gogol");
+            BooksHelper.CreateBook(bookRev1.Name, 2013);
 
-            var query = Context.GetTable<Book>().Where(b => b.Name == bookRev1.Name);
-
-            var filterExp = new Expression()
-            {
-                ExpressionStatement = "#N1 > :V1",
-                ExpressionAttributeNames = { { "#N1", "NumPages" } },
-                ExpressionAttributeValues = { { ":V1", 20 } }
-            };
-            query.ConfigureQueryOperation(config => { config.FilterExpression = filterExp; });
+            var query = Context.GetTable<Book>().Where(b => b.Name == bookRev1.Name)
+            .ConfigureQueryOperation(config => { config.FilterExpression = new Expression() { ExpressionStatement = "attribute_exists (Author)" }; });
 
             Assert.AreEqual(1, query.Count());
         }
@@ -494,16 +487,16 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
         [Test]
         public void DateContext_ScanOperationConfigCanBeCustomized()
         {
-            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, numPages: 30);
-            BooksHelper.CreateBook(bookRev1.Name, 2013, numPages: 20);
+            var bookRev1 = BooksHelper.CreateBook(publishYear: 2012, author: "Mogol");
+            BooksHelper.CreateBook(bookRev1.Name, 2013);
 
             var query = Context.GetTable<Book>();
 
             var filterExp = new Expression()
             {
-                ExpressionStatement = "#N1 = :V1 AND #N2 = :V2 ",
-                ExpressionAttributeNames = { { "#N1", "Name" }, { "#N2", "PublishYear" } },
-                ExpressionAttributeValues = { { ":V1", bookRev1.Name }, { ":V2", bookRev1.PublishYear } }
+                ExpressionStatement = "#N1 = :V1 AND attribute_exists(#N2)",
+                ExpressionAttributeNames = { { "#N1", "Name" }, { "#N2", "Author" } },
+                ExpressionAttributeValues = { { ":V1", bookRev1.Name } }
             };
             query.ConfigureScanOperation(config => { config.FilterExpression = filterExp; });
 
