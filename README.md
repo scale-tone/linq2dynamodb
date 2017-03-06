@@ -1,4 +1,5 @@
-# linq2dynamodb
+![LINQ2DynamoDb](https://raw.githubusercontent.com/scale-tone/linq2dynamodb/master/logo-with-text.png)
+
 A type-safe data context for AWS DynamoDB with LINQ and in-memory caching support. Allows to combine DynamoDB's durability with cache speed and read consistency
 
 [Nuget:](http://www.nuget.org/packages/Linq2DynamoDb.DataContext)
