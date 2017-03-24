@@ -32,6 +32,9 @@ namespace Linq2DynamoDb.DataContext.Tests.Entities
 		[DynamoDBProperty(typeof(StringTimeSpanDictionaryConverter))]
 		public IDictionary<string, TimeSpan> FilmsBasedOnBook { get; set; }
 
+        [DynamoDBVersion]
+        public int? VersionNumber { get; set; }
+
 		public enum Popularity
 		{
 			Low,

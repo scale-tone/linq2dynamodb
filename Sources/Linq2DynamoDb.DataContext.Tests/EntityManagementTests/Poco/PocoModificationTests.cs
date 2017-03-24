@@ -51,27 +51,6 @@ namespace Linq2DynamoDb.DataContext.Tests.EntityManagementTests.Poco
             CollectionAssert.AreEquivalent(storedBookPoco.RentingHistory, storedBookPocoAfterModification.RentingHistory);
         }
 
-        [Ignore("This behavior is currently expected. SubmitChanges() uses DocumentBatchWrite, which only supports PUT operations with default 'replace' behavior")]
-        [Test]
-        public void DataContext_EntityModification_UpdateShouldNotAffectFieldsModifiedFromOutside()
-        {
-            var book = BookPocosHelper.CreateBookPoco(popularityRating: BookPoco.Popularity.Average, persistToDynamoDb: false);
-
-            var booksTable = this.Context.GetTable<BookPoco>();
-            booksTable.InsertOnSubmit(book);
-            this.Context.SubmitChanges();
-
-            // Update record from outside of DataTable
-            BookPocosHelper.CreateBookPoco(book.Name, book.PublishYear, numPages: 15);
-
-            book.PopularityRating = BookPoco.Popularity.High;
-            this.Context.SubmitChanges();
-
-            var storedBookPoco = booksTable.Find(book.Name, book.PublishYear);
-            Assert.AreEqual(book.PopularityRating, storedBookPoco.PopularityRating, "Record was not updated");
-            Assert.AreEqual(book.NumPages, 15, "Update has erased changes from outside");
-        }
-
         [Test]
         public void DataContext_UpdateEntity_UpdatesRecordWhenOldRecordIsNull()
         {

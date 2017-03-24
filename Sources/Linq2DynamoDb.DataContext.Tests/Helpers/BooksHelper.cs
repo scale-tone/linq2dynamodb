@@ -28,7 +28,7 @@ namespace Linq2DynamoDb.DataContext.Tests.Helpers
 		{
             Logger.DebugFormat("Removing {0} records from DynamoDb", _recordsForCleanup.Count);
 
-			Parallel.ForEach(_recordsForCleanup, book => PersistenceContext.Delete(book));
+			Parallel.ForEach(_recordsForCleanup, book => PersistenceContext.Delete(book, new DynamoDBOperationConfig { SkipVersionCheck = true, ConsistentRead = true }));
 
 			_recordsForCleanup = new ConcurrentQueue<Book>();
 		}

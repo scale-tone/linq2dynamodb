@@ -8,6 +8,8 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Linq2DynamoDb.DataContext.Caching;
 using Linq2DynamoDb.DataContext.ExpressionUtils;
 using Linq2DynamoDb.DataContext.Utils;
+using Amazon.DynamoDBv2.DataModel;
+using System.Reflection;
 
 namespace Linq2DynamoDb.DataContext
 {
@@ -45,6 +47,57 @@ namespace Linq2DynamoDb.DataContext
         /// Occurs when this object wants to log some debugging info
         /// </summary>
         internal event Action<string> OnLog;
+
+        /// <summary>
+        ///  The name of the underlying entity's property that has the  [DynamoDBVersion] attribute
+        /// </summary>
+        internal string VersionPropertyName 
+        {
+            get 
+            {
+                if (!_hasResolvedVersionPropertyName) 
+                {
+                    var versionProperty = TableEntityType
+                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(property =>
+                            property
+                                .GetCustomAttributes(typeof(DynamoDBVersionAttribute), true)
+                                .SingleOrDefault() != null
+                        ).SingleOrDefault();
+
+                    _versionPropertyName = versionProperty != default(PropertyInfo)
+                        ? versionProperty.Name
+                        : null;
+
+                    _hasResolvedVersionPropertyName = true;
+                }
+                return _versionPropertyName;
+            }
+        }
+
+        /// <summary>
+        /// THe name of the underlying entity's property that has the [DynamoDBHashKey] attribute
+        /// </summary>
+        internal string HashKeyPropetyName 
+        {
+            get 
+            {
+                if(!_hasResolvedHashKeyPropertyName) 
+                {
+                    var hashKeyProperty = TableEntityType
+                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(property => 
+                            property
+                                .GetCustomAttributes(typeof(DynamoDBHashKeyAttribute), true)
+                                .SingleOrDefault() != null
+                        ).Single();
+
+                    _hashKeyPropertyName = hashKeyProperty.Name;
+                }
+
+                return _hashKeyPropertyName;
+            }
+        }
 
         #endregion
 
@@ -172,6 +225,26 @@ namespace Linq2DynamoDb.DataContext
         /// Predefined hash key value
         /// </summary>
         protected readonly Primitive HashKeyValue;
+
+        /// <summary>
+        /// Have we resolved the property with the [DynamoDBVersion] attribute?
+        /// </summary>
+        private bool _hasResolvedVersionPropertyName;
+
+        /// <summary>
+        /// Cache the name of the property with the [DynamoDBVersion] attribute
+        /// </summary>
+        private string _versionPropertyName;
+
+        /// <summary>
+        /// Have we resolved the property with the [DynamoDBHashKey] attribute?
+        /// </summary>
+        private bool _hasResolvedHashKeyPropertyName;
+
+        /// <summary>
+        /// Cache the name of the propety with the [DynamoDBHashKey] attribute
+        /// </summary>
+        private string _hashKeyPropertyName;
 
         private IEntityKeyGetter _entityKeyGetter;
         /// <summary>

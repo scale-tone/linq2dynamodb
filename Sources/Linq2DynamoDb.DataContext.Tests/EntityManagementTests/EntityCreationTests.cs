@@ -33,17 +33,18 @@ namespace Linq2DynamoDb.DataContext.Tests.EntityManagementTests
             Assert.IsNotNull(storedBook);
         }
 
-        [Ignore("This behavior is currently expected. SubmitChanges() uses DocumentBatchWrite, which only supports PUT operations, which by default replaces existing entities")]
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "cannot be added, because entity with that key already exists", MatchType = MessageMatch.Contains)]
+        [ExpectedException(typeof(AggregateException))]
         public void DataContext_EntityCreation_ThrowsExceptionWhenEntityAlreadyExistsInDynamoDbButWasNeverQueriedInCurrentContext()
         {
-            var book = BooksHelper.CreateBook(popularityRating: Book.Popularity.Average);
+            var persistedBook = BooksHelper.CreateBook(popularityRating: Book.Popularity.Average);
 
-            book.PopularityRating = Book.Popularity.High;
+            var bookCopy = BooksHelper.CreateBook(name: persistedBook.Name, publishYear: persistedBook.PublishYear, persistToDynamoDb: false);
+
+            bookCopy.PopularityRating = Book.Popularity.High;
 
             var booksTable = this.Context.GetTable<Book>();
-            booksTable.InsertOnSubmit(book);
+            booksTable.InsertOnSubmit(bookCopy);
             this.Context.SubmitChanges();
         }
 
