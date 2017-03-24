@@ -99,7 +99,14 @@ namespace Linq2DynamoDb.DataContext
                 }
             }
 
-            this._removedEntities.Add(removedKey);
+            var entityWrapperToRemove = removedEntity is IEntityWrapper
+                    ? (IEntityWrapper)removedEntity
+                    : new EntityWrapper(removedEntity, this.ToDocumentConversionFunctor, this.EntityKeyGetter);
+
+            this._removedEntities.Add(
+                removedKey, 
+                entityWrapperToRemove
+            );
 
             // removing the entity from the list of loaded entities as well
             this._loadedEntities.Remove(removedKey);
@@ -126,19 +133,19 @@ namespace Linq2DynamoDb.DataContext
         internal Action<Exception> ThingsToDoUponSubmit;
 
         /// <summary>
-        /// Entities, loaded from DynamoDb
+        /// Entities that were loaded from DynamoDb or 
         /// </summary>
         private readonly Dictionary<EntityKey, IEntityWrapper> _loadedEntities = new Dictionary<EntityKey, IEntityWrapper>();
 
         /// <summary>
-        /// Entities, that were added locally
+        /// Entities to add
         /// </summary>
         private readonly List<EntityWrapper> _addedEntities = new List<EntityWrapper>();
 
         /// <summary>
         /// Keys of removed entities
         /// </summary>
-        private readonly HashSet<EntityKey> _removedEntities = new HashSet<EntityKey>();
+        private readonly Dictionary<EntityKey, IEntityWrapper> _removedEntities = new Dictionary<EntityKey, IEntityWrapper>();
 
         /// <summary>
         /// Implements converting objects into documents (caches everything it needs for that)
@@ -156,7 +163,7 @@ namespace Linq2DynamoDb.DataContext
         {
             var entitiesToAdd = new Dictionary<EntityKey, Document>();
             var entitiesToUpdate = new Dictionary<EntityKey, Document>();
-            var entitiesToRemove = new List<EntityKey>();
+            var entitiesToRemove = new Dictionary<EntityKey, Document>();
 
             // all newly added (even already saved and not modified any more) entities
             var addedEntitiesDictionary = new Dictionary<EntityKey, IEntityWrapper>();
@@ -175,7 +182,7 @@ namespace Linq2DynamoDb.DataContext
                     var modifiedKey = this.EntityKeyGetter.GetKey(modifiedDoc);
 
                     // no need to modify the entity, if it was removed
-                    if (this._removedEntities.Contains(modifiedKey))
+                    if (this._removedEntities.ContainsKey(modifiedKey))
                     {
                         continue;
                     }
@@ -211,16 +218,16 @@ namespace Linq2DynamoDb.DataContext
                 }
 
                 // removing removed entities
-                foreach (var removedKey in this._removedEntities)
+                foreach (var removedKvp in this._removedEntities)
                 {
                     // if the entity was removed and then added anew - then it shouldn't be removed from the table
-                    if (addedEntitiesDictionary.ContainsKey(removedKey))
+                    if (addedEntitiesDictionary.ContainsKey(removedKvp.Key))
                     {
                         continue;
                     }
 
-                    this.Log("Removing entity with key {0}", removedKey);
-                    entitiesToRemove.Add(removedKey);
+                    this.Log("Removing entity with key {0}", removedKvp);
+                    entitiesToRemove.Add(removedKvp.Key, removedKvp.Value.AsDocument());
                 }
             }
             catch (Exception ex)
@@ -259,13 +266,15 @@ namespace Linq2DynamoDb.DataContext
                         // clearing the list of removed entities, as they should not be removed twice
                         this._removedEntities.Clear();
 
-                        // clearing IsDirty-flag on all newly added entities (even those, that are not dirty)
+                        // clearing IsDirty-flag on all newly added entities (even those, that are not dirty) 
+                        // and update the version attribute (if applicable)
                         foreach (var addedEntity in addedEntitiesDictionary.Values)
                         {
                             addedEntity.Commit();
                         }
 
                         // clearing IsDirty-flag on updated entities (even those, that are not dirty)
+                        // and update the version attribute (if applicable)
                         foreach (var updatedEntityWrapper in this._loadedEntities.Values)
                         {
                             updatedEntityWrapper.Commit();
@@ -360,30 +369,21 @@ namespace Linq2DynamoDb.DataContext
         /// <summary>
         /// Fills in and executes an update batch
         /// </summary>
-        private Task ExecuteUpdateBatchAsync(IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, ICollection<EntityKey> removedEntities)
+        private Task ExecuteUpdateBatchAsync(IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, IDictionary<EntityKey, Document> removedEntities)
         {
-            var batch = this.TableDefinition.CreateBatchWrite();
+            var dynamoDbUpdateTasks = AddEntriesAsync(addedEntities)
+                .Concat(AddEntriesAsync(modifiedEntities))
+                .Concat(DeleteEntitiesAsync(removedEntities))
+                .ToArray();
 
-            foreach (var key in addedEntities)
+            if (string.IsNullOrEmpty(VersionPropertyName)) 
             {
-                batch.AddDocumentToPut(key.Value);
-            }
-            foreach (var key in modifiedEntities)
-            {
-                batch.AddDocumentToPut(key.Value);
-            }
-            foreach (var key in removedEntities)
-            {
-                batch.AddKeyToDelete(this.EntityKeyGetter.GetKeyDictionary(key));
+                // Only update the cache in a separate thread if there is no Version Property
+                this.Cache.UpdateCacheAndIndexes(addedEntities, modifiedEntities, removedEntities.Keys);
             }
 
-            // Updating cache in current thread and DynamoDb in a separate thread
-            var dynamoDbUpdateTask = batch.ExecuteAsync();
 
-            // this should never throw any exceptions
-            this.Cache.UpdateCacheAndIndexes(addedEntities, modifiedEntities, removedEntities);
-
-            return dynamoDbUpdateTask.ContinueWith
+            return Task.WhenAll(dynamoDbUpdateTasks).ContinueWith
             (
                 updateTask =>
                 {
@@ -391,12 +391,96 @@ namespace Linq2DynamoDb.DataContext
                     {
                         // If the update failed - then removing all traces of modified entities from cache,
                         // as the update might partially succeed (in that case some of entities in cache might become stale)
-                        this.Cache.RemoveEntities(addedEntities.Keys.Union(modifiedEntities.Keys).Union(removedEntities));
+                        this.Cache.RemoveEntities(addedEntities.Keys.Union(modifiedEntities.Keys).Union(removedEntities.Keys));
 
                         throw updateTask.Exception;
                     }
+
+                    if (!string.IsNullOrEmpty(VersionPropertyName))
+                    {
+                        // Update the cache if there is a Version Property. Version properties change 
+                        // during insertion/updating so we want to have the latest values for versions 
+                        // of added and modified entities. 
+                        this.Cache.UpdateCacheAndIndexes(addedEntities, modifiedEntities, removedEntities.Keys);
+                    }
                 }
             );
+        }
+
+        /// <summary>
+        /// Performs create/update operations with DynamoDB, respecting the [DynamoDBVersion] attribute if present
+        /// </summary>
+        /// <remarks>
+        /// If the entity is new (Version property has not been set) set the version property 0. If 
+        /// updating an existing entity increment the Version property by 1.
+        /// </remarks>
+        /// <param name="entitiesToAdd">Dictionary of entity keys and documents to add/update</param>
+        /// <returns>An IEnumerable containing one task for each entity to add or update.</returns>
+        private IEnumerable<Task> AddEntriesAsync(IDictionary<EntityKey, Document> entitiesToAdd) 
+        {
+            return entitiesToAdd
+                .Values
+                .Select(entry => {
+                    var putConfiguration = new PutItemOperationConfig();
+                    if (!string.IsNullOrEmpty(VersionPropertyName)) 
+                    {
+                        if (entry[VersionPropertyName] != null && 
+                            entry[VersionPropertyName].ToPrimitive(typeof(object)).Value == null)
+                        {
+                            entry[VersionPropertyName] = 0;
+
+                            putConfiguration.ConditionalExpression = new Expression() 
+                            {
+                                ExpressionStatement = $"attribute_not_exists(#key)",
+                                ExpressionAttributeNames = new Dictionary<string, string>
+                                {
+                                    { "#key", HashKeyPropetyName }
+                                }
+                            };
+                        }
+                        else
+                        {
+                            putConfiguration.Expected = new Document(new Dictionary<string, DynamoDBEntry>()
+                            {
+                                { VersionPropertyName, entry[VersionPropertyName] }
+                            });
+
+                            // TODO: We assume that the Version is an int here but it could be 
+                            // any numeric (signed or unsigned) so we may overflow or lose precision when 
+                            // converting or incrementing. This isn't strcitly a problem for optimstic locking 
+                            // as long as the verison number is different from the fetched version number.
+                            entry[VersionPropertyName] = (entry[VersionPropertyName].AsInt() + 1);
+                        }
+                    }
+
+                    return TableDefinition.PutItemAsync(entry, putConfiguration);
+                });    
+        }
+
+
+        /// <summary>
+        /// Performs Delete for entitites on DynamoDB, respecting the [DynamoDBVersion] attribute if present
+        /// </summary>
+        /// <param name="removedEntities">Dictionary of entity keys and documents to remove</param>
+        /// <returns>An IEnumerable containing one task for each entity to add or update.</returns>
+        private IEnumerable<Task> DeleteEntitiesAsync(IDictionary<EntityKey, Document> removedEntities) 
+        {
+            return removedEntities
+                .Select(entry => {
+                    var deleteConfiguration = new DeleteItemOperationConfig();
+                    if (!string.IsNullOrEmpty(VersionPropertyName)) 
+                    {
+                        deleteConfiguration.Expected = new Document(new Dictionary<string, DynamoDBEntry>() 
+                        {
+                            { VersionPropertyName, entry.Value[VersionPropertyName] }
+                        });
+                    }
+
+                    return TableDefinition.DeleteItemAsync(
+                        this.EntityKeyGetter.GetKeyDictionary(entry.Key),
+                        deleteConfiguration
+                    );
+                });
         }
 
 

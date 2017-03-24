@@ -7,5 +7,6 @@ namespace Linq2DynamoDb.DataContext
         object Entity { get; }
         Document GetDocumentIfDirty();
         void Commit();
+        Document AsDocument();
     }
 }

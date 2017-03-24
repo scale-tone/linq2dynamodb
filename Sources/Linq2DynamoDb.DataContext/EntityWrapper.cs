@@ -2,6 +2,8 @@
 using System.Linq;
 using Amazon.DynamoDBv2.DocumentModel;
 using Linq2DynamoDb.DataContext.Utils;
+using System.Reflection;
+using Amazon.DynamoDBv2.DataModel;
 
 namespace Linq2DynamoDb.DataContext
 {
@@ -13,6 +15,31 @@ namespace Linq2DynamoDb.DataContext
         private readonly Func<object, Document> _conversionFunctor; 
         private readonly IEntityKeyGetter _keyGetter;
         private Document _doc, _newDoc;
+
+        private PropertyInfo _entityVersionNumberProperty;
+        private bool _hasResolvedEntityVersionNumberProperty;
+
+        /// <summary>
+        /// Gets PropertyInfo for the entity's property that has [DynamoDBVersion] 
+        /// attribute or returns null if there is none.
+        /// </summary>
+        private PropertyInfo EntityVersionNumberProperty {
+            get {
+                if (!_hasResolvedEntityVersionNumberProperty) {
+                    _entityVersionNumberProperty = Entity
+                        .GetType()
+                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(property =>
+                            property
+                                .GetCustomAttributes(typeof(DynamoDBVersionAttribute), true)
+                                .SingleOrDefault() != null
+                        ).SingleOrDefault();
+
+                    _hasResolvedEntityVersionNumberProperty = true;
+                }
+                return _entityVersionNumberProperty;
+            }
+        }
 
         internal EntityWrapper(object entity, Func<object, Document> conversionFunctor, IEntityKeyGetter keyGetter)
         {
@@ -38,6 +65,8 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         internal bool IsCommited { get; private set; }
 
+        public Document AsDocument() {  return this._conversionFunctor(this.Entity); }
+
         /// <summary>
         /// Returns a new document, if the entity was modified since the last call to this method.
         /// Otherwise returns null.
@@ -45,7 +74,7 @@ namespace Linq2DynamoDb.DataContext
         /// <returns></returns>
         public Document GetDocumentIfDirty()
         {
-            this._newDoc = this._conversionFunctor(this.Entity);
+            this._newDoc = AsDocument();
 
             if (this._doc == null)
             {
@@ -101,7 +130,26 @@ namespace Linq2DynamoDb.DataContext
         {
             this._doc = this._newDoc;
             this._newDoc = null;
+            this.UpdateEntityVersionNumber();
             this.IsCommited = true;
+        }
+
+        /// <summary>
+        /// Sets the value of the Entity's propety that has the DynamoDBVersionAttribute to 
+        /// the value in _doc. When adding/updating the document the version number will
+        /// change in the _doc on the way to DynamoDB 
+        /// </summary>
+        private void UpdateEntityVersionNumber() 
+        {
+            if (EntityVersionNumberProperty == default(PropertyInfo))
+            {
+                return;
+            }
+
+            EntityVersionNumberProperty.SetValue(
+                Entity,
+                this._doc[EntityVersionNumberProperty.Name].ToObject(EntityVersionNumberProperty.PropertyType)
+            );
         }
 
         #region Redirecting Equals() and GetHashCode() to the underlying entity

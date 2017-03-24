@@ -131,6 +131,8 @@ namespace Linq2DynamoDb.DataContext
 
         public object Entity { get { return this.GetTransparentProxy(); } }
 
+        public Document AsDocument() { return _document; }
+
         public void Commit() {}
     }
 }

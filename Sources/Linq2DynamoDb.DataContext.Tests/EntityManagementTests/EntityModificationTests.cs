@@ -1,7 +1,9 @@
 ﻿using Linq2DynamoDb.DataContext.Tests.Entities;
 using Linq2DynamoDb.DataContext.Tests.Helpers;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Linq2DynamoDb.DataContext.Tests.EntityManagementTests
 {
@@ -50,28 +52,7 @@ namespace Linq2DynamoDb.DataContext.Tests.EntityManagementTests
             
             CollectionAssert.AreEquivalent(storedBook.RentingHistory, storedBookAfterModification.RentingHistory);
         }
-
-        [Ignore("This behavior is currently expected. SubmitChanges() uses DocumentBatchWrite, which only supports PUT operations with default 'replace' behavior")]
-        [Test]
-        public void DataContext_EntityModification_UpdateShouldNotAffectFieldsModifiedFromOutside()
-        {
-            var book = BooksHelper.CreateBook(popularityRating: Book.Popularity.Average, persistToDynamoDb: false);
-
-            var booksTable = this.Context.GetTable<Book>();
-            booksTable.InsertOnSubmit(book);
-            this.Context.SubmitChanges();
-
-            // Update record from outside of DataTable
-            BooksHelper.CreateBook(book.Name, book.PublishYear, numPages: 15);
-
-            book.PopularityRating = Book.Popularity.High;
-            this.Context.SubmitChanges();
-
-            var storedBook = booksTable.Find(book.Name, book.PublishYear);
-            Assert.AreEqual(book.PopularityRating, storedBook.PopularityRating, "Record was not updated");
-            Assert.AreEqual(book.NumPages, 15, "Update has erased changes from outside");
-        }
-
+        
         [Test]
         public void DataContext_UpdateEntity_UpdatesRecordWhenOldRecordIsNull()
         {
