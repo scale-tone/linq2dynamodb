@@ -1,4 +1,5 @@
-﻿using Linq2DynamoDb.DataContext.Tests.Entities;
+﻿using System.Linq;
+using Linq2DynamoDb.DataContext.Tests.Entities;
 using Linq2DynamoDb.DataContext.Tests.Helpers;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -16,6 +17,29 @@ namespace Linq2DynamoDb.DataContext.Tests.EntityManagementTests
         public override void TearDown()
         {
         }
+
+
+        [Test]
+        public void DataContext_EntityModification_UpdatesManyEntities()
+        {
+            var bookRev1 = BooksHelper.CreateBook(publishYear: 0);
+
+            for(int i = 0; i < 200; i++)
+            {
+                BooksHelper.CreateBook(bookRev1.Name, i);
+            }
+
+            var query = Context.GetTable<Book>().Where(b => b.Name == bookRev1.Name);
+
+            foreach(var b in query)
+            {
+                b.Author = "scale-tone";
+            }
+
+            Context.SubmitChanges();
+        }
+
+
 
         [Test]
         public void DataContext_EntityModification_UpdatesRecordWithNewValues()

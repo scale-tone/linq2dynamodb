@@ -362,6 +362,7 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         private Task ExecuteUpdateBatchAsync(IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, ICollection<EntityKey> removedEntities)
         {
+/*
             var batch = this.TableDefinition.CreateBatchWrite();
 
             foreach (var key in addedEntities)
@@ -379,6 +380,24 @@ namespace Linq2DynamoDb.DataContext
 
             // Updating cache in current thread and DynamoDb in a separate thread
             var dynamoDbUpdateTask = batch.ExecuteAsync();
+*/
+
+            var tasks = new List<Task>();
+
+            foreach (var key in addedEntities)
+            {
+                tasks.Add(this.TableDefinition.PutItemAsync(key.Value));
+            }
+            foreach (var key in modifiedEntities)
+            {
+                tasks.Add(this.TableDefinition.PutItemAsync(key.Value));
+            }
+            foreach (var key in removedEntities)
+            {
+                tasks.Add(this.TableDefinition.DeleteItemAsync(this.EntityKeyGetter.GetKeyDictionary(key)));
+            }
+
+            var dynamoDbUpdateTask = Task.WhenAll(tasks);
 
             // this should never throw any exceptions
             this.Cache.UpdateCacheAndIndexes(addedEntities, modifiedEntities, removedEntities);
@@ -425,7 +444,7 @@ namespace Linq2DynamoDb.DataContext
                         "Table {0} has {1} key fields, but {2} key values was provided",
                         this.TableDefinition.TableName,
                         this.KeyNames.Length,
-                        keyValues.Length
+                        keyValuesList.Count
                     )
                 );
             }

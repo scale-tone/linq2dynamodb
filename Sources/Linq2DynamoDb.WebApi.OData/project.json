@@ -1,0 +1,30 @@
+﻿{
+  "title": "Linq2DynamoDb.WepApi.OData",
+  "description": "A set of extensions to Linq2DynamoDb.DataContext for use in ASP.Net WebApi projects.",
+  "copyright": "Copyright © 2017",
+  "authors": [ "linq2dynamodb" ],
+  "version": "1.0.0-*",
+  "packOptions": {
+    "owners": [ "linq2dynamodb" ],
+    "projectUrl": "https://github.com/scale-tone/linq2dynamodb/",
+    "iconUrl": "https://secure.gravatar.com/avatar/83392a88365261125361fa6ec95a3294",
+    "repository": { "url": "https://github.com/scale-tone/linq2dynamodb/" },
+    "summary": "A set of extensions to Linq2DynamoDb.DataContext for use in ASP.Net WebApi projects.",
+    "releaseNotes": "This initial release provides DynamoDbController class, which simplifies creating OData controllers on top of Linq2DynamoDb.DataContext.",
+    "tags": [ "Linq2DynamoDb", "AWS", "DynamoDb", "context", "caching", "LINQ", "ASP.NET", "WebApi", "OData" ]
+  },
+  "dependencies": {
+    "Linq2DynamoDb.DataContext": "2.3.0-*",
+    "Microsoft.AspNet.OData": "5.9.1"
+  },
+  "frameworks": {
+    "net462": {
+      "frameworkAssemblies": {
+        "System.Data.Services": "4.0.0.0",
+        "System.Web": "4.0.0.0",
+        "System.Web.Extensions": "4.0.0.0",
+        "System.Web.Services": "4.0.0.0"
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@
   "packOptions": {
     "owners": [ "linq2dynamodb" ],
     "projectUrl": "https://github.com/scale-tone/linq2dynamodb/",
+    "iconUrl": "https://secure.gravatar.com/avatar/83392a88365261125361fa6ec95a3294",
     "repository": { "url": "https://github.com/scale-tone/linq2dynamodb/" },
     "summary": "Implements caching in MemcacheD for Linq2DynamoDb.DataContext.",
     "releaseNotes": "Fixed nuget references.",
