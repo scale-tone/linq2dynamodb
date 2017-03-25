@@ -1,4 +1,5 @@
-# linq2dynamodb
+![LINQ2DynamoDb](https://raw.githubusercontent.com/scale-tone/linq2dynamodb/master/logo-with-text.png)
+
 A type-safe data context for AWS DynamoDB with LINQ and in-memory caching support. Allows to combine DynamoDB's durability with cache speed and read consistency
 
 [Nuget:](http://www.nuget.org/packages/Linq2DynamoDb.DataContext)
@@ -11,7 +12,7 @@ PM> Install-Package Linq2DynamoDb.AspNet.DataSource
 
 Sorry, the full documentation is still on [CodePlex](https://linq2dynamodb.codeplex.com/documentation).
 
-Please, also take a look at the series of posts ([one](https://www.linkedin.com/pulse/dynamodb-elasticache-linq2dynamodb-odata-theory-lepeshenkov), [two](https://www.linkedin.com/pulse/dynamodb-elasticache-linq2dynamodb-odata-practice-lepeshenkov), [three](https://www.linkedin.com/pulse/dynamodb-elasticache-linq2dynamodb-ionic-practice-lepeshenkov)) on LinkedIn.
+Please, also take a look at the series of posts ([one](https://scale-tone.github.io/2016/03/13/dynamodb-elasticache-linq2dynamodb-odata-theory), [two](https://scale-tone.github.io/2016/03/17/dynamodb-elasticache-linq2dynamodb-odata-practice), [three](https://scale-tone.github.io/2016/03/19/dynamodb-elasticache-linq2dynamodb-ionic-practice)) on LinkedIn.
 
 AWS DynamoDB is a cool, highly-available and highly-durable NoSQL database. Yet, because of it's throughput capacity restrictions, it might get:
 * unpredictably slow,
