@@ -21,15 +21,61 @@ namespace Linq2DynamoDb.WebApi.OData
     {
         #region ctors
 
-        public DynamoDbController(IAmazonDynamoDB client, object hashKeyValue, Func<ITableCache> cacheImplementationFactory)
+        /// <summary>
+        /// Initializes a new instance of the DynamoDbController class.
+        /// </summary>
+        /// <param name="client">IAmazonDynamoDB instance to be used to communicate with DynamoDB</param>
+        /// <param name="tableNamePrefix">A prefix to be added to table names. Allows to switch betweeen different environments.</param>
+        /// <param name="hashKeyValueFunc">A functor for getting a predefined value for the HashKey field. You can do some user authentication inside this functor and return the resulting userId.</param>
+        /// <param name="cacheImplementationFactory">A functor, that returns ITableCache implementation instance, which will be used for caching DynamoDB data.</param>
+        public DynamoDbController(IAmazonDynamoDB client, string tableNamePrefix, Func<object> hashKeyValueFunc, Func<ITableCache> cacheImplementationFactory)
         {
-            this._dataContext = new DataContext(client);
-            this._hashKeyValue = hashKeyValue;
+            this._dataContext = new DataContext(client, tableNamePrefix);
+            this._hashKeyValueFunc = hashKeyValueFunc;
             this._cacheImplementationFactory = cacheImplementationFactory;
         }
 
-        public DynamoDbController(IAmazonDynamoDB client, object hashKeyValue = null) : this(client, hashKeyValue, null)
+        /// <summary>
+        /// Initializes a new instance of the DynamoDbController class.
+        /// </summary>
+        /// <param name="client">IAmazonDynamoDB instance to be used to communicate with DynamoDB</param>
+        /// <param name="tableNamePrefix">A prefix to be added to table names. Allows to switch betweeen different environments.</param>
+        /// <param name="hashKeyValueFunc">A functor for getting a predefined value for the HashKey field. You can do some user authentication inside this functor and return the resulting userId.</param>
+        public DynamoDbController(IAmazonDynamoDB client, string tableNamePrefix, Func<object> hashKeyValueFunc = null) : this(client, tableNamePrefix, hashKeyValueFunc, null)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the DynamoDbController class.
+        /// </summary>
+        /// <param name="client">IAmazonDynamoDB instance to be used to communicate with DynamoDB</param>
+        /// <param name="tableNamePrefix">A prefix to be added to table names. Allows to switch betweeen different environments.</param>
+        /// <param name="cacheImplementationFactory">A functor, that returns ITableCache implementation instance, which will be used for caching DynamoDB data.</param>
+        public DynamoDbController(IAmazonDynamoDB client, string tableNamePrefix, Func<ITableCache> cacheImplementationFactory) : this(client, tableNamePrefix, null, cacheImplementationFactory)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the DynamoDbController class.
+        /// If a table name prefix is specified in config, it will be picked up automatically.
+        /// </summary>
+        /// <param name="client">IAmazonDynamoDB instance to be used to communicate with DynamoDB</param>
+        /// <param name="cacheImplementationFactory">A functor, that returns ITableCache implementation instance, which will be used for caching DynamoDB data.</param>
+        public DynamoDbController(IAmazonDynamoDB client, Func<ITableCache> cacheImplementationFactory) : this(client)
+        {
+            this._cacheImplementationFactory = cacheImplementationFactory;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the DynamoDbController class.
+        /// If a table name prefix is specified in config, it will be picked up automatically.
+        /// </summary>
+        /// <param name="client">IAmazonDynamoDB instance to be used to communicate with DynamoDB</param>
+        /// <param name="hashKeyValueFunc">A functor for getting a predefined value for the HashKey field. You can do some user authentication inside this functor and return the resulting userId.</param>
+        public DynamoDbController(IAmazonDynamoDB client, Func<object> hashKeyValueFunc = null)
+        {
+            this._dataContext = new DataContext(client);
+            this._hashKeyValueFunc = hashKeyValueFunc;
         }
 
         #endregion
@@ -137,7 +183,7 @@ namespace Linq2DynamoDb.WebApi.OData
 
         private readonly DataContext _dataContext;
 
-        private readonly object _hashKeyValue;
+        private readonly Func<object> _hashKeyValueFunc;
 
         private readonly Func<ITableCache> _cacheImplementationFactory;
 
@@ -147,7 +193,8 @@ namespace Linq2DynamoDb.WebApi.OData
 
         protected DataTable<TEntity> GetTable()
         {
-            return this._dataContext.GetTable<TEntity>(this._hashKeyValue, this._cacheImplementationFactory);
+            var hashKeyValue = this._hashKeyValueFunc == null ? null : this._hashKeyValueFunc();
+            return this._dataContext.GetTable<TEntity>(hashKeyValue, this._cacheImplementationFactory);
         }
 
         #endregion
