@@ -2,7 +2,7 @@
 using System.IdentityModel.Tokens;
 using System.Security.Claims;
 
-namespace MobileNotes.Web.Common
+namespace MobileNotes.OAuth
 {
     public abstract class JwtParser
     {

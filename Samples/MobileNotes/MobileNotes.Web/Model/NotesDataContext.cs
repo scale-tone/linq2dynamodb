@@ -5,7 +5,8 @@ using Amazon.DynamoDBv2;
 using Enyim.Caching;
 using Linq2DynamoDb.DataContext;
 using Linq2DynamoDb.DataContext.Caching.MemcacheD;
-using MobileNotes.Web.Common;
+using MobileNotes.OAuth;
+using System.Data.Services;
 
 namespace MobileNotes.Web.Model
 {
@@ -24,7 +25,16 @@ namespace MobileNotes.Web.Model
             get
             {
                 // restricting access to only authenticated users and providing them access to only their own notes
-                string userId = AuthRoutine.GetUserIdFromAuthorizationHeader();
+                string userId;
+                try
+                {
+                    userId = AuthRoutine.GetUserIdFromAuthorizationHeader();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Throwing WCF Data Services-specific exception to return 401.
+                    throw new DataServiceException(401, "Unauthorized");
+                }
 
                 return this.GetTable<Note>
                 (

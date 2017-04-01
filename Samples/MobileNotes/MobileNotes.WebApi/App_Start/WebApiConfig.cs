@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Linq2DynamoDb.WebApi.OData;
+using MobileNotes.WebApi.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
@@ -9,16 +11,9 @@ namespace MobileNotes.WebApi
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
-
-            // Web API routes
-            config.MapHttpAttributeRoutes();
-
-            config.Routes.MapHttpRoute(
-                name: "DefaultApi",
-                routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
-            );
+            new Linq2DynamoDbModelBuilder()
+                .WithEntitySet<Note>("Notes")
+                .MapODataServiceRoute(config, "ODataRoute");
         }
     }
 }

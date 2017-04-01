@@ -297,11 +297,6 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Common\AuthConstants.cs" />
-    <Compile Include="Common\AuthRoutine.cs" />
-    <Compile Include="Common\GoogleJwtParser.cs" />
-    <Compile Include="Common\JwtParser.cs" />
-    <Compile Include="Common\LiveIdJwtParser.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -314,6 +309,12 @@
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\AWSSDK.DynamoDBv2.3.1.1.5\analyzers\dotnet\cs\AWSSDK.DynamoDBv2.CodeAnalysis.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MobileNotes.OAuth\MobileNotes.OAuth.csproj">
+      <Project>{7788cc62-d349-40fc-b0f5-71f02a94f071}</Project>
+      <Name>MobileNotes.OAuth</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

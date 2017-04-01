@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.ServiceModel.Security.Tokens;
 using System.Text;
 
-namespace MobileNotes.Web.Common
+namespace MobileNotes.OAuth
 {
     public class LiveIdJwtParser : JwtParser
     {

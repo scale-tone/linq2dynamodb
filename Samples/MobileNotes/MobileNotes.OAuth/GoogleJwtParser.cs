@@ -8,7 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web.Script.Serialization;
 
-namespace MobileNotes.Web.Common
+namespace MobileNotes.OAuth
 {
     public class GoogleJwtParser : JwtParser
     {

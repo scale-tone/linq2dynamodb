@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Data.Services;
 using System.Web;
 
-namespace MobileNotes.Web.Common
+namespace MobileNotes.OAuth
 {
     /// <summary>
     /// Implements authentication via Authorization header and JWT token
@@ -16,7 +15,7 @@ namespace MobileNotes.Web.Common
             var authHeader = HttpContext.Current.Request.Headers["Authorization"];
             if (string.IsNullOrEmpty(authHeader))
             {
-                throw new DataServiceException(401, "Unauthorized");
+                throw new UnauthorizedAccessException();
             }
 
             var authHeaderParts = authHeader.Split(' ');
@@ -27,7 +26,7 @@ namespace MobileNotes.Web.Common
                 (authHeaderParts[0] != AuthSchema)
             )
             {
-                throw new DataServiceException(401, "Unauthorized");
+                throw new UnauthorizedAccessException();
             }
 
             try
@@ -36,7 +35,7 @@ namespace MobileNotes.Web.Common
             }
             catch (Exception)
             {
-                throw new DataServiceException(401, "Unauthorized");
+                throw new UnauthorizedAccessException();
             }
         }
     }

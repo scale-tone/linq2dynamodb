@@ -2,7 +2,7 @@
 using System.IO;
 using System.Web;
 
-namespace MobileNotes.Web.Common
+namespace MobileNotes.OAuth
 {
     /// <summary>
     /// Represents the contents of AuthConstants.json file with OpenID Connect app credentials and other authentication constants
