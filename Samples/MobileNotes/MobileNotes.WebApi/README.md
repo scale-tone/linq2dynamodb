@@ -4,3 +4,4 @@ A sample [ASP.Net Web API OData](https://docs.microsoft.com/en-us/aspnet/web-api
 
 Supports [user authentication](https://github.com/scale-tone/linq2dynamodb/blob/master/Samples/MobileNotes/MobileNotes.OAuth/AuthRoutine.cs) via JWT tokens from [Google](https://github.com/scale-tone/linq2dynamodb/blob/master/Samples/MobileNotes/MobileNotes.OAuth/GoogleJwtParser.cs) and [Microsoft Live ID](https://github.com/scale-tone/linq2dynamodb/blob/master/Samples/MobileNotes/MobileNotes.OAuth/LiveIdJwtParser.cs).
 
+Please, also see [this blog post](https://scale-tone.github.io/2017/04/13/dynamodb-webapi-odata-practice).
