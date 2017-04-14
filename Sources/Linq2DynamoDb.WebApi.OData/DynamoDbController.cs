@@ -22,6 +22,39 @@ namespace Linq2DynamoDb.WebApi.OData
         #region ctors
 
         /// <summary>
+        /// Initializes a new instance of the DynamoDbController class from a pre-configured Linq2DynamoDb.DataContext instance.
+        /// </summary>
+        /// <param name="dataContext">The pre-configured instance of DataContext</param>
+        /// <param name="hashKeyValueFunc">A functor for getting a predefined value for the HashKey field. You can do some user authentication inside this functor and return the resulting userId.</param>
+        /// <param name="cacheImplementationFactory">A functor, that returns ITableCache implementation instance, which will be used for caching DynamoDB data.</param>
+        public DynamoDbController(DataContext dataContext, Func<object> hashKeyValueFunc, Func<ITableCache> cacheImplementationFactory)
+        {
+            this._dataContext = dataContext;
+            this._hashKeyValueFunc = hashKeyValueFunc;
+            this._cacheImplementationFactory = cacheImplementationFactory;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the DynamoDbController class from a pre-configured Linq2DynamoDb.DataContext instance.
+        /// </summary>
+        /// <param name="dataContext">The pre-configured instance of DataContext</param>
+        /// <param name="hashKeyValueFunc">A functor for getting a predefined value for the HashKey field. You can do some user authentication inside this functor and return the resulting userId.</param>
+        public DynamoDbController(DataContext dataContext, Func<object> hashKeyValueFunc)
+        {
+            this._dataContext = dataContext;
+            this._hashKeyValueFunc = hashKeyValueFunc;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the DynamoDbController class from a pre-configured Linq2DynamoDb.DataContext instance.
+        /// </summary>
+        /// <param name="dataContext">The pre-configured instance of DataContext</param>
+        public DynamoDbController(DataContext dataContext)
+        {
+            this._dataContext = dataContext;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the DynamoDbController class.
         /// </summary>
         /// <param name="client">IAmazonDynamoDB instance to be used to communicate with DynamoDB</param>
