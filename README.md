@@ -27,7 +27,7 @@ LINQ2DynamoDB tries to address all of those concerns.
 
 A very common scenario for using DynamoDB is storing some kind of user profiles or other user-specific data in one big table with HashKey set to some UserID. Linq2DynamoDb.DataContext gracefully supports this case by allowing you to specify a predefined HashKey value for the entities. Then your DataContext instance represents (and correctly caches) a set of entities for a specific user (or whatever).
 
-And now Linq2DynamoDb.DataContext [also supports OData](https://linq2dynamodb.codeplex.com/wikipage?title=Exposing%20LINQ2DynamoDB.DataContext%20as%20an%20OData-endpoint)!
+And now Linq2DynamoDb.DataContext [also supports OData](https://scale-tone.github.io/2017/04/13/dynamodb-webapi-odata-practice)!
 
 Currently, Linq2DynamoDb.DataContext is itself based on AWS SDK's Amazon.DynamoDBv2.DocumentModel namespace and uses Document's change-tracking mechanism. We'll try to slowly move away from it in future.
 
