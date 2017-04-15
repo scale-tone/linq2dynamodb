@@ -9,9 +9,6 @@ PM> Install-Package Linq2DynamoDb.DataContext.Caching.MemcacheD
 PM> Install-Package Linq2DynamoDb.DataContext.Caching.Redis
 PM> Install-Package Linq2DynamoDb.AspNet.DataSource
 ```
-
-Sorry, the full documentation is still on [CodePlex](https://linq2dynamodb.codeplex.com/documentation).
-
 Please, also take a look at the series of posts ([one](https://scale-tone.github.io/2016/03/13/dynamodb-elasticache-linq2dynamodb-odata-theory), [two](https://scale-tone.github.io/2016/03/17/dynamodb-elasticache-linq2dynamodb-odata-practice), [three](https://scale-tone.github.io/2016/03/19/dynamodb-elasticache-linq2dynamodb-ionic-practice), [four](https://scale-tone.github.io/2017/04/13/dynamodb-webapi-odata-practice)).
 
 AWS DynamoDB is a cool, highly-available and highly-durable NoSQL database. Yet, because of it's throughput capacity restrictions, it might get:
