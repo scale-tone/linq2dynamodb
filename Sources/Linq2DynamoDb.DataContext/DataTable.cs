@@ -40,7 +40,7 @@ namespace Linq2DynamoDb.DataContext
         public TEntity Find(params object[] keyValues)
         {
             var enumerableResult = (IEnumerable<TEntity>)this._tableWrapper.Find(keyValues);
-            return enumerableResult.Single();
+            return enumerableResult.FirstOrDefault();
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Linq2DynamoDb.DataContext
         public async Task<TEntity> FindAsync(params object[] keyValues)
         {
             var enumerableResult = (IEnumerable<TEntity>) await this._tableWrapper.FindAsync(keyValues);
-            return enumerableResult.Single();
+            return enumerableResult.FirstOrDefault();
         }
 
         /// <summary>
