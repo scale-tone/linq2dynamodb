@@ -21,8 +21,7 @@ namespace Linq2DynamoDb.DataContext.Caching.Redis
         {
             DateParseHandling = DateParseHandling.None,
             TypeNameHandling = TypeNameHandling.All,
-            // this is required for normal .Net 
-            // ContractResolver = new DefaultContractResolver { IgnoreSerializableInterface = true }
+            ContractResolver = new DefaultContractResolver { IgnoreSerializableInterface = true }
         };
 #endif
 
