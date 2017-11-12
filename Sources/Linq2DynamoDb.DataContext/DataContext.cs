@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
 
@@ -125,7 +126,7 @@ namespace Linq2DynamoDb.DataContext
             var tableWrapper = TableWrappers.GetOrAdd
             (
                 new Tuple<Type, object>(entityType, hashKeyValue),
-                t =>
+                t => new Lazy<TableDefinitionWrapper>(() =>
                 {
                     // if cache is not provided, then passing a fake implementation
                     var cacheImplementation =
@@ -145,8 +146,8 @@ namespace Linq2DynamoDb.DataContext
                     );
                     wrapper.OnLog += this.OnLog;
                     return wrapper;
-                }
-            );
+                }, LazyThreadSafetyMode.ExecutionAndPublication)
+            ).Value;
 
             if (tableWrapper.TableDefinition != tableDefinition)
             {
@@ -172,7 +173,7 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         public void SubmitChanges()
         {
-            Task.WaitAll(this.TableWrappers.Values.Select(t => t.SubmitChangesAsync()).ToArray());
+            Task.WaitAll(this.TableWrappers.Values.Select(t => t.Value.SubmitChangesAsync()).ToArray());
         }
 
         /// <summary>
@@ -202,7 +203,7 @@ namespace Linq2DynamoDb.DataContext
         /// <summary>
         /// TableDefinitionWrapper instances for each entity type and HashKey value (if specified)
         /// </summary>
-        protected internal readonly ConcurrentDictionary<Tuple<Type, object>, TableDefinitionWrapper> TableWrappers = new ConcurrentDictionary<Tuple<Type, object>, TableDefinitionWrapper>();
+        protected internal readonly ConcurrentDictionary<Tuple<Type, object>, Lazy<TableDefinitionWrapper>> TableWrappers = new ConcurrentDictionary<Tuple<Type, object>, Lazy<TableDefinitionWrapper>>();
 
         /// <summary>
         /// A fake cache implementation, which does no caching
@@ -210,7 +211,7 @@ namespace Linq2DynamoDb.DataContext
         private static readonly ITableCache FakeCacheImplementation = new FakeTableCache(); 
 
 
-        private class CachedTableDefinitions : ConcurrentDictionary<string, Table>
+        private class CachedTableDefinitions : ConcurrentDictionary<string, Lazy<Table>>
         {
             /// <summary>
             /// Instead of storing a reference to DynamoDBClient we're storing it's HashCode
@@ -227,6 +228,11 @@ namespace Linq2DynamoDb.DataContext
                 return this._dynamoDbClientHashCode == client.GetHashCode();
             }
         }
+
+        /// <summary>
+        /// Used to lock while updating the <see cref="_cachedTableDefinitions" /> field
+        /// </summary>
+        private static readonly object CacheTableDefinitionsLock = new object();
 
         /// <summary>
         /// Table objects are cached here per DynamoDBClient instance.
@@ -278,20 +284,28 @@ namespace Linq2DynamoDb.DataContext
                 throw new InvalidOperationException("An instance of AmazonDynamoDbClient was not provided. Use either a ctor, that takes AmazonDynamoDbClient instance or GetTable() method, that takes Table object");
             }
 
-            var cachedTableDefinitions = _cachedTableDefinitions;
             if
             (
-                (cachedTableDefinitions == null)
+                (_cachedTableDefinitions == null)
                 ||
-                (!cachedTableDefinitions.IsAssignedToThisClientInstance(this._client))
+                (!_cachedTableDefinitions.IsAssignedToThisClientInstance(this._client))
             )
             {
-                cachedTableDefinitions = new CachedTableDefinitions(this._client);
-                _cachedTableDefinitions = cachedTableDefinitions;
+                lock (CacheTableDefinitionsLock)
+                {
+                    if ((_cachedTableDefinitions == null)
+                        ||
+                        (!_cachedTableDefinitions.IsAssignedToThisClientInstance(this._client)))
+                    {
+                        _cachedTableDefinitions = new CachedTableDefinitions(this._client);
+                    }
+                }
             }
 
+            var cachedTableDefinitions = _cachedTableDefinitions;
+
             string tableName = this.GetTableNameForType(entityType);
-            return cachedTableDefinitions.GetOrAdd(tableName, name => Table.LoadTable(this._client, name));
+            return cachedTableDefinitions.GetOrAdd(tableName, name => new Lazy<Table>(() => Table.LoadTable(this._client, name), LazyThreadSafetyMode.ExecutionAndPublication)).Value;
         }
 
         #endregion
