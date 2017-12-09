@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Linq2DynamoDb.DataContext", "Linq2DynamoDb.DataContext\Linq2DynamoDb.DataContext.xproj", "{015AF07F-59A5-4876-ADD2-3410F32C213A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linq2DynamoDb.DataContext", "Linq2DynamoDb.DataContext\Linq2DynamoDb.DataContext.csproj", "{015AF07F-59A5-4876-ADD2-3410F32C213A}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Linq2DynamoDb.AspNet.DataSource", "Linq2DynamoDb.AspNet.DataSource\Linq2DynamoDb.AspNet.DataSource.xproj", "{B844A42E-6EDF-4546-A96C-833050324025}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linq2DynamoDb.AspNet.DataSource", "Linq2DynamoDb.AspNet.DataSource\Linq2DynamoDb.AspNet.DataSource.csproj", "{B844A42E-6EDF-4546-A96C-833050324025}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Linq2DynamoDb.DataContext.Caching.MemcacheD", "Linq2DynamoDb.DataContext.Caching.MemcacheD\Linq2DynamoDb.DataContext.Caching.MemcacheD.xproj", "{F28FCD6C-2CBC-4315-AA65-76F852883F0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linq2DynamoDb.DataContext.Caching.MemcacheD", "Linq2DynamoDb.DataContext.Caching.MemcacheD\Linq2DynamoDb.DataContext.Caching.MemcacheD.csproj", "{F28FCD6C-2CBC-4315-AA65-76F852883F0C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Linq2DynamoDb.DataContext.Caching.Redis", "Linq2DynamoDb.DataContext.Caching.Redis\Linq2DynamoDb.DataContext.Caching.Redis.xproj", "{55B76B42-CC0D-4523-B230-60C9C06D8C57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linq2DynamoDb.DataContext.Caching.Redis", "Linq2DynamoDb.DataContext.Caching.Redis\Linq2DynamoDb.DataContext.Caching.Redis.csproj", "{55B76B42-CC0D-4523-B230-60C9C06D8C57}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Linq2DynamoDb.DataContext.Tests", "Linq2DynamoDb.DataContext.Tests\Linq2DynamoDb.DataContext.Tests.xproj", "{196447F6-430D-4E4D-9A2D-866179E5F5F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linq2DynamoDb.DataContext.Tests", "Linq2DynamoDb.DataContext.Tests\Linq2DynamoDb.DataContext.Tests.csproj", "{196447F6-430D-4E4D-9A2D-866179E5F5F7}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Linq2DynamoDb.WebApi.OData", "Linq2DynamoDb.WebApi.OData\Linq2DynamoDb.WebApi.OData.xproj", "{A0C303AA-8F24-4863-9166-2C2FFCED701E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linq2DynamoDb.WebApi.OData", "Linq2DynamoDb.WebApi.OData\Linq2DynamoDb.WebApi.OData.csproj", "{A0C303AA-8F24-4863-9166-2C2FFCED701E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -208,5 +208,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1F10197B-4FF1-4E92-9BF3-ACCF35762F08}
 	EndGlobalSection
 EndGlobal

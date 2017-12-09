@@ -60,7 +60,7 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
 
         protected void VisitProjectionCall(Expression projectionBodyExp)
         {
-            var projectionResult = new ProjectionVisitor().ProjectColumns(projectionBodyExp);
+            var projectionResult = new ProjectionVisitor(this._tableEntityType).ProjectColumns(projectionBodyExp);
 
             this.TranslationResult.ProjectionFunc = projectionResult.ProjectionFunc;
             this.TranslationResult.AttributesToGet = projectionResult.AttributesToGet;

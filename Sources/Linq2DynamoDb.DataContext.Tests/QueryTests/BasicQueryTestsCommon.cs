@@ -167,7 +167,7 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
             var booksQuery = from record in bookTable where record.Name == book.Name select record;
             var storedBook = booksQuery.First();
 
-            var expectedSequence1 = string.Join(", ", book.ReviewsList.Select(r=>r.ToString()).OrderBy(s => s));
+            var expectedSequence1 = string.Join(", ", book.ReviewsList.Select(r => r.ToString()).OrderBy(s => s));
             var actualSequence1 = string.Join(", ", storedBook.ReviewsList.Select(r => r.ToString()).OrderBy(s => s));
             Assert.AreEqual(expectedSequence1, actualSequence1, "Complex object list properties are not equal");
         }
@@ -416,6 +416,42 @@ namespace Linq2DynamoDb.DataContext.Tests.QueryTests
             allBooks = query.ToListAsync().Result;
             Assert.AreEqual(DataSetLength, allBooks.Count);
         }
+
+	    [Test]
+	    public void DateContext_Query_ReturnsProjection()
+	    {
+	        var bookRev1 = BooksHelper.CreateBook(
+                numPages: 123,
+                lastRentTime: DateTime.Today,
+                popularityRating: Book.Popularity.AboveAverage,
+                filmsBasedOnBook: new Dictionary<string, TimeSpan> {{ "Avatar 12", TimeSpan.FromMinutes(9000) }},
+                publisher: new Book.PublisherDto { Title = "Avatar" }
+            );
+
+            var query = from b in Context.GetTable<Book>()
+	            where b.Name == bookRev1.Name && b.PublishYear == bookRev1.PublishYear
+	            select new {b.Author, b.NumPages, b.LastRentTime, b.PopularityRating, b.FilmsBasedOnBook, b.Publisher };
+
+	        var bookProjection = query.Single();
+
+	        Assert.AreEqual(bookRev1.Author, bookProjection.Author);
+	        Assert.AreEqual(bookRev1.NumPages, bookProjection.NumPages);
+	        Assert.AreEqual(bookRev1.LastRentTime, bookProjection.LastRentTime);
+	        Assert.AreEqual(bookRev1.PopularityRating, bookProjection.PopularityRating);
+	        Assert.AreEqual(bookRev1.FilmsBasedOnBook.Count, bookProjection.FilmsBasedOnBook.Count);
+	        Assert.AreEqual(bookRev1.Publisher.Title, bookProjection.Publisher.Title);
+	    }
+
+	    [Test]
+        [ExpectedException(typeof(InvalidOperationException))]
+	    public void DateContext_Query_ThrowsOnMultipleConditionsForTheSameField()
+	    {
+	        var query = from b in Context.GetTable<Book>()
+	            where b.PublishYear > 2000 && b.PublishYear < 3000
+                select b;
+
+	        query.ToArray();
+	    }
 
         [Test]
         public void DateContext_QueryWithFilterExpressionReturnsExpectedResults()

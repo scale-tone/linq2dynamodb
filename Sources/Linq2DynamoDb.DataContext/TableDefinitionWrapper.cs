@@ -362,26 +362,6 @@ namespace Linq2DynamoDb.DataContext
         /// </summary>
         private Task ExecuteUpdateBatchAsync(IDictionary<EntityKey, Document> addedEntities, IDictionary<EntityKey, Document> modifiedEntities, ICollection<EntityKey> removedEntities)
         {
-/*
-            var batch = this.TableDefinition.CreateBatchWrite();
-
-            foreach (var key in addedEntities)
-            {
-                batch.AddDocumentToPut(key.Value);
-            }
-            foreach (var key in modifiedEntities)
-            {
-                batch.AddDocumentToPut(key.Value);
-            }
-            foreach (var key in removedEntities)
-            {
-                batch.AddKeyToDelete(this.EntityKeyGetter.GetKeyDictionary(key));
-            }
-
-            // Updating cache in current thread and DynamoDb in a separate thread
-            var dynamoDbUpdateTask = batch.ExecuteAsync();
-*/
-
             var tasks = new List<Task>();
 
             foreach (var key in addedEntities)

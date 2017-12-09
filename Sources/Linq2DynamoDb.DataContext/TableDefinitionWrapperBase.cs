@@ -229,12 +229,13 @@ namespace Linq2DynamoDb.DataContext
             this.ClearModifications();
 
             // if a HashKey value was explicitly specified
-            if (this.HashKeyValue != null)
+            string hashKeyName = this.TableDefinition.HashKeys[0];
+            if (this.HashKeyValue != null && !translationResult.Conditions.ContainsKey(hashKeyName))
             {
                 // then adding a condition for it
                 translationResult.Conditions.AddCondition
                     (
-                        this.TableDefinition.HashKeys[0],
+                        hashKeyName,
                         new SearchCondition(ScanOperator.Equal, this.HashKeyValue)
                     );
             }

@@ -53,6 +53,27 @@ namespace Linq2DynamoDb.DataContext
             return enumerableResult.Single();
         }
 
+
+        /// <summary>
+        /// Returns a single entity by it's keys or null if no such entity exists.
+        /// The keys should be passed in the right order: HashKey, then RangeKey (if any)
+        /// </summary>
+        public TEntity TryFind(params object[] keyValues)
+        {
+            var enumerableResult = (IEnumerable<TEntity>)this._tableWrapper.Find(keyValues);
+            return enumerableResult.SingleOrDefault();
+        }
+
+        /// <summary>
+        /// Asyncronously returns a single entity by it's keys or null if no such entity exists.
+        /// The keys should be passed in the right order: HashKey, then RangeKey (if any)
+        /// </summary>
+        public async Task<TEntity> TryFindAsync(params object[] keyValues)
+        {
+            var enumerableResult = (IEnumerable<TEntity>)await this._tableWrapper.FindAsync(keyValues);
+            return enumerableResult.SingleOrDefault();
+        }
+
         /// <summary>
         /// Acquires a table-wide named lock and returns a disposable object, that represents it.
         /// The cache implementation might throw a NotSupportedException.

@@ -1,148 +1,43 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <!--A workaround for the problem, that MSBuild prefers project.json over packages.config (when project.json file is present in project folder, older .csproj projects fail to build)-->
-    <ResolveNuGetPackages>false</ResolveNuGetPackages>
-  </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0E11B3F3-2347-4F2F-A469-2F6B1A0F1374}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Linq2DynamoDb.DataContext</RootNamespace>
+    <Description>A type-safe data context for AWS DynamoDB with LINQ and in-memory caching support. Allows to combine DynamoDB's durability with cache speed and read consistency. Translates LINQ queries into corresponding DynamoDB Get/Query/Scan operations (trying to choose the most effective one) and stores query results in an in-memory cache. When data is modified, it's saved both to DynamoDB and to cache.</Description>
+    <Copyright>Copyright © 2017</Copyright>
+    <AssemblyTitle>Linq2DynamoDb.DataContext</AssemblyTitle>
+    <VersionPrefix>2.4.0</VersionPrefix>
+    <Authors>linq2dynamodb</Authors>
+    <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
     <AssemblyName>Linq2DynamoDb.DataContext</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile />
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Samples\</SolutionDir>
+    <PackageId>Linq2DynamoDb.DataContext</PackageId>
+    <PackageTags>Linq2DynamoDb;AWS;DynamoDb;context;caching;LINQ;.Net</PackageTags>
+    <PackageReleaseNotes>OData $select support. TryFind() methods.</PackageReleaseNotes>
+    <PackageIconUrl>https://secure.gravatar.com/avatar/83392a88365261125361fa6ec95a3294</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/scale-tone/linq2dynamodb/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/scale-tone/linq2dynamodb/</RepositoryUrl>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.Core.3.3.8\lib\net45\AWSSDK.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="AWSSDK.DynamoDBv2, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.DynamoDBv2.3.3.2.1\lib\net45\AWSSDK.DynamoDBv2.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.Edm, Version=5.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Samples\packages\Microsoft.Data.Edm.5.0.2\lib\net40\Microsoft.Data.Edm.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.OData, Version=5.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Samples\packages\Microsoft.Data.OData.5.0.2\lib\net40\Microsoft.Data.OData.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.Services.Client, Version=5.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Samples\packages\Microsoft.Data.Services.Client.5.0.2\lib\net40\Microsoft.Data.Services.Client.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.2.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Spatial, Version=5.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Samples\packages\System.Spatial.5.0.2\lib\net40\System.Spatial.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Caching\CacheDictionaryOfAttributeValuesWrapper.cs" />
-    <Compile Include="Caching\CacheListOfAttributeValuesWrapper.cs" />
-    <Compile Include="Caching\CacheAttributeValueWrapper.cs" />
-    <Compile Include="Caching\CacheDocumentWrapper.cs" />
-    <Compile Include="Caching\CacheDynamoDbEntryWrapper.cs" />
-    <Compile Include="Caching\CachePrimitiveWrapper.cs" />
-    <Compile Include="CreateTableArgs.cs" />
-    <Compile Include="DataContextExtensions.cs" />
-    <Compile Include="ExpressionUtils\CustomizationHooks.cs" />
-    <Compile Include="ExpressionUtils\ScalarMethodsVisitor.cs" />
-    <Compile Include="ExpressionUtils\EntityTypeExtractionVisitor.cs" />
-    <Compile Include="ExpressionUtils\ExpressionVisitorBase.cs" />
-    <Compile Include="ExpressionUtils\QueryableMethodsVisitor.cs" />
-    <Compile Include="ExpressionUtils\WhereVisitor.cs" />
-    <Compile Include="GlobalSecondaryIndexDefinitions.cs" />
-    <Compile Include="IEntityWrapper.cs" />
-    <Compile Include="ITableCudOperations.cs" />
-    <Compile Include="LocalSecondaryIndexDefinitions.cs" />
-    <Compile Include="PrimitiveComparer.cs" />
-    <Compile Include="Readers\DocArrayReader.cs" />
-    <Compile Include="DataContext.cs" />
-    <Compile Include="EntityBase.cs" />
-    <Compile Include="EntityBindingList.cs" />
-    <Compile Include="EntityKey.cs" />
-    <Compile Include="EntityKeyGetter.cs" />
-    <Compile Include="EntityProxy.cs" />
-    <Compile Include="EntityWrapper.cs" />
-    <Compile Include="ExpressionUtils\ColumnProjectionResult.cs" />
-    <Compile Include="ExpressionUtils\ProjectionVisitor.cs" />
-    <Compile Include="ExpressionUtils\SubtreeEvaluationVisitor.cs" />
-    <Compile Include="ExpressionUtils\TranslationResult.cs" />
-    <Compile Include="Caching\FakeTableCache.cs" />
-    <Compile Include="Caching\IIndexCreator.cs" />
-    <Compile Include="Readers\ISupervisableEnumerable.cs" />
-    <Compile Include="Caching\ITableCache.cs" />
-    <Compile Include="Query.cs" />
-    <Compile Include="QueryProvider.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Readers\ReaderBase.cs" />
-    <Compile Include="SearchCondition.cs" />
-    <Compile Include="SearchConditions.cs" />
-    <Compile Include="Readers\SearchReader.cs" />
-    <Compile Include="DataTable.cs" />
-    <Compile Include="Readers\SingleDocReader.cs" />
-    <Compile Include="TableDefinitionWrapper.cs" />
-    <Compile Include="TableDefinitionWrapperBase.cs" />
-    <Compile Include="Utils\TranslationResultUtils.cs" />
-    <Compile Include="Utils\DynamoDbConversionUtils.cs" />
-    <Compile Include="Utils\GeneralUtils.cs" />
-    <Compile Include="Utils\ReflectionUtils.cs" />
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+    <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="DataContext.cd" />
-    <None Include="Linq2DynamoDb.DataContext.nuspec" />
-    <None Include="packages.config" />
-    <None Include="publishToNuget.ps1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\AWSSDK.DynamoDBv2.3.3.2.1\analyzers\dotnet\cs\AWSSDK.DynamoDBv2.CodeAnalysis.dll" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

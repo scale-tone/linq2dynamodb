@@ -345,6 +345,12 @@ namespace Linq2DynamoDb.DataContext.Utils
             //TODO: check for BETWEEN operator
             foreach (var condition in translationResult.Conditions.Flatten())
             {
+                bool conditionForThisFieldExistsAlready = scanFilter.ToConditions().ContainsKey(condition.Item1);
+                if (conditionForThisFieldExistsAlready)
+                {
+                    throw new InvalidOperationException(string.Format("Multiple conditions for the same {0} field are not supported by AWS SDK. As a workaround, please, use a custom FilterExpression.", condition.Item1));
+                }
+
                 if 
                 (
                     (condition.Item2.Values.Length == 1)

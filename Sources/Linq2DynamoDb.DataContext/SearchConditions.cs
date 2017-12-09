@@ -19,6 +19,9 @@ namespace Linq2DynamoDb.DataContext
     [Serializable]
     public class SearchConditions : Dictionary<string, List<SearchCondition>>
     {
+        /// <summary>
+        /// Required for deserialization to work properly, don't remove.
+        /// </summary>
         public SearchConditions()
         {
         }

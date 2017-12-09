@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Implements caching in MemcacheD (including AWS ElastiCache implementation) for Linq2DynamoDb.DataContext.</Description>
+    <Description>A set of extensions to Linq2DynamoDb.DataContext for use in ASP.Net WebApi projects.</Description>
     <Copyright>Copyright © 2017</Copyright>
-    <AssemblyTitle>Linq2DynamoDb.DataContext.Caching.MemcacheD</AssemblyTitle>
+    <AssemblyTitle>Linq2DynamoDb.WepApi.OData</AssemblyTitle>
     <VersionPrefix>2.4.0</VersionPrefix>
     <Authors>linq2dynamodb</Authors>
     <TargetFramework>net461</TargetFramework>
-    <AssemblyName>Linq2DynamoDb.DataContext.Caching.MemcacheD</AssemblyName>
-    <PackageId>Linq2DynamoDb.DataContext.Caching.MemcacheD</PackageId>
-    <PackageTags>Linq2DynamoDb;AWS;DynamoDb;caching;memcached;enyim</PackageTags>
+    <AssemblyName>Linq2DynamoDb.WebApi.OData</AssemblyName>
+    <PackageId>Linq2DynamoDb.WebApi.OData</PackageId>
+    <PackageTags>Linq2DynamoDb;AWS;DynamoDb;context;caching;LINQ;ASP.NET;WebApi;OData</PackageTags>
     <PackageReleaseNotes>OData $select support. TryFind() methods.</PackageReleaseNotes>
     <PackageIconUrl>https://secure.gravatar.com/avatar/83392a88365261125361fa6ec95a3294</PackageIconUrl>
     <PackageProjectUrl>https://github.com/scale-tone/linq2dynamodb/</PackageProjectUrl>
@@ -20,8 +20,6 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EnyimMemcached" Version="2.16.0" />
+    <PackageReference Include="Microsoft.AspNet.OData" Version="5.9.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">

@@ -470,7 +470,6 @@ namespace Linq2DynamoDb.DataContext.Utils
             return coll;
         }
 
-
         /// <summary>
         /// Fills an ICollection[T] with contents of DynamoDBList.
         /// </summary>
@@ -491,6 +490,5 @@ namespace Linq2DynamoDb.DataContext.Utils
         }
 
         #endregion
-
     }
 }

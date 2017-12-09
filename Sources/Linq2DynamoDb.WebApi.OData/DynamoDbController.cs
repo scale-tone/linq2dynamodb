@@ -126,12 +126,8 @@ namespace Linq2DynamoDb.WebApi.OData
                 return this.Ok(this.GetTable());
             }
 
-            TEntity result;
-            try
-            {
-                result = await this.GetTable().FindAsync(key);
-            }
-            catch (InvalidOperationException)
+            var result = await this.GetTable().TryFindAsync(key);
+            if (result == null)
             {
                 return this.NotFound();
             }
@@ -166,11 +162,12 @@ namespace Linq2DynamoDb.WebApi.OData
                 return this.BadRequest(ModelState);
             }
 
-            var entity = await this.GetTable().FindAsync(key);
+            var entity = await this.GetTable().TryFindAsync(key);
             if (entity == null)
             {
                 return this.NotFound();
             }
+
             product.Patch(entity);
             await this._dataContext.SubmitChangesAsync();
 
@@ -198,13 +195,13 @@ namespace Linq2DynamoDb.WebApi.OData
         /// </summary>
         public async Task<IHttpActionResult> Delete([FromODataUri] object key)
         {
-            var product = await this.GetTable().FindAsync(key);
-            if (product == null)
+            var entity = await this.GetTable().TryFindAsync(key);
+            if (entity == null)
             {
                 return this.NotFound();
             }
 
-            this.GetTable().RemoveOnSubmit(product);
+            this.GetTable().RemoveOnSubmit(entity);
             await this._dataContext.SubmitChangesAsync();
 
             return this.StatusCode(HttpStatusCode.NoContent);
