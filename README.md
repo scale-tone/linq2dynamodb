@@ -11,12 +11,12 @@ PM> Install-Package Linq2DynamoDb.AspNet.DataSource
 ```
 Please, also take a look at the series of posts ([one](https://scale-tone.github.io/2016/03/13/dynamodb-elasticache-linq2dynamodb-odata-theory), [two](https://scale-tone.github.io/2016/03/17/dynamodb-elasticache-linq2dynamodb-odata-practice), [three](https://scale-tone.github.io/2016/03/19/dynamodb-elasticache-linq2dynamodb-ionic-practice), [four](https://scale-tone.github.io/2017/04/13/dynamodb-webapi-odata-practice)).
 
-AWS DynamoDB is a cool, highly-available and highly-durable NoSQL database. Yet, because of it's throughput capacity restrictions, it might get:
+AWS DynamoDB is a cool, highly-available and highly-durable NoSQL database. Yet, because of its throughput capacity restrictions, it might get:
 * unpredictably slow,
 * unpredictably expensive.
-AWS SDK for .Net (via it's Amazon.DynamoDB.DataModel namespace) provides a cool type-safe way to store and retrieve .Net classes from/to DynamoDB. Yet:
+AWS SDK for .Net (via its Amazon.DynamoDB.DataModel namespace) provides a cool type-safe way to store and retrieve .Net classes from/to DynamoDB. Yet:
 * it's still not very .Net-friendly and doesn't fit well with some other common data technologies on .Net platform like LINQ and data binding,
-* it's objects cannot be directly cached in e.g. ElastiCache, because they're not serializable.
+* its objects cannot be directly cached in e.g. ElastiCache, because they're not serializable.
 
 LINQ2DynamoDB tries to address all of those concerns. 
 
