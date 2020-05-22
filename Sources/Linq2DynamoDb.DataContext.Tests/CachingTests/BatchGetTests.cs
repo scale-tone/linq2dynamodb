@@ -128,7 +128,7 @@ namespace Linq2DynamoDb.DataContext.Tests.CachingTests
         [Test]
         public void DataContext_HashKeyTable_BatchGetOperationIsUsed()
         {
-            var hashKeys = new List<string> {"C# for Dummies", "TurboPascal for Dummies"};
+            var hashKeys = new string[] { "C# for Dummies", "TurboPascal for Dummies" };
 
             // first from table
             var result1 = this.HashKeyTable.Where(b => hashKeys.Contains(b.Name)).ToDictionary(b => b.Name);

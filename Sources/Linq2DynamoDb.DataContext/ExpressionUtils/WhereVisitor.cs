@@ -157,10 +157,15 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
 
         private void VisitStaticMethodCall(MethodCallExpression methodCallExp)
         {
-            if(methodCallExp.Method.Name == "Contains")
+            if
+            (
+                (methodCallExp.Method.Name == "Contains") 
+                && 
+                (methodCallExp.Arguments.Count() == 2)
+            )
             {
                 this.VisitMember((MemberExpression)methodCallExp.Arguments[1]);
-                PrepareScanOperation((ConstantExpression)methodCallExp.Arguments[0]);
+                this.VisitArrayConstant((ConstantExpression)methodCallExp.Arguments[0]);
                 return;
             }
             throw new NotSupportedException(string.Format("The static method '{0}' is not supported", methodCallExp.Method.Name));
@@ -176,31 +181,23 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
             )
             {
                 this.VisitMember((MemberExpression)methodCallExp.Arguments[0]);
-                PrepareScanOperation((ConstantExpression)methodCallExp.Object);
+                this.VisitArrayConstant((ConstantExpression)methodCallExp.Object);
                 return;
             }
             throw new NotSupportedException(string.Format("The method '{0}' is not supported", methodCallExp.Method.Name));
         }
 
-        private void PrepareScanOperation(ConstantExpression listExp)
+        private void VisitArrayConstant(ConstantExpression constantExp)
         {
             this.ScanOperators.Add(ScanOperator.In);
 
-            Type elementType;
-            if(listExp.Type.GetTypeInfo().BaseType == typeof(Array))
-            {
-                elementType = listExp.Type.GetElementType();
-            }
-            else
-            {
-                elementType = listExp.Type.GetTypeInfo().GetGenericArguments().First();
-            }
+            var elementType = ReflectionUtils.GetElementType(constantExp.Type);
 
             this.FieldValues.Add
             (
                 (
                     from
-                        object v in (IEnumerable)listExp.Value
+                        object v in (IEnumerable)constantExp.Value
                     select
                         v.ToDynamoDbEntry(elementType)
                 )
