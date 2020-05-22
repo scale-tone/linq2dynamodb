@@ -157,6 +157,12 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
 
         private void VisitStaticMethodCall(MethodCallExpression methodCallExp)
         {
+            if(methodCallExp.Method.Name == "Contains")
+            {
+                this.VisitMember((MemberExpression)methodCallExp.Arguments[1]);
+                PrepareScanOperation((ConstantExpression)methodCallExp.Arguments[0]);
+                return;
+            }
             throw new NotSupportedException(string.Format("The static method '{0}' is not supported", methodCallExp.Method.Name));
         }
 
@@ -170,23 +176,36 @@ namespace Linq2DynamoDb.DataContext.ExpressionUtils
             )
             {
                 this.VisitMember((MemberExpression)methodCallExp.Arguments[0]);
-                this.ScanOperators.Add(ScanOperator.In);
-
-                var listExp = (ConstantExpression) methodCallExp.Object;
-                this.FieldValues.Add
-                (
-                    (
-                        from 
-                            object v in (IEnumerable)listExp.Value 
-                        select
-                            v.ToDynamoDbEntry(listExp.Type.GetTypeInfo().GetGenericArguments().First())
-                    )
-                    .ToArray()
-                );
-
+                PrepareScanOperation((ConstantExpression)methodCallExp.Object);
                 return;
             }
             throw new NotSupportedException(string.Format("The method '{0}' is not supported", methodCallExp.Method.Name));
+        }
+
+        private void PrepareScanOperation(ConstantExpression listExp)
+        {
+            this.ScanOperators.Add(ScanOperator.In);
+
+            Type elementType;
+            if(listExp.Type.GetTypeInfo().BaseType == typeof(Array))
+            {
+                elementType = listExp.Type.GetElementType();
+            }
+            else
+            {
+                elementType = listExp.Type.GetTypeInfo().GetGenericArguments().First();
+            }
+
+            this.FieldValues.Add
+            (
+                (
+                    from
+                        object v in (IEnumerable)listExp.Value
+                    select
+                        v.ToDynamoDbEntry(elementType)
+                )
+                .ToArray()
+            );
         }
 
         protected override Expression VisitConstant(ConstantExpression constantExp)
