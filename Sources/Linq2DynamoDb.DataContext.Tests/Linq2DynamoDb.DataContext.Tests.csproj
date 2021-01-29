@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.7" />
+    <PackageReference Include="log4net" Version="2.0.10" />
     <PackageReference Include="NUnit" Version="2.6.3" />
     <PackageReference Include="NUnitTestAdapter" Version="2.2.0" />
     <PackageReference Include="redis-64" Version="3.0.503" />
